@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Markdown指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            color: #111111;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            line-height: 1.55;
+            font-size: 16px;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        /* 标题区：纯粹黑白 */
+        h1, h2, h3, h4 {
+            font-weight: 600;
+            line-height: 1.3;
+            margin-top: 1.8em;
+            margin-bottom: 0.6em;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-top: 0.2em;
+            margin-bottom: 0.4em;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-top: 1.8em;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.25rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.4em;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 1.2em;
+            font-weight: 500;
+        }
+
+        p, li, blockquote, .note {
+            margin-bottom: 0.8em;
+        }
+
+        /* 链接：黑白，下划线朴素 */
+        a {
+            color: #111;
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+        }
+
+        a:hover {
+            text-decoration: none;
+            background-color: #f0f0f0;
+        }
+
+        /* 代码块 & 行内码：浅灰底，等宽 */
+        code {
+            font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+            font-size: 0.9em;
+            background: #f4f4f4;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: #1a1a1a;
+        }
+
+        pre {
+            background: #f6f6f6;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            border: none;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: inherit;
+            color: inherit;
+            border-radius: 0;
+        }
+
+        /* 表格极简边框 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #fafafa;
+            font-weight: 600;
+        }
+
+        /* 列表风格干净 */
+        ul, ol {
+            margin: 0.6rem 0 0.8rem 1.6rem;
+        }
+
+        li {
+            margin-bottom: 0.25rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.2rem;
+            margin-bottom: 0.2rem;
+        }
+
+        blockquote {
+            margin: 1rem 0;
+            padding-left: 1rem;
+            border-left: 3px solid #ccc;
+            color: #2c3e4e;
+            font-style: normal;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #eaecef;
+            margin: 1.8rem 0;
+        }
+
+        /* 任务列表模拟 (极简自定义样式) */
+        .task-list-sim {
+            list-style: none;
+            padding-left: 0;
+        }
+        .task-list-sim li {
+            margin-bottom: 0.3rem;
+        }
+        .task-check {
+            margin-right: 0.5rem;
+            font-family: monospace;
+        }
+
+        /* 脚注小字号 */
+        .footnote-ref {
+            font-size: 0.85rem;
+            vertical-align: super;
+        }
+
+        /* 保持极简无阴影无圆角过度 */
+        .color-tag-warning {
+            background: #f8f8f8;
+            padding: 0.8rem;
+            border-left: 2px solid #aaa;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* 首行无额外装饰 */
+        .container > :first-child {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Markdown指南</h1>
+
+    <!-- 1. 什么是 Markdown -->
+    <h2>1. 什么是 Markdown？</h2>
+    <p>Markdown 是一种轻量级标记语言（Lightweight Markup Language），由 John Gruber 和 Aaron Swartz 于 2004 年共同创建。它允许人们使用易读易写的纯文本格式编写文档，然后通过工具转换成结构化的 HTML（或其他格式）。</p>
+    <p>其核心目标是：<strong>“让书写者专注于内容而非排版”</strong>。即使不经过转换，纯文本形态的 Markdown 也应当具备良好的可读性，就像一封普通的纯文本邮件一样自然。</p>
+
+    <!-- 2. 基础语法 -->
+    <h2>2. 基础语法详解</h2>
+    <p>以下语法基本在所有 Markdown 解析器中通用。</p>
+
+    <h3>2.1 标题</h3>
+    <p>使用 <code>#</code> 号，数量对应 HTML 的 <code>&lt;h1&gt;</code> 到 <code>&lt;h6&gt;</code>。</p>
+    <pre><code># 一级标题
+## 二级标题
+### 三级标题
+#### 四级标题
+##### 五级标题
+###### 六级标题</code></pre>
+
+    <h3>2.2 强调</h3>
+    <p>删除线属于 GFM 扩展，但几乎被所有现代解析器支持。</p>
+    <table>
+        <thead>
+            <tr><th>语法</th><th>效果</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>*斜体*</code> 或 <code>_斜体_</code></td><td><em>斜体</em></td></tr>
+            <tr><td><code>**粗体**</code> 或 <code>__粗体__</code></td><td><strong>粗体</strong></td></tr>
+            <tr><td><code>***粗斜体***</code></td><td><strong><em>粗斜体</em></strong></td></tr>
+            <tr><td><code>~~删除线~~</code></td><td><del>删除线</del></td></tr>
+        </tbody>
+    </table>
+
+    <h3>2.3 段落与换行</h3>
+    <ul>
+        <li>直接连续的文字会自动合并成一段。</li>
+        <li>段落间用<strong>空一行</strong>分隔。</li>
+        <li>行末加两个空格（或使用 <code>&lt;br&gt;</code> 标签）可实现软换行（在最终输出中产生 <code>&lt;br&gt;</code>）。</li>
+    </ul>
+
+    <h3>2.4 列表</h3>
+    <p><strong>无序列表</strong>：使用 <code>-</code>、<code>*</code> 或 <code>+</code> 作为标记，后跟一个空格。</p>
+    <pre><code>- 项目一
+- 项目二
+  - 嵌套项目（缩进两个空格）</code></pre>
+    <p><strong>有序列表</strong>：数字 + 英文句点 + 空格。</p>
+    <pre><code>1. 第一步
+2. 第二步
+   1. 子步骤（缩进三个空格）</code></pre>
+
+    <h3>2.5 链接与图片</h3>
+    <p><strong>链接</strong>：<code>[显示文本](https://example.com "可选的标题")</code></p>
+    <p><strong>图片</strong>：在链接语法前加 <code>!</code>。<br>
+    <code>![替代文字](https://example.com/image.jpg "图片标题")</code></p>
+    <p><strong>参考式链接</strong>（方便复用）：</p>
+    <pre><code>[百度][baidu]
+[baidu]: https://www.baidu.com "百度搜索"</code></pre>
+    <p><strong>自动链接</strong>：用尖括号包裹 URL 或邮箱，如 <code>&lt;https://example.com&gt;</code>、<code>&lt;someone@example.com&gt;</code>。</p>
+
+    <h3>2.6 代码</h3>
+    <p><strong>行内代码</strong>：用反引号包裹。例如 <code>请使用 `print("hello")` 函数。</code></p>
+    <p><strong>代码块</strong>：用三个反引号（```）包裹，可指定语言以获得语法高亮（GFM）。</p>
+    <pre><code>```python
+def greet():
+    print("Hello, World!")
+```</code></pre>
+    <p>也可通过缩进四个空格或一个制表符创建代码块，但无法指定语言。</p>
+
+    <h3>2.7 引用</h3>
+    <p>使用 <code>&gt;</code> 符号，可嵌套。</p>
+    <pre><code>> 这是一段引用。
+> 
+> > 嵌套引用。</code></pre>
+
+    <h3>2.8 水平分隔线</h3>
+    <p>三个或更多的 <code>---</code>、<code>***</code>、<code>___</code>，需独占一行。</p>
+    <pre><code>---</code></pre>
+
+    <h3>2.9 转义字符</h3>
+    <p>使用反斜线 <code>\</code> 让特殊字符原样显示，如 <code>\*</code> 显示为 *。</p>
+
+    <!-- 3. 扩展语法 -->
+    <h2>3. 扩展语法（常见方言）</h2>
+    <p>以下为 GFM（GitHub Flavored Markdown）及许多现代解析器支持的增强功能。</p>
+
+    <h3>3.1 表格</h3>
+    <pre><code>| 左对齐 | 居中 | 右对齐 |
+| :--- | :---: | ---: |
+| 内容 | 内容 | 内容 |</code></pre>
+    <p>渲染效果：</p>
+    <table>
+        <thead><tr><th>左对齐</th><th>居中</th><th>右对齐</th></tr></thead>
+        <tbody><tr><td>内容</td><td style="text-align:center">内容</td><td style="text-align:right">内容</td></tr></tbody>
+    </table>
+
+    <h3>3.2 任务列表</h3>
+    <pre><code>- [x] 已完成任务
+- [ ] 未完成任务</code></pre>
+    <p>呈现样式（模拟）：</p>
+    <ul class="task-list-sim">
+        <li><span class="task-check">☑</span> 已完成任务</li>
+        <li><span class="task-check">☐</span> 未完成任务</li>
+    </ul>
+
+    <h3>3.3 脚注（部分平台支持）</h3>
+    <pre><code>这里有一个脚注[^1]。
+
+[^1]: 这是脚注的内容。</code></pre>
+
+    <h3>3.4 定义列表（部分扩展）</h3>
+    <pre><code>术语
+: 定义内容</code></pre>
+
+    <h3>3.5 数学公式</h3>
+    <p>需解析器支持（如 KaTeX、MathJax），通常用 <code>$...$</code> 行内，<code>$$...$$</code> 块级。</p>
+    <pre><code>当 $a \ne 0$ 时，方程有解：
+$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}$$</code></pre>
+
+    <h3>3.6 Emoji 表情</h3>
+    <p>GFM 支持短代码，如 <code>:smile:</code> 显示 😄，<code>:+1:</code> 显示 👍。也可直接复制粘贴 Unicode 表情。</p>
+
+    <h3>3.7 目录生成</h3>
+    <p>某些编辑器或解析器会根据标题自动生成 <code>[TOC]</code> 目录。</p>
+
+    <h3>3.8 缩写、上标/下标</h3>
+    <p>部分扩展提供，写法不一（如 Markdown Extra 的 <code>~下标~</code>、<code>^上标^</code>，或 Pandoc 的 <code>~下标~</code>、<code>^上标^</code>）。</p>
+
+    <!-- 4. 留言板中的 Markdown 用法（自定义标签） -->
+    <h2>4. 如何在留言板中使用 Markdown</h2>
+    <p><strong>编写建议</strong>：</p>
+    <ul>
+        <li>在“正文”输入框直接使用上述语法。</li>
+        <li>配合彩色圆点生成的 <code>[color=#rrggbb]文字[/color]</code> 标签，可先写颜色标签，再在内部嵌套 Markdown，例如：<br>
+        <code>[color=#ff0000]**红色的粗体祝福**[/color]</code>。</li>
+        <li>注意：颜色标签不是标准 Markdown，是自定义的，提交前会被 <code>convertColorTags()</code> 预处理成 HTML 后，再交给 Marked 解析，因此<strong>不要在颜色标签内使用换行或复杂语法</strong>。</li>
+        <li>支持的行内样式：粗体、斜体、删除线、行内代码、链接等，均可与颜色叠加。</li>
+        <li>代码块、表格、列表等块级元素同样支持，让你的留言更具表现力。</li>
+    </ul>
+    <div class="color-tag-warning">
+        ✅ 示例：<code>[color=#2c6e2c]**_绿色的强调_**[/color]</code>  → 预处理后能得到带颜色的加粗文本。
+    </div>
+
+    <!-- 5. 学习资源 -->
+    <h2>5. 学习资源推荐</h2>
+    <ul>
+        <li><a href="https://daringfireball.net/projects/markdown/syntax" target="_blank" rel="noopener noreferrer">官方语法说明 · Daring Fireball</a></li>
+        <li><a href="https://commonmark.org/" target="_blank" rel="noopener noreferrer">CommonMark 规范</a></li>
+        <li><a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax" target="_blank" rel="noopener noreferrer">GitHub Docs — Basic writing and formatting syntax</a></li>
+        <li><a href="https://www.markdowntutorial.com/" target="_blank" rel="noopener noreferrer">交互式教程</a></li>
+        <li>速查表：打印一份 Markdown Cheat Sheet 贴在桌旁，非常高效。</li>
+    </ul>
+
+    <hr>
+
+    <p style="font-size:0.85rem; color:#444;">Markdown 就像数字时代的“铅笔”——简单、可靠、无处不在。掌握它，你将拥有一种不受软件绑架的、长寿命的文本写作方式。</p>
+</body>
+</html>
