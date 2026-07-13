@@ -31,16 +31,36 @@ function authenticate($conn, $name, $password) {
     return false;
 }
 
-// GET：获取所有同学公开信息（包括生日）
+// GET：获取所有同学或单个同学
 if ($method === 'GET') {
-    $sql = "SELECT id, name, quote, avatar, birthday FROM classmates ORDER BY id";
-    $result = $conn->query($sql);
-    $classmates = [];
-    while ($row = $result->fetch_assoc()) {
-        $classmates[] = $row;
+    if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+        $id = intval($_GET['id']);
+        $stmt = $conn->prepare("SELECT * FROM classmates WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $data = $result->fetch_assoc();
+        if ($data) {
+            if ($data['birthday']) {
+                $data['birthday'] = date('Y-m-d', strtotime($data['birthday']));
+            }
+            echo json_encode($data);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "未找到该同学"]);
+        }
+        exit;
+    } else {
+        // 获取所有同学（公开信息，含扩展字段仅展示 nickname, avatar, quote, birthday 等）
+        $sql = "SELECT id, name, nickname, quote, avatar, birthday FROM classmates ORDER BY id";
+        $result = $conn->query($sql);
+        $classmates = [];
+        while ($row = $result->fetch_assoc()) {
+            $classmates[] = $row;
+        }
+        echo json_encode($classmates);
+        exit;
     }
-    echo json_encode($classmates);
-    exit;
 }
 
 // POST
@@ -58,11 +78,10 @@ if ($method === 'POST') {
         }
         $userId = authenticate($conn, $name, $password);
         if ($userId) {
-            $stmt = $conn->prepare("SELECT name, quote, avatar, birthday FROM classmates WHERE id = ?");
+            $stmt = $conn->prepare("SELECT * FROM classmates WHERE id = ?");
             $stmt->bind_param("i", $userId);
             $stmt->execute();
             $data = $stmt->get_result()->fetch_assoc();
-            // 格式化生日，方便前端使用
             if ($data['birthday']) {
                 $data['birthday'] = date('Y-m-d', strtotime($data['birthday']));
             }
@@ -74,13 +93,19 @@ if ($method === 'POST') {
         exit;
     }
 
-    // 更新个人信息（座右铭、头像、生日）
+    // 更新个人信息（座右铭、头像、生日 + 新字段）
     if ($action === 'update') {
         $name = trim($input['name'] ?? '');
         $password = trim($input['password'] ?? '');
         $quote = trim($input['quote'] ?? '');
         $avatar = trim($input['avatar'] ?? '');
-        $birthday = trim($input['birthday'] ?? '');  // 接收生日，格式 YYYY-MM-DD
+        $birthday = trim($input['birthday'] ?? '');
+        $nickname = trim($input['nickname'] ?? '');
+        $gender = trim($input['gender'] ?? '其他');
+        $hometown = trim($input['hometown'] ?? '');
+        $hobbies = trim($input['hobbies'] ?? '');
+        $skills = trim($input['skills'] ?? '');
+        $contact_info = trim($input['contact_info'] ?? '');
 
         if (empty($name) || empty($password)) {
             http_response_code(400);
@@ -94,19 +119,31 @@ if ($method === 'POST') {
             exit;
         }
 
-        // 验证生日格式（只允许 YYYY-MM-DD 或空）
+        // 验证性别
+        if (!in_array($gender, ['男','女','其他'])) {
+            $gender = '其他';
+        }
+        // 验证生日
         if ($birthday !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) {
             http_response_code(400);
             echo json_encode(["message" => "生日格式不正确"]);
             exit;
         }
-        // 如果生日为空字符串，存入 NULL
         if ($birthday === '') {
             $birthday = null;
         }
 
-        $stmt = $conn->prepare("UPDATE classmates SET quote = ?, avatar = ?, birthday = ? WHERE id = ?");
-        $stmt->bind_param("sssi", $quote, $avatar, $birthday, $userId);
+        $stmt = $conn->prepare("UPDATE classmates SET 
+            quote = ?, avatar = ?, birthday = ?, 
+            nickname = ?, gender = ?, hometown = ?, 
+            hobbies = ?, skills = ?, contact_info = ? 
+            WHERE id = ?");
+        $stmt->bind_param("sssssssssi", 
+            $quote, $avatar, $birthday, 
+            $nickname, $gender, $hometown, 
+            $hobbies, $skills, $contact_info, 
+            $userId
+        );
         if ($stmt->execute()) {
             echo json_encode(["message" => "更新成功"]);
         } else {

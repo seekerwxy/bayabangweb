@@ -63,8 +63,6 @@
         </div>
     </main>
 
-    </main>
-
     <footer class="footer">
         <span>献给最好的班级和班主任</span>
         <span class="footer-line">— 我已燃尽 —</span>
@@ -144,42 +142,42 @@
             grid.innerHTML = classmates.map(member => {
                 const placeholder = member.name.charAt(0);
                 const birthdayStr = formatBirthday(member.birthday);
-                // 确保 avatar 是有效且非空字符串
                 const avatar = (member.avatar && member.avatar !== 'null' && member.avatar.trim() !== '') 
                                 ? member.avatar.trim() 
                                 : '';
-                
-                // 调试：在浏览器控制台打印每个同学的名字和头像路径
-                console.log(member.name, '头像路径:', avatar);
 
+                // 卡片内容（含头像、姓名、昵称、生日、座右铭）
+                let cardContent = '';
                 if (avatar) {
-                    // 有头像：显示 img，隐藏占位符
-                    return `
-                        <div class="member-card">
-                            <div class="member-avatar">
-                                <img src="${escapeHtml(avatar)}" alt="${escapeHtml(member.name)}" loading="lazy"
-                                     onload="this.classList.add('loaded')"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <span class="member-avatar-placeholder" style="display:none;">${placeholder}</span>
-                            </div>
-                            <div class="member-name">${escapeHtml(member.name)}</div>
-                            <div class="member-birthday">${birthdayStr || '🎂'}</div>
-                            <div class="member-quote">${escapeHtml(member.quote || '')}</div>
+                    cardContent = `
+                        <div class="member-avatar">
+                            <img src="${escapeHtml(avatar)}" alt="${escapeHtml(member.name)}" loading="lazy"
+                                 onload="this.classList.add('loaded')"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <span class="member-avatar-placeholder" style="display:none;">${placeholder}</span>
                         </div>
                     `;
                 } else {
-                    // 无头像：只显示占位符
-                    return `
-                        <div class="member-card">
-                            <div class="member-avatar">
-                                <span class="member-avatar-placeholder">${placeholder}</span>
-                            </div>
-                            <div class="member-name">${escapeHtml(member.name)}</div>
-                            <div class="member-birthday">${birthdayStr || '🎂'}</div>
-                            <div class="member-quote">${escapeHtml(member.quote || '')}</div>
+                    cardContent = `
+                        <div class="member-avatar">
+                            <span class="member-avatar-placeholder">${placeholder}</span>
                         </div>
                     `;
                 }
+                // 增加昵称显示（如果有）
+                const nicknameHtml = member.nickname ? `<div class="member-nickname">${escapeHtml(member.nickname)}</div>` : '';
+
+                return `
+                    <a href="personal.php?id=${member.id}" class="member-link">
+                        <div class="member-card">
+                            ${cardContent}
+                            <div class="member-name">${escapeHtml(member.name)}</div>
+                            ${nicknameHtml}
+                            <div class="member-birthday">${birthdayStr || '🎂'}</div>
+                            <div class="member-quote">${escapeHtml(member.quote || '')}</div>
+                        </div>
+                    </a>
+                `;
             }).join('');
         }
 
