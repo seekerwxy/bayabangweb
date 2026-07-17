@@ -1,6 +1,7 @@
 <?php
 $currentPage = $currentPage ?? '';
 ?>
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <nav class="nav" id="navbar">
     <div class="nav-inner">
         <a href="index.php" class="nav-badge" title="班级首页" aria-label="班级首页">

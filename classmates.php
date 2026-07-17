@@ -25,7 +25,7 @@
                 <h3>编辑我的信息</h3>
                 <p>更新你的头像、生日、座右铭，让同学们更了解你！</p>
                 <a href="edit-profile.php" class="edit-profile-btn">去编辑 →</a>
-            </div>
+            </div> 
         </div>
     </main>
 
