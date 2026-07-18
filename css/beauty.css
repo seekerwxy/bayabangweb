@@ -79,10 +79,9 @@ body {
     border-radius: 50%;
     overflow: hidden;
     background-color: #2a2a2a;
-    border: 1px solid #3a3a3a;
+    border: 0px solid #3a3a3a;
     flex-shrink: 0;
     transition: border-color 0.2s;
-    /* margin-right 由各页面自行设置 */
 }
 .nav-badge:hover {
     border-color: #6a6a6a;
@@ -111,7 +110,6 @@ body {
     align-items: center;
     gap: 4px;
     list-style: none;
-    /* margin-left 由各页面自行设置 */
 }
 .nav-links a {
     display: block;
@@ -211,7 +209,7 @@ body {
     width: 100%;
 }
 
-/* 页面标题区（班主任、时光回忆馆、留言板共用） */
+/* 页面标题区 */
 .page-header {
     text-align: center;
     padding: 48px 20px 32px;
@@ -233,6 +231,8 @@ body {
     font-weight: 700;
     letter-spacing: 1px;
 }
+
+
 
 /* ========== 首页特有：Hero 区域 ========== */
 .hero {
@@ -307,7 +307,7 @@ body {
     display: none;
 }
 
-/* 首页特有：板块入口卡片 */
+/* 板块入口卡片 */
 .section-label {
     font-size: 13px;
     letter-spacing: 3px;
@@ -374,6 +374,7 @@ body {
 .card:hover .card-arrow {
     color: var(--text);
 }
+
 
 /* ========== 班主任页特有 ========== */
 .teacher-profile {
@@ -485,53 +486,408 @@ body {
     border-left: none;
     margin: 0;
 }
-.message-wall {
-    margin-bottom: 48px;
-}
-.message-wall h3 {
-    font-family: var(--font-serif);
-    font-size: 22px;
-    font-weight: 650;
-    text-align: center;
-    letter-spacing: 0.8px;
-    margin-bottom: 8px;
-}
-.message-wall .sub {
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    margin-bottom: 28px;
-}
-.messages-grid {
+
+
+/* ========== 同学录特有样式 ========== */
+.members-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
+    margin-bottom: 56px;
 }
-.message-card {
-    background-color: var(--surface);
+.member-card {
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 24px 16px 20px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.member-card:hover {
+    border-color: #999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.member-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f4f3f1;
+    border: 1px dashed #c0c0c0;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;          
+}
+.member-avatar-placeholder {
+    font-size: 20px;
+    color: #b0b0b0;
+    position: absolute;
+}
+.member-name {
+    font-family: "Noto Serif SC", "STSong", "Songti SC", serif;
+    font-size: 16px;
+    font-weight: 650;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+}
+.member-birthday {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+}
+.member-quote {
+    font-size: 13px;
+    color: #5c5c5c;
+    font-style: italic;
+    line-height: 1.5;
+}
+.empty-message {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+    font-size: 14px;
+    grid-column: 1 / -1;
+}
+.edit-profile-section {
+    margin: 40px 0 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.edit-profile-card {
+    background: var(--surface);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
-    padding: 20px 18px;
+    padding: 28px 32px;
+    text-align: center;
     box-shadow: var(--shadow-sm);
-    transition: border-color 0.2s;
+    max-width: 480px;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.message-card:hover {
+
+.edit-profile-card:hover {
     border-color: #999;
+    box-shadow: var(--shadow-md);
 }
-.message-card .student {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 10px;
+
+.edit-profile-card h3 {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 650;
+    margin-bottom: 8px;
     letter-spacing: 0.5px;
-    font-weight: 500;
 }
-.message-card .words {
+
+.edit-profile-card p {
     font-size: 14px;
     color: var(--text-secondary);
-    line-height: 1.7;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.edit-profile-btn {
+    display: inline-block;
+    background: var(--nav-bg);
+    color: #fff;
+    padding: 8px 24px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+}
+
+.edit-profile-btn:hover {
+    background: #333;
+}
+/* ========== 同学录卡片链接样式 ========== */
+.member-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.1s;
+}
+.member-link:hover .member-card {
+    border-color: #999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+}
+.member-nickname {
+    font-size: 13px;
+    color: #888;
+    margin-top: -2px;
+    margin-bottom: 4px;
+}
+/* ========== 编辑页面专用样式 ========== */
+.edit-h2 {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+    color: var(--text);
+}
+.edit-login-section {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 30px 28px;
+    box-shadow: var(--shadow-sm);
+    max-width: 420px;
+    margin: 0 auto;
+}
+.edit-edit-section {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 30px 28px;
+    box-shadow: var(--shadow-sm);
+    max-width: 600px;
+    margin: 0 auto;
+}
+.edit-current-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border-light);
+    background: #f4f3f1;
+    display: block;
+    margin-top: 6px;
+}
+.edit-avatar-file {
+    margin-top: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.edit-upload-status {
+    margin-top: 10px;
+    font-size: 14px;
+    min-height: 20px;
+}
+.edit-password-message {
+    margin-top: 10px;
+    font-size: 14px;
+    min-height: 20px;
+}
+.edit-edit-message {
+    margin-top: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    min-height: 24px;
+}
+
+.edit-body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fafaf9;
+}
+.edit-form-group {
+    margin-bottom: 15px;
+}
+.edit-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+.edit-input,
+.edit-textarea,
+.edit-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.edit-button {
+    padding: 10px 24px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.edit-button:hover {
+    background: #333;
+}
+.edit-button:disabled {
+    background: #999;
+    cursor: not-allowed;
+}
+.edit-hidden {
+    display: none;
+}
+.edit-error {
+    color: #b71c1c;
+    font-size: 13px;
+}
+.edit-success {
+    color: #2e7d32;
+    font-size: 13px;
+}
+.edit-avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #eee;
+    margin-top: 10px;
+    object-fit: cover;
+}
+.edit-crop-container {
+    max-width: 100%;
+    margin-top: 15px;
+}
+.edit-crop-image {
+    max-width: 100%;
+    max-height: 300px;
+}
+.edit-crop-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+.edit-form-hint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+.edit-hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #e5e5e5;
+}
+/* ========== 个人主页专用样式 ========== */
+.personal-profile-container {
+    max-width: 700px;
+    margin: 0 auto 40px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    padding: 30px 35px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.personal-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+.personal-profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #f4f3f1;
+    border: 1px dashed #c0c0c0;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.personal-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.personal-profile-avatar-placeholder {
+    font-size: 28px;
+    color: #b0b0b0;
+}
+.personal-profile-name {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.personal-profile-nickname {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 6px;
+}
+.personal-profile-quote {
+    font-style: italic;
+    color: #5c5c5c;
+    font-size: 15px;
+}
+.personal-profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+    margin-top: 20px;
+}
+.personal-detail-item {
+    display: flex;
+    flex-direction: column;
+}
+.personal-detail-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+.personal-detail-value {
+    font-size: 15px;
+    color: #1a1a1a;
+    word-break: break-word;
+}
+.personal-detail-value.personal-empty {
+    color: #ccc;
     font-style: italic;
 }
+.personal-profile-actions {
+    margin-top: 28px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    padding-top: 24px;
+}
+.personal-edit-btn {
+    display: inline-block;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 8px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+.personal-edit-btn:hover {
+    background: #333;
+}
+.personal-back-link {
+    display: inline-block;
+    margin-right: 16px;
+    color: #5c5c5c;
+    text-decoration: none;
+    font-size: 14px;
+}
+.personal-back-link:hover {
+    text-decoration: underline;
+}
+
 
 /* ========== 时光回忆馆特有 ========== */
 .section-title {
@@ -755,6 +1111,53 @@ body {
 }
 
 /* ========== 留言板特有 ========== */
+.message-wall {
+    margin-bottom: 48px;
+}
+.message-wall h3 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 650;
+    text-align: center;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+}
+.message-wall .sub {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+}
+.messages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+.message-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 20px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s;
+}
+.message-card:hover {
+    border-color: #999;
+}
+.message-card .student {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+.message-card .words {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-style: italic;
+}
 .message-form-section {
     max-width: 600px;
     margin: 0 auto 48px;
@@ -893,6 +1296,7 @@ body {
     font-size: 14px;
     letter-spacing: 0.5px;
 }
+
 /* 颜色选择器样式 */
 .color-picker {
     display: flex;
@@ -927,7 +1331,6 @@ body {
     transition: all 0.2s ease;
     z-index: 1;
 }
-
 /* 绘制彩色渐变边框（外圈） */
 .message-card.glow-card::before {
     content: '';
@@ -956,24 +1359,67 @@ body {
 
 
 /* ========== 底部 ========== */
-.footer {
-    text-align: center;
-    padding: 32px 20px;
-    border-top: 1px solid var(--border-light);
-    color: var(--text-muted);
-    font-size: 13px;
-    letter-spacing: 0.5px;
-    max-width: var(--max-width);
+.footer-container {
+    max-width: var(--max-width, 1080px);
     margin: 0 auto;
-    width: 100%;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
-.footer span {
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 24px;
+}
+.footer-links a {
+    color: var(--text-muted, #8a8a8a);
+    text-decoration: none;
+    font-size: 20px;
+    line-height: 1;
+    transition: color 0.2s, transform 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.footer-links a:hover {
+    color: var(--text, #1a1a1a);
+    transform: translateY(-1px);
+}
+.footer-links a i {
     display: block;
-    margin-bottom: 4px;
 }
-.footer .footer-line {
-    color: #c0c0c0;
+.footer-copyright {
+    color: var(--text-muted, #8a8a8a);
+    font-size: 12px;
 }
+/* Toast 胶囊提示 */
+.toast-capsule {
+    position: fixed;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(80, 80, 80, 0.7);
+    color: #fff;
+    padding: 10px 28px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-family: var(--font-sans, -apple-system, sans-serif);
+    opacity: 0;
+    transition: opacity 0.1s ease, transform 0.1s ease;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+.toast-capsule.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+
 
 /* ========== 响应式 ========== */
 @media (max-width: 860px) {
@@ -1080,6 +1526,18 @@ body {
         grid-template-columns: 1fr;
     }
 
+    /* 个人主页 */
+    .personal-profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .personal-profile-details {
+        grid-template-columns: 1fr;
+    }
+    .personal-profile-container {
+        padding: 20px;
+    }
+
     /* 时光回忆馆 */
     .timeline {
         padding-left: 16px;
@@ -1120,7 +1578,6 @@ body {
     .edit-profile-card h3 {
         font-size: 18px;
     }
-
 }
 
 @media (max-width: 380px) {
@@ -1128,152 +1585,42 @@ body {
         width: 30px;
         height: 30px;
     }
+
     .hero-photo {
         height: 180px;
     }
     .hero-title {
         font-size: 22px;
     }
+    
     .teacher-photo {
         width: 80px;
         height: 80px;
     }
+
+    /*底部*/
+    .footer-links {
+        gap: 10px 18px;
+    }
+    .footer-links a {
+        font-size: 18px;
+    }
 }
 
-/* ========== 同学录特有样式 ========== */
-.members-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 56px;
+/* ========== 强制恢复 Font Awesome 图标样式 ========== */
+.fa-solid,
+.fa-regular,
+.fa-brands,
+.fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
 }
-.member-card {
-    background-color: #fff;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 24px 16px 20px;
-    text-align: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.fa-solid {
+    font-weight: 900 !important;
 }
-.member-card:hover {
-    border-color: #999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+.fa-regular {
+    font-weight: 400 !important;
 }
-.member-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #f4f3f1;
-    border: 1px dashed #c0c0c0;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-.member-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;          
-}
-.member-avatar-placeholder {
-    font-size: 20px;
-    color: #b0b0b0;
-    position: absolute;
-}
-.member-name {
-    font-family: "Noto Serif SC", "STSong", "Songti SC", serif;
-    font-size: 16px;
-    font-weight: 650;
-    margin-bottom: 4px;
-    color: #1a1a1a;
-}
-.member-birthday {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 6px;
-}
-.member-quote {
-    font-size: 13px;
-    color: #5c5c5c;
-    font-style: italic;
-    line-height: 1.5;
-}
-.empty-message {
-    text-align: center;
-    color: #888;
-    padding: 40px 20px;
-    font-size: 14px;
-    grid-column: 1 / -1;
-}
-
-/* ========== 编辑我的信息 ========== */
-.edit-profile-section {
-    margin: 16px 0 32px; 
-    display: flex;
-    justify-content: center;
-}
-
-.edit-profile-card {
-    background: #fff;
-    border: 1.5px dashed #d0d0d0;
-    border-radius: 10px;
-    padding: 16px 24px;  
-    text-align: center;
-    max-width: 360px;     
-    width: 100%;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.edit-profile-card h3 {
-    font-family: var(--font-serif);
-    font-size: 16px;      
-    font-weight: 650;
-    margin-bottom: 4px;  
-    color: #1a1a1a;
-}
-
-.edit-profile-card p {
-    font-size: 13px;      
-    color: #5c5c5c;
-    margin-bottom: 12px;  
-    line-height: 1.5;
-}
-
-.edit-profile-btn {
-    display: inline-block;
-    background: #1a1a1a;
-    color: #fff;
-    padding: 6px 20px;    
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 13px;     
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    transition: background 0.2s, transform 0.1s;
-}
-
-/* ========== 同学录卡片链接样式 ========== */
-.member-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    transition: transform 0.1s;
-}
-.member-link:hover .member-card {
-    border-color: #999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transform: translateY(-2px);
-}
-.member-nickname {
-    font-size: 13px;
-    color: #888;
-    margin-top: -2px;
-    margin-bottom: 4px;
+.fa-brands {
+    font-family: "Font Awesome 6 Brands", sans-serif !important;
+    font-weight: 400 !important;
 }
