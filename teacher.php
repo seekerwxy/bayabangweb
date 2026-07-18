@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>班主任专属空间</title>
+    <title>博雅班班主任专属空间</title>
+    <meta name="description" content="献给班主任的专属空间，包含班主任小档案、格言，以及同学们的留言墙。">
     <link rel="stylesheet" href="css/beauty.css">
 </head>
 <body>

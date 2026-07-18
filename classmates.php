@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>同学录</title>
+    <title>博雅班同学录</title>
+    <meta name="description" content="博雅班同学录，记录同学们的青春时光和美好回忆。">
     <link rel="stylesheet" href="css/beauty.css">
 </head>
 <body>

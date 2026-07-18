@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>时光回忆馆</title>
+    <title>博雅班时光回忆馆</title>
+    <meta name="description" content="博雅班时光回忆馆，记录班级的成长历程和美好回忆。">
     <link rel="stylesheet" href="css/beauty.css">
 </head>
 <body>

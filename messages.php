@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>留言板</title>
+    <title>博雅班留言板</title>
+    <meta name="description" content="博雅班留言板，同学们可以在这里留下对班级的祝福和期许。">
     <link rel="stylesheet" href="css/beauty.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>

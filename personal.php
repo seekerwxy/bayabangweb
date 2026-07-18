@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人主页</title>
+    <title>博雅班个人主页</title>
+    <meta name="description" content="博雅班个人主页，展示每位同学的详细信息。">
     <link rel="stylesheet" href="css/beauty.css">
 </head>
 <body>
