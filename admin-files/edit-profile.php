@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博雅班编辑我的同学录信息</title>
+    <meta name="description" content="博雅班编辑我的同学录信息，用于修改个人资料。">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+        <link rel="stylesheet" href="css/beauty.css">
+</head>
+<body class="edit-body">
+    <h2 class="edit-h2">编辑我的同学录信息</h2>
+
+    <!-- 登录区域 -->
+    <div id="loginSection" class="edit-login-section">
+        <div class="edit-form-group">
+            <label class="edit-label">姓名</label>
+            <input type="text" id="loginName" placeholder="你的姓名" class="edit-input">
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">密码</label>
+            <input type="password" id="loginPassword" placeholder="输入密码" class="edit-input">
+        </div>
+        <button class="edit-button" onclick="login()">登录</button>
+        <p id="loginError" class="edit-error"></p>
+    </div>
+
+    <!-- 编辑区域（登录后显示） -->
+    <div id="editSection" class="edit-edit-section edit-hidden">
+        <!-- 基础信息 -->
+        <div class="edit-form-group">
+            <label class="edit-label">座右铭</label>
+            <textarea id="editQuote" rows="2" maxlength="200" class="edit-textarea"></textarea>
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">生日</label>
+            <input type="date" id="editBirthday" class="edit-input">
+            <p class="edit-form-hint">选填，格式：年-月-日</p>
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">头像</label>
+            <p class="edit-form-hint">当前头像：</p>
+            <img id="currentAvatar" src="" alt="当前头像" class="edit-avatar-preview edit-current-avatar" onerror="this.style.display='none'">
+            <input type="file" id="avatarFile" accept="image/*" style="margin-top:10px;" class="edit-input edit-avatar-file">
+            <p class="edit-form-hint">请选择正方形照片，或使用裁剪工具</p>
+            <div id="cropContainer" class="edit-crop-container edit-hidden">
+                <img id="cropImage" src="" alt="裁剪图片" class="edit-crop-image">
+                <div class="edit-crop-actions">
+                    <button class="edit-button" onclick="cropImage()">确认裁剪</button>
+                    <button class="edit-button" onclick="cancelCrop()">取消</button>
+                </div>
+            </div>
+            <p id="uploadStatus" class="edit-upload-status edit-error"></p>
+        </div>
+
+        <hr class="edit-hr">
+
+        <!-- 扩展信息 -->
+        <div class="edit-form-group">
+            <label class="edit-label">昵称/外号</label>
+            <input type="text" id="editNickname" maxlength="50" placeholder="例如：小星星" class="edit-input">
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">性别</label>
+            <select id="editGender" class="edit-select">
+                <option value="男">男</option>
+                <option value="女">女</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">家乡/出生地</label>
+            <input type="text" id="editHometown" maxlength="100" placeholder="例如：浙江杭州" class="edit-input">
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">兴趣爱好</label>
+            <textarea id="editHobbies" rows="2" placeholder="例如：篮球、音乐、阅读" class="edit-textarea"></textarea>
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">特长/技能</label>
+            <textarea id="editSkills" rows="2" placeholder="例如：编程、绘画、吉他" class="edit-textarea"></textarea>
+        </div>
+        <div class="edit-form-group">
+            <label class="edit-label">联系方式</label>
+            <input type="text" id="editContact" maxlength="200" placeholder="例如：邮箱、微信、QQ 等" class="edit-input">
+        </div>
+
+        <hr class="edit-hr">
+
+        <!-- 修改密码区域 -->
+        <div class="edit-form-group" style="border-top: 1px solid #e5e5e5; padding-top: 15px; margin-top: 10px;">
+            <label class="edit-label">修改密码（可选）</label>
+            <p class="edit-form-hint">如果不修改密码，请留空</p>
+            <label class="edit-label">当前密码</label>
+            <input type="password" id="oldPassword" placeholder="输入当前密码" class="edit-input">
+            <label class="edit-label">新密码（至少6位）</label>
+            <input type="password" id="newPassword" placeholder="输入新密码" class="edit-input">
+            <label class="edit-label">确认新密码</label>
+            <input type="password" id="confirmPassword" placeholder="再次输入新密码" class="edit-input">
+            <button type="button" class="edit-button" onclick="changePassword()" style="margin-top:8px; background:#444;">修改密码</button>
+            <p id="passwordMessage" class="edit-password-message edit-error"></p>
+        </div>
+
+        <button class="edit-button" onclick="saveProfile()">保存全部修改</button>
+        <p id="editMessage" class="edit-edit-message"></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        const API_BASE = '/api/classmates.php';
+        const UPLOAD_URL = '/api/upload.php';
+        let currentName = '', currentPassword = '';
+        let currentAvatarPath = '';
+        let cropper = null;
+
+        // 登录
+        async function login() {
+            const name = document.getElementById('loginName').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!name || !password) {
+                document.getElementById('loginError').textContent = '请填写姓名和密码';
+                return;
+            }
+            const resp = await fetch(API_BASE, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: 'login', name, password })
+            });
+            const data = await resp.json();
+            if (data.message === 'success') {
+                currentName = name;
+                currentPassword = password;
+                localStorage.setItem('profile_name', name);
+                localStorage.setItem('profile_password', password);
+
+                document.getElementById('loginSection').classList.add('edit-hidden');
+                document.getElementById('editSection').classList.remove('edit-hidden');
+
+                const d = data.data;
+                document.getElementById('editQuote').value = d.quote || '';
+                document.getElementById('editBirthday').value = d.birthday || '';
+                document.getElementById('editNickname').value = d.nickname || '';
+                document.getElementById('editGender').value = d.gender || '其他';
+                document.getElementById('editHometown').value = d.hometown || '';
+                document.getElementById('editHobbies').value = d.hobbies || '';
+                document.getElementById('editSkills').value = d.skills || '';
+                document.getElementById('editContact').value = d.contact_info || '';
+
+                const avatarImg = document.getElementById('currentAvatar');
+                if (d.avatar) {
+                    avatarImg.src = d.avatar;
+                    avatarImg.style.display = 'block';
+                    currentAvatarPath = d.avatar;
+                } else {
+                    avatarImg.style.display = 'none';
+                    currentAvatarPath = '';
+                }
+            } else {
+                document.getElementById('loginError').textContent = data.message;
+            }
+        }
+
+        // 选择文件，启动裁剪
+        document.getElementById('avatarFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                document.getElementById('uploadStatus').textContent = '图片不能超过2MB';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('cropContainer').classList.remove('edit-hidden');
+                const cropImg = document.getElementById('cropImage');
+                cropImg.src = ev.target.result;
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(cropImg, {
+                    aspectRatio: 1,
+                    viewMode: 2,
+                    autoCropArea: 1,
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 确认裁剪
+        function cropImage() {
+            if (!cropper) return;
+            const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                if (blob.size > 500 * 1024) {
+                    document.getElementById('uploadStatus').textContent = '裁剪后图片超过500KB，请调整裁剪区域';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function() {
+                    uploadCroppedImage(reader.result);
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.9);
+        }
+
+        async function uploadCroppedImage(base64) {
+            document.getElementById('uploadStatus').textContent = '上传中...';
+            try {
+                const resp = await fetch(UPLOAD_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ image: base64 })
+                });
+                if (!resp.ok) {
+                    let errorMsg = `服务器错误 (${resp.status})`;
+                    try {
+                        const errData = await resp.json();
+                        errorMsg = errData.message || errorMsg;
+                    } catch (e) {}
+                    throw new Error(errorMsg);
+                }
+                const data = await resp.json();
+                if (data.success) {
+                    const avatarImg = document.getElementById('currentAvatar');
+                    avatarImg.src = data.path;
+                    avatarImg.style.display = 'block';
+                    currentAvatarPath = data.path;
+                    document.getElementById('cropContainer').classList.add('edit-hidden');
+                    if (cropper) { cropper.destroy(); cropper = null; }
+                    await updateAvatarInDB(data.path);
+                } else {
+                    throw new Error(data.message || '上传失败');
+                }
+            } catch (err) {
+                document.getElementById('uploadStatus').textContent = '上传失败：' + err.message;
+                console.error('上传错误:', err);
+            }
+        }
+
+        async function updateAvatarInDB(avatarPath) {
+            try {
+                const quote = document.getElementById('editQuote').value.trim();
+                const birthday = document.getElementById('editBirthday').value.trim();
+                const nickname = document.getElementById('editNickname').value.trim();
+                const gender = document.getElementById('editGender').value;
+                const hometown = document.getElementById('editHometown').value.trim();
+                const hobbies = document.getElementById('editHobbies').value.trim();
+                const skills = document.getElementById('editSkills').value.trim();
+                const contact_info = document.getElementById('editContact').value.trim();
+
+                const resp = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'update',
+                        name: currentName,
+                        password: currentPassword,
+                        quote, birthday, avatar: avatarPath,
+                        nickname, gender, hometown, hobbies, skills, contact_info
+                    })
+                });
+                const data = await resp.json();
+                if (data.message === '更新成功') {
+                    document.getElementById('uploadStatus').textContent = '头像上传并保存成功 ✅';
+                } else {
+                    throw new Error(data.message || '数据库保存失败');
+                }
+            } catch (err) {
+                console.error('保存头像到数据库失败:', err);
+                document.getElementById('uploadStatus').textContent = '头像文件已上传，但数据库保存失败，请点击“全部保存”重试。';
+            }
+        }
+
+        function cancelCrop() {
+            document.getElementById('cropContainer').classList.add('edit-hidden');
+            if (cropper) { cropper.destroy(); cropper = null; }
+            document.getElementById('avatarFile').value = '';
+        }
+
+        // 保存全部信息
+        async function saveProfile() {
+            const quote = document.getElementById('editQuote').value.trim();
+            const birthday = document.getElementById('editBirthday').value.trim();
+            const nickname = document.getElementById('editNickname').value.trim();
+            const gender = document.getElementById('editGender').value;
+            const hometown = document.getElementById('editHometown').value.trim();
+            const hobbies = document.getElementById('editHobbies').value.trim();
+            const skills = document.getElementById('editSkills').value.trim();
+            const contact_info = document.getElementById('editContact').value.trim();
+
+            let avatar = currentAvatarPath;
+            if (!avatar) {
+                const avatarImg = document.getElementById('currentAvatar');
+                avatar = (avatarImg && avatarImg.src && !avatarImg.src.endsWith('/')) ? avatarImg.src : '';
+            }
+
+            const resp = await fetch(API_BASE, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'update',
+                    name: currentName,
+                    password: currentPassword,
+                    quote, birthday, avatar,
+                    nickname, gender, hometown, hobbies, skills, contact_info
+                })
+            });
+            const data = await resp.json();
+            const msg = document.getElementById('editMessage');
+            if (data.message === '更新成功') {
+                msg.textContent = '保存成功！';
+                msg.className = 'edit-success';
+            } else {
+                msg.textContent = data.message;
+                msg.className = 'edit-error';
+            }
+        }
+
+        // 修改密码
+        async function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            const msg = document.getElementById('passwordMessage');
+            msg.textContent = '';
+            msg.className = 'edit-error';
+
+            if (!oldPassword && !newPassword && !confirmPassword) return;
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                msg.textContent = '请填写所有密码字段';
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                msg.textContent = '两次输入的新密码不一致';
+                return;
+            }
+            if (newPassword.length < 6) {
+                msg.textContent = '新密码长度至少6位';
+                return;
+            }
+
+            try {
+                const resp = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'change_password',
+                        name: currentName,
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+                const data = await resp.json();
+                if (data.message === '密码修改成功') {
+                    msg.textContent = '密码修改成功！请牢记新密码。';
+                    msg.className = 'edit-success';
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                    currentPassword = newPassword;
+                    localStorage.setItem('profile_password', newPassword);
+                } else {
+                    msg.textContent = data.message || '修改失败';
+                }
+            } catch (err) {
+                msg.textContent = '网络错误，修改失败';
+            }
+        }
+    </script>
+
+</body>
+</html>
