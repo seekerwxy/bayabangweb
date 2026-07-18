@@ -1,14 +1,21 @@
-<link rel="stylesheet" href="css/beauty.css">
 <footer class="footer">
     <div class="footer-container">
         <div class="footer-links">
             <!-- GitHub -->
-            <a href="https://github.com/seekerwxy/bayabangweb" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                <i class="fa-brands fa-github"></i>
+            <a href="https://github.com/seekerwxy/bayabangweb" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="跳转至Github仓库">
+                <i class="fa-brands fa-github fa-lg"></i>
             </a>
             <!-- 邮箱 -->
-            <a href="javascript:void(0)" onclick="copyEmail('1708043179@qq.com')" aria-label="复制邮箱">
-                <i class="fa-regular fa-envelope"></i>
+            <a href="javascript:void(0)" onclick="copyEmail('1708043179@qq.com')" aria-label="复制邮箱" title="复制邮箱">
+                <i class="fa-solid fa-envelope fa-lg"></i>
+            </a>
+            <!-- Cat^_^ -->
+            <a title="一只可爱的小猫咪">
+                <i class="fa-solid fa-cat fa-spin fa-spin-reverse fa-lg"></i>
+            </a>
+            <!-- gear -->
+            <a href="admin-files/admin-list.php" title="此乃管理员专用👩‍❤️‍👩">
+                <i class="fa-solid fa-user-gear fa-lg"></i>
             </a>
         </div>
         <div class="footer-copyright">

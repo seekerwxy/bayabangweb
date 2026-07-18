@@ -135,7 +135,7 @@
                         ${detailsHtml}
                     </div>
                     <div class="personal-profile-actions">
-                        <a href="classmates.html" class="personal-back-link">← 返回同学录</a>
+                        <a href="classmates.php" class="personal-back-link">← 返回同学录</a>
                         ${editBtnHtml}
                     </div>
                 </div>
