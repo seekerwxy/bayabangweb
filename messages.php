@@ -1,4 +1,4 @@
-<?php $currentPage = 'messages'; include '_header.php'; ?>
+<?php $currentPage = 'messages'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,10 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>博雅班留言板</title>
     <meta name="description" content="博雅班留言板，同学们可以在这里留下对班级的祝福和期许。">
-    <link rel="stylesheet" href="css/beauty.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/beauty.css?v=20260718">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 </head>
 <body>
+
+    <?php include '_header.php'; ?>
 
     <main class="main">
         <section class="page-header">
@@ -80,7 +84,7 @@
         });
 
         // ---------- 留言板 API 配置 ----------
-        const API_BASE = '/api/messages.php';
+        const API_BASE = 'api/messages.php';
 
         // 获取所有留言
         async function fetchMessages() {
@@ -127,7 +131,7 @@
             const colorRegex = /\[color=(#[0-9a-fA-F]{6})\](.*?)\[\/color\]/g;
             return text.replace(colorRegex, (match, color, inner) => {
                 // 内部文本可包含任意字符（但不支持嵌套），直接构建 span
-                return `<span style="color:${color}">${inner}</span>`;
+                return `<span style="color:${color}">${escapeHtml(inner)}</span>`;
             });
         }
 
@@ -151,10 +155,10 @@
 
                 // 正文：先转换颜色标记，再解析 Markdown
                 let bodyHtml = convertColorTags(msg.content);
-                bodyHtml = marked.parse(bodyHtml);
+                bodyHtml = DOMPurify.sanitize(marked.parse(bodyHtml), { USE_PROFILES: { html: true } });
 
                 // 判断是否是 id=7 的留言
-                const isHighlight = Number(msg.id) === 1;
+                const isHighlight = Number(msg.id) === 7;
                 const cardClass = isHighlight ? 'message-card glow-card' : 'message-card';
 
                 return `

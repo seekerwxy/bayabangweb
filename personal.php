@@ -1,4 +1,4 @@
-<?php $currentPage = 'classmates'; include '_header.php'; ?>
+<?php $currentPage = 'classmates'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>博雅班个人主页</title>
     <meta name="description" content="博雅班个人主页，展示每位同学的详细信息。">
-    <link rel="stylesheet" href="css/beauty.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/beauty.css?v=20260718">
 </head>
 <body>
+
+    <?php include '_header.php'; ?>
 
     <main class="main">
         <section class="page-header">
@@ -22,35 +25,8 @@
     </main>
 
     <script>
-        // 汉堡菜单（不变）
-        (function() {
-            const btn = document.getElementById('hamburgerBtn');
-            const dropdown = document.getElementById('mobileDropdown');
-            if (!btn || !dropdown) return;
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.classList.toggle('visible');
-                btn.classList.toggle('open');
-                btn.setAttribute('aria-expanded', dropdown.classList.contains('visible'));
-            });
-            dropdown.querySelectorAll('a').forEach(function(link) {
-                link.addEventListener('click', function() {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                });
-            });
-            document.addEventListener('click', function(event) {
-                if (!dropdown.contains(event.target) && event.target !== btn && !btn.contains(event.target)) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                }
-            });
-        })();
-
         // ---------- 获取并渲染个人资料 ----------
-        const API_BASE = '/api/classmates.php';
+        const API_BASE = 'api/classmates.php';
         const container = document.getElementById('profileContent');
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
@@ -102,6 +78,8 @@
                 }
                 if (!val || val === '') {
                     val = '<span class="personal-empty">未填写</span>';
+                } else {
+                    val = escapeHtml(val);
                 }
                 detailsHtml += `
                     <div class="personal-detail-item">
@@ -113,11 +91,10 @@
 
             // 判断是否本人（通过 localStorage 存储的登录信息）
             const storedName = localStorage.getItem('profile_name');
-            const storedPass = localStorage.getItem('profile_password');
             const isSelf = (storedName && storedName === data.name);
 
             const editBtnHtml = isSelf
-                ? `<a href="edit-profile.html" class="personal-edit-btn">编辑我的资料</a>`
+                ? `<a href="admin-files/edit-profile.php" class="personal-edit-btn">编辑我的资料</a>`
                 : `<span style="color:#888;font-size:13px;">如需修改，请登录本人账号</span>`;
 
             const html = `

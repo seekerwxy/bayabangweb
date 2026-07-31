@@ -13,10 +13,6 @@
             <a title="一只可爱的小猫咪">
                 <i class="fa-solid fa-cat fa-spin fa-spin-reverse fa-lg"></i>
             </a>
-            <!-- gear -->
-            <a href="admin-files/admin-list.php" title="此乃管理员专用👩‍❤️‍👩">
-                <i class="fa-solid fa-user-gear fa-lg"></i>
-            </a>
         </div>
         <div class="footer-copyright">
             &copy; <?php echo date('Y'); ?> 25级博雅班. All rights reserved.

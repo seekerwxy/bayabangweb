@@ -1,4 +1,4 @@
-<?php $currentPage = 'home'; include '_header.php'; ?>
+<?php $currentPage = 'home'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>博雅班首页</title>
     <meta name="description" content="班级纪念册，献给班主任和同学们的回忆与祝福。">
-    <link rel="stylesheet" href="css/beauty.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/beauty.css?v=20260718">
 </head>
 <body>
 	
+    <?php include '_header.php'; ?>
+
     <!-- 通知 
 	<div class="domain-notice" id="domainNotice">
         <span><strong>[六一专属]</strong>六一儿童节快乐～</span>

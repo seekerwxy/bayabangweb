@@ -1,4 +1,4 @@
-<?php $currentPage = 'classmates'; include '_header.php'; ?>
+<?php $currentPage = 'classmates'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>博雅班同学录</title>
     <meta name="description" content="博雅班同学录，记录同学们的青春时光和美好回忆。">
-    <link rel="stylesheet" href="css/beauty.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/beauty.css?v=20260718">
 </head>
 <body>
+
+    <?php include '_header.php'; ?>
 
     <main class="main">
         <section class="page-header">
@@ -33,7 +36,7 @@
     <script>
 
         // ---------- 同学录逻辑 ----------
-        const API_BASE = '/api/classmates.php';
+        const API_BASE = 'api/classmates.php';
 
         async function fetchClassmates() {
             try {
@@ -61,7 +64,7 @@
                 return;
             }
             grid.innerHTML = classmates.map(member => {
-                const placeholder = member.name.charAt(0);
+                const placeholder = escapeHtml(member.name.charAt(0));
                 const birthdayStr = formatBirthday(member.birthday);
                 const avatar = (member.avatar && member.avatar !== 'null' && member.avatar.trim() !== '') 
                                 ? member.avatar.trim() 
