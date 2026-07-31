@@ -6,7 +6,7 @@
     <title>博雅班编辑我的同学录信息</title>
     <meta name="description" content="博雅班编辑我的同学录信息，用于修改个人资料。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-        <link rel="stylesheet" href="css/beauty.css">
+        <link rel="stylesheet" href="../css/beauty.css">
 </head>
 <body class="edit-body">
     <h2 class="edit-h2">编辑我的同学录信息</h2>
@@ -107,11 +107,17 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
-        const API_BASE = '/api/classmates.php';
-        const UPLOAD_URL = '/api/upload.php';
-        let currentName = '', currentPassword = '';
+        const API_BASE = '../api/classmates.php';
+        const UPLOAD_URL = '../api/upload.php';
+        let currentName = '', csrfToken = '';
         let currentAvatarPath = '';
         let cropper = null;
+
+        const savedName = localStorage.getItem('profile_name');
+        if (savedName) {
+            document.getElementById('loginName').value = savedName;
+        }
+        localStorage.removeItem('profile_password');
 
         // 登录
         async function login() {
@@ -129,9 +135,9 @@
             const data = await resp.json();
             if (data.message === 'success') {
                 currentName = name;
-                currentPassword = password;
+                csrfToken = data.csrf_token || '';
+                localStorage.removeItem('profile_password');
                 localStorage.setItem('profile_name', name);
-                localStorage.setItem('profile_password', password);
 
                 document.getElementById('loginSection').classList.add('edit-hidden');
                 document.getElementById('editSection').classList.remove('edit-hidden');
@@ -207,7 +213,7 @@
                 const resp = await fetch(UPLOAD_URL, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ image: base64 })
+                    body: JSON.stringify({ image: base64, csrf_token: csrfToken })
                 });
                 if (!resp.ok) {
                     let errorMsg = `服务器错误 (${resp.status})`;
@@ -251,10 +257,9 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: 'update',
-                        name: currentName,
-                        password: currentPassword,
                         quote, birthday, avatar: avatarPath,
-                        nickname, gender, hometown, hobbies, skills, contact_info
+                        nickname, gender, hometown, hobbies, skills, contact_info,
+                        csrf_token: csrfToken
                     })
                 });
                 const data = await resp.json();
@@ -297,10 +302,9 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     action: 'update',
-                    name: currentName,
-                    password: currentPassword,
                     quote, birthday, avatar,
-                    nickname, gender, hometown, hobbies, skills, contact_info
+                    nickname, gender, hometown, hobbies, skills, contact_info,
+                    csrf_token: csrfToken
                 })
             });
             const data = await resp.json();
@@ -343,9 +347,9 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: 'change_password',
-                        name: currentName,
                         old_password: oldPassword,
-                        new_password: newPassword
+                        new_password: newPassword,
+                        csrf_token: csrfToken
                     })
                 });
                 const data = await resp.json();
@@ -355,8 +359,6 @@
                     document.getElementById('oldPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
-                    currentPassword = newPassword;
-                    localStorage.setItem('profile_password', newPassword);
                 } else {
                     msg.textContent = data.message || '修改失败';
                 }

@@ -1,5 +1,5 @@
 <?php
-require_once '../config.php';  // 引入配置
+require_once __DIR__ . '/_auth.php';
 
 // ================== 数据库配置 ==================
 $db_host = $config['messages_db']['host'];
@@ -7,26 +7,12 @@ $db_user = $config['messages_db']['username'];
 $db_pass = $config['messages_db']['password'];
 $db_name = $config['messages_db']['database'];
 
-// 管理员凭证
-$admin_username = $config['admin_db']['username'];
-$admin_password = $config['admin_db']['password'];
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// HTTP Basic 认证（与 admin-messages.php 完全一致）
-if (!isset($_SERVER['PHP_AUTH_USER']) || $_SERVER['PHP_AUTH_USER'] !== $admin_username || $_SERVER['PHP_AUTH_PW'] !== $admin_password) {
-    header('WWW-Authenticate: Basic realm="时光轴管理后台"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo '需要管理员权限 - 请刷新页面并输入用户名和密码';
-    exit;
-}
-
 // 连接数据库
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 $db_error = null;
 if ($conn->connect_error) {
-    $db_error = "数据库连接失败：" . $conn->connect_error;
+    error_log('admin memories DB connect failed: ' . $conn->connect_error);
+    $db_error = '数据库连接失败，请稍后重试';
 } else {
     $conn->set_charset("utf8mb4");
     // 自动创建表（如果不存在）
@@ -45,8 +31,14 @@ if ($conn->connect_error) {
 
 // ========== API 路由 ==========
 if (!$db_error && isset($_GET['api'])) {
-    header('Content-Type: application/json');
+    header('Content-Type: application/json; charset=utf-8');
     $action = $_GET['api'];
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !admin_verify_csrf($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'CSRF验证失败'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     // ---------- 列表 ----------
     if ($action === 'list') {
@@ -55,7 +47,7 @@ if (!$db_error && isset($_GET['api'])) {
         while ($row = $result->fetch_assoc()) {
             $events[] = $row;
         }
-        echo json_encode(['success' => true, 'data' => $events]);
+        echo json_encode(['success' => true, 'data' => $events], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
@@ -67,13 +59,16 @@ if (!$db_error && isset($_GET['api'])) {
         $photo = trim($_POST['photo'] ?? '');
         $order = intval($_POST['display_order'] ?? 0);
         if (empty($date) || empty($title)) {
-            echo json_encode(['success' => false, 'error' => '日期和标题不能为空']);
+            echo json_encode(['success' => false, 'error' => '日期和标题不能为空'], JSON_UNESCAPED_UNICODE);
             exit;
         }
         $stmt = $conn->prepare("INSERT INTO timeline_events (event_date, title, description, photo, display_order) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssi", $date, $title, $desc, $photo, $order);
         $success = $stmt->execute();
-        echo json_encode(['success' => $success, 'error' => $success ? null : $stmt->error]);
+        if (!$success) {
+            error_log('admin timeline add failed: ' . $stmt->error);
+        }
+        echo json_encode(['success' => $success, 'error' => $success ? null : '保存失败'], JSON_UNESCAPED_UNICODE);
         $stmt->close();
         exit;
     }
@@ -87,13 +82,16 @@ if (!$db_error && isset($_GET['api'])) {
         $photo = trim($_POST['photo'] ?? '');
         $order = intval($_POST['display_order'] ?? 0);
         if ($id <= 0 || empty($date) || empty($title)) {
-            echo json_encode(['success' => false, 'error' => '参数不完整']);
+            echo json_encode(['success' => false, 'error' => '参数不完整'], JSON_UNESCAPED_UNICODE);
             exit;
         }
         $stmt = $conn->prepare("UPDATE timeline_events SET event_date=?, title=?, description=?, photo=?, display_order=? WHERE id=?");
         $stmt->bind_param("ssssii", $date, $title, $desc, $photo, $order, $id);
         $success = $stmt->execute();
-        echo json_encode(['success' => $success, 'error' => $success ? null : $stmt->error]);
+        if (!$success) {
+            error_log('admin timeline edit failed: ' . $stmt->error);
+        }
+        echo json_encode(['success' => $success, 'error' => $success ? null : '保存失败'], JSON_UNESCAPED_UNICODE);
         $stmt->close();
         exit;
     }
@@ -102,18 +100,21 @@ if (!$db_error && isset($_GET['api'])) {
     if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = intval($_POST['id'] ?? 0);
         if ($id <= 0) {
-            echo json_encode(['success' => false, 'error' => '无效ID']);
+            echo json_encode(['success' => false, 'error' => '无效ID'], JSON_UNESCAPED_UNICODE);
             exit;
         }
         $stmt = $conn->prepare("DELETE FROM timeline_events WHERE id = ?");
         $stmt->bind_param("i", $id);
         $success = $stmt->execute();
-        echo json_encode(['success' => $success]);
+        if (!$success) {
+            error_log('admin timeline delete failed: ' . $stmt->error);
+        }
+        echo json_encode(['success' => $success], JSON_UNESCAPED_UNICODE);
         $stmt->close();
         exit;
     }
 
-    echo json_encode(['success' => false, 'error' => '未知API']);
+    echo json_encode(['success' => false, 'error' => '未知API'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 ?>
@@ -159,9 +160,8 @@ if (!$db_error && isset($_GET['api'])) {
 <div class="container">
     <?php if ($db_error): ?>
         <div class="alert alert-error">
-            <strong>❌ 数据库连接错误</strong><br>
-            <?= htmlspecialchars($db_error) ?><br><br>
-            <strong>解决方法：</strong>检查 config.php 中的数据库配置。
+            <strong>数据库连接错误</strong><br>
+            <?= htmlspecialchars($db_error) ?>
         </div>
     <?php endif; ?>
     <div class="admin-header">
@@ -169,7 +169,12 @@ if (!$db_error && isset($_GET['api'])) {
             <h1>📅 时光轴管理</h1>
             <span class="stats" id="totalCount">-</span>
         </div>
-        <div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <a href="admin-list.php" style="font-size:0.8rem; color:#555;">返回面板</a>
+            <form method="post" action="?logout=1" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
+                <button type="submit" style="border:0;background:none;cursor:pointer;padding:0;font-size:0.8rem;color:#555;">退出登录</button>
+            </form>
             <button class="btn btn-add" onclick="openAddForm()">➕ 添加事件</button>
         </div>
     </div>
@@ -201,6 +206,7 @@ if (!$db_error && isset($_GET['api'])) {
 <div id="toastMsg" class="toast"></div>
 
 <script>
+    const CSRF_TOKEN = '<?= htmlspecialchars(admin_csrf_token()) ?>';
     const API_URL = '?api=';  // 相对路径，调用自身
 
     // 加载列表
@@ -306,6 +312,7 @@ if (!$db_error && isset($_GET['api'])) {
         formData.append('description', desc);
         formData.append('photo', photo);
         formData.append('display_order', order);
+        formData.append('csrf_token', CSRF_TOKEN);
         if (id) formData.append('id', id);
 
         try {
@@ -332,6 +339,7 @@ if (!$db_error && isset($_GET['api'])) {
         if (!confirm('确定删除这条事件吗？')) return;
         const formData = new URLSearchParams();
         formData.append('id', id);
+        formData.append('csrf_token', CSRF_TOKEN);
         try {
             const res = await fetch(API_URL + 'delete', {
                 method: 'POST',
@@ -362,7 +370,7 @@ if (!$db_error && isset($_GET['api'])) {
 
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
     // 绑定事件
