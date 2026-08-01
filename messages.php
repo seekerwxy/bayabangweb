@@ -7,6 +7,17 @@
     <title>博雅班留言板</title>
     <meta name="description" content="博雅班留言板，同学们可以在这里留下对班级的祝福和期许。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+    (function () {
+        try {
+            var saved = localStorage.getItem('theme');
+            var theme = (saved === 'dark' || saved === 'light')
+                ? saved
+                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+    })();
+    </script>
     <link rel="stylesheet" href="css/beauty.css?v=<?= filemtime(__DIR__ . '/css/beauty.css') ?>">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>

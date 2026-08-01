@@ -1,0 +1,105 @@
+/* 后台管理页面暗色模式覆盖 */
+html[data-theme="dark"] {
+    color-scheme: dark;
+}
+html[data-theme="dark"] body {
+    background: #141517;
+    color: #e9eaed;
+}
+
+/* 登录页 */
+html[data-theme="dark"] .login-card {
+    background: #1e2023;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+html[data-theme="dark"] .login-card button {
+    background: #3a3e45;
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea {
+    background: #151719;
+    border-color: #3b3e43;
+    color: #e9eaed;
+}
+
+/* 管理面板 */
+html[data-theme="dark"] .card {
+    background: #1e2023;
+    border-color: #34373c;
+}
+html[data-theme="dark"] .card span,
+html[data-theme="dark"] .logout {
+    color: #aab0b8;
+}
+html[data-theme="dark"] .btn {
+    background: #3a3e45;
+}
+
+/* 时光轴 / 留言管理 */
+html[data-theme="dark"] .stats,
+html[data-theme="dark"] .info-badge {
+    background: #26282c;
+    color: #b9bcc2;
+}
+html[data-theme="dark"] .admin-header {
+    border-bottom-color: #34373c;
+}
+html[data-theme="dark"] .event-item,
+html[data-theme="dark"] .message-item,
+html[data-theme="dark"] .modal-card {
+    background: #1e2023;
+    border-color: #34373c;
+}
+html[data-theme="dark"] .event-desc {
+    color: #b9bcc2;
+}
+html[data-theme="dark"] .msg-author {
+    background: #26282c;
+    color: #b9bcc2;
+}
+html[data-theme="dark"] .msg-content-preview {
+    color: #c9ccd1;
+    border-left-color: #3b3e43;
+}
+html[data-theme="dark"] .msg-time {
+    color: #8a8e96;
+}
+html[data-theme="dark"] .modal-card input,
+html[data-theme="dark"] .modal-card textarea {
+    background: #151719;
+    border-color: #3b3e43;
+    color: #e9eaed;
+}
+html[data-theme="dark"] .edit-btn {
+    background: #34373c;
+    color: #e9eaed;
+}
+html[data-theme="dark"] .delete-btn {
+    color: #e07070;
+}
+html[data-theme="dark"] .cancel-btn {
+    background: #34373c;
+    color: #e9eaed;
+}
+html[data-theme="dark"] .save-btn {
+    background: #3a3e45;
+}
+html[data-theme="dark"] .toast {
+    background: #0f1012;
+}
+html[data-theme="dark"] .alert {
+    background: #332f1f;
+    border-left-color: #f7c948;
+    color: #e8d9a8;
+}
+html[data-theme="dark"] .alert-error {
+    background: #3b2226;
+    border-left-color: #e05a5a;
+    color: #f0c6c6;
+}
+html[data-theme="dark"] a {
+    color: #9db4d0;
+}
+html[data-theme="dark"] small {
+    color: #8a8e96;
+}

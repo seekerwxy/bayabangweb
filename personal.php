@@ -7,6 +7,17 @@
     <title>博雅班个人主页</title>
     <meta name="description" content="博雅班个人主页，展示每位同学的详细信息。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+    (function () {
+        try {
+            var saved = localStorage.getItem('theme');
+            var theme = (saved === 'dark' || saved === 'light')
+                ? saved
+                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+    })();
+    </script>
     <link rel="stylesheet" href="css/beauty.css?v=<?= filemtime(__DIR__ . '/css/beauty.css') ?>">
 </head>
 <body>
@@ -95,7 +106,7 @@
 
             const editBtnHtml = isSelf
                 ? `<a href="admin-files/edit-profile.php" class="personal-edit-btn">编辑我的资料</a>`
-                : `<span style="color:#888;font-size:13px;">如需修改，请登录本人账号</span>`;
+                : `<span style="color:var(--text-muted);font-size:13px;">如需修改，请登录本人账号</span>`;
 
             const html = `
                 <div class="personal-profile-container">

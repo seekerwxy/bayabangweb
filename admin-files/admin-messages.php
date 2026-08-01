@@ -102,6 +102,17 @@ if (!$db_error && isset($_GET['api'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>博雅班留言管理</title>
     <meta name="description" content="博雅班留言管理，用于管理班级的留言。">
+    <script>
+    (function () {
+        try {
+            var saved = localStorage.getItem('theme');
+            var theme = (saved === 'dark' || saved === 'light')
+                ? saved
+                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+    })();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #fafafa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; padding: 24px 20px; }
@@ -133,6 +144,7 @@ if (!$db_error && isset($_GET['api'])) {
         .cancel-btn { background: #eaeaea; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #111; color: white; font-size: 0.8rem; padding: 8px 20px; border-radius: 40px; opacity: 0; transition: 0.15s; pointer-events: none; z-index: 1100; }
     </style>
+    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
 </head>
 <body>
 <div class="container">

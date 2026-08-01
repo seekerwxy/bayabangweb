@@ -6,6 +6,17 @@
     <title>博雅班编辑我的同学录信息</title>
     <meta name="description" content="博雅班编辑我的同学录信息，用于修改个人资料。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+        <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                var theme = (saved === 'dark' || saved === 'light')
+                    ? saved
+                    : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+        })();
+        </script>
         <link rel="stylesheet" href="../css/beauty.css?v=<?= filemtime(__DIR__ . '/../css/beauty.css') ?>">
 </head>
 <body class="edit-body">
@@ -88,7 +99,7 @@
         <hr class="edit-hr">
 
         <!-- 修改密码区域 -->
-        <div class="edit-form-group" style="border-top: 1px solid #e5e5e5; padding-top: 15px; margin-top: 10px;">
+        <div class="edit-form-group" style="border-top: 1px solid var(--border-light); padding-top: 15px; margin-top: 10px;">
             <label class="edit-label">修改密码（可选）</label>
             <p class="edit-form-hint">如果不修改密码，请留空</p>
             <label class="edit-label">当前密码</label>
@@ -97,7 +108,7 @@
             <input type="password" id="newPassword" placeholder="输入新密码" class="edit-input">
             <label class="edit-label">确认新密码</label>
             <input type="password" id="confirmPassword" placeholder="再次输入新密码" class="edit-input">
-            <button type="button" class="edit-button" onclick="changePassword()" style="margin-top:8px; background:#444;">修改密码</button>
+            <button type="button" class="edit-button" onclick="changePassword()" style="margin-top:8px; background:var(--btn-hover);">修改密码</button>
             <p id="passwordMessage" class="edit-password-message edit-error"></p>
         </div>
 

@@ -71,6 +71,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员登录</title>
+    <script>
+    (function () {
+        try {
+            var saved = localStorage.getItem('theme');
+            var theme = (saved === 'dark' || saved === 'light')
+                ? saved
+                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+    })();
+    </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -81,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         button { width: 100%; margin-top: 22px; padding: 10px; background: #111; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
         .error { margin-top: 14px; color: #b91c1c; font-size: .85rem; }
     </style>
+    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
 </head>
 <body>
     <form class="login-card" method="post" action="login.php">

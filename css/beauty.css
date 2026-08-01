@@ -1,4 +1,5 @@
 :root {
+    color-scheme: light;
     --bg: #fafaf9;
     --surface: #ffffff;
     --text: #1a1a1a;
@@ -9,6 +10,17 @@
     --nav-bg: #1a1a1a;
     --nav-text: #f0f0f0;
     --nav-hover: #ffffff;
+    --surface-muted: #f4f3f1;
+    --surface-hover: #f5f5f4;
+    --input-bg: #fdfdfc;
+    --placeholder-color: #b0b0b0;
+    --decorative: #e0e0e0;
+    --btn-bg: #1a1a1a;
+    --btn-hover: #333333;
+    --btn-disabled: #999999;
+    --caption-overlay: rgba(255,255,255,0.85);
+    --accent-border: #999999;
+    --color-swatch-ring: #1a1a1a;
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
     --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
     --radius-sm: 4px;
@@ -17,6 +29,33 @@
     --nav-height: 56px;
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     --font-serif: "Noto Serif SC", "STSong", "Songti SC", "SimSun", "KaiTi", "楷体", serif;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121316;
+    --surface: #1d1f22;
+    --surface-muted: #26282c;
+    --surface-hover: #2b2d31;
+    --text: #f2f3f5;
+    --text-secondary: #b9bcc2;
+    --text-muted: #8a8e96;
+    --border: #4a4e55;
+    --border-light: #36393f;
+    --nav-bg: #0f1012;
+    --nav-text: #e8eaed;
+    --nav-hover: #ffffff;
+    --input-bg: #141619;
+    --placeholder-color: #757a82;
+    --decorative: #4a4e55;
+    --btn-bg: #3a3e45;
+    --btn-hover: #4b5058;
+    --btn-disabled: #565b62;
+    --caption-overlay: rgba(18,19,22,0.86);
+    --accent-border: #6b7078;
+    --color-swatch-ring: #e8eaed;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.45);
 }
 
 /* ========== 全局重置 ========== */
@@ -34,6 +73,7 @@ body {
     font-family: var(--font-sans);
     background-color: var(--bg);
     color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -129,6 +169,42 @@ body {
 .nav-links a.active {
     color: #ffffff;
     font-weight: 550;
+}
+
+/* 主题切换与操作区 */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #d0d0d0;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color 0.2s, background-color 0.15s;
+    font-size: 16px;
+}
+.theme-toggle:hover {
+    color: #ffffff;
+    background-color: rgba(255,255,255,0.08);
+}
+.theme-toggle .fa-sun {
+    display: none;
+}
+html[data-theme="dark"] .theme-toggle .fa-sun {
+    display: inline-block;
+}
+html[data-theme="dark"] .theme-toggle .fa-moon {
+    display: none;
 }
 
 /* 汉堡菜单按钮 */
@@ -272,8 +348,8 @@ body {
     max-width: 700px;
     height: 320px;
     margin: 0 auto;
-    background-color: #f4f3f1;
-    border: 1px dashed #c8c8c8;
+    background-color: var(--surface-muted);
+    border: 1px dashed var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
 }
@@ -296,7 +372,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #b0b0b0;
+    color: var(--placeholder-color);
     font-size: 14px;
     letter-spacing: 1px;
     pointer-events: none;
@@ -335,7 +411,7 @@ body {
     box-shadow: var(--shadow-sm);
 }
 .card:hover {
-    border-color: #999;
+    border-color: var(--accent-border);
     box-shadow: var(--shadow-md);
 }
 .card-number {
@@ -393,8 +469,8 @@ body {
     height: 140px;
     border-radius: 50%;
     overflow: hidden;
-    background-color: #f4f3f1;
-    border: 1px dashed #c0c0c0;
+    background-color: var(--surface-muted);
+    border: 1px dashed var(--border);
     position: relative;
 }
 .teacher-photo img {
@@ -413,7 +489,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #b0b0b0;
+    color: var(--placeholder-color);
     font-size: 13px;
     letter-spacing: 0.5px;
     pointer-events: none;
@@ -440,7 +516,7 @@ body {
 }
 .teacher-quote {
     display: inline-block;
-    background: #f5f5f4;
+    background: var(--surface-hover);
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 13px;
@@ -461,7 +537,7 @@ body {
 .teacher-message::before {
     content: "“";
     font-size: 60px;
-    color: #e0e0e0;
+    color: var(--decorative);
     position: absolute;
     top: 10px;
     left: 20px;
@@ -495,27 +571,27 @@ body {
     margin-bottom: 56px;
 }
 .member-card {
-    background-color: #fff;
-    border: 1px solid #e5e5e5;
+    background-color: var(--surface);
+    border: 1px solid var(--border-light);
     border-radius: 8px;
     padding: 24px 16px 20px;
     text-align: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    box-shadow: var(--shadow-sm);
     transition: border-color 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 .member-card:hover {
-    border-color: #999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-md);
 }
 .member-avatar {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: #f4f3f1;
-    border: 1px dashed #c0c0c0;
+    background: var(--surface-muted);
+    border: 1px dashed var(--border);
     margin-bottom: 14px;
     display: flex;
     align-items: center;
@@ -531,7 +607,7 @@ body {
 }
 .member-avatar-placeholder {
     font-size: 20px;
-    color: #b0b0b0;
+    color: var(--placeholder-color);
     position: absolute;
 }
 .member-name {
@@ -539,22 +615,22 @@ body {
     font-size: 16px;
     font-weight: 650;
     margin-bottom: 4px;
-    color: #1a1a1a;
+    color: var(--text);
 }
 .member-birthday {
     font-size: 12px;
-    color: #888;
+    color: var(--text-muted);
     margin-bottom: 6px;
 }
 .member-quote {
     font-size: 13px;
-    color: #5c5c5c;
+    color: var(--text-secondary);
     font-style: italic;
     line-height: 1.5;
 }
 .empty-message {
     text-align: center;
-    color: #888;
+    color: var(--text-muted);
     padding: 40px 20px;
     font-size: 14px;
     grid-column: 1 / -1;
@@ -578,7 +654,7 @@ body {
 }
 
 .edit-profile-card:hover {
-    border-color: #999;
+    border-color: var(--accent-border);
     box-shadow: var(--shadow-md);
 }
 
@@ -599,7 +675,7 @@ body {
 
 .edit-profile-btn {
     display: inline-block;
-    background: var(--nav-bg);
+    background: var(--btn-bg);
     color: #fff;
     padding: 8px 24px;
     border-radius: var(--radius-sm);
@@ -611,7 +687,7 @@ body {
 }
 
 .edit-profile-btn:hover {
-    background: #333;
+    background: var(--btn-hover);
 }
 /* ========== 同学录卡片链接样式 ========== */
 .member-link {
@@ -621,13 +697,13 @@ body {
     transition: transform 0.1s;
 }
 .member-link:hover .member-card {
-    border-color: #999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
 }
 .member-nickname {
     font-size: 13px;
-    color: #888;
+    color: var(--text-muted);
     margin-top: -2px;
     margin-bottom: 4px;
 }
@@ -665,7 +741,7 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--border-light);
-    background: #f4f3f1;
+    background: var(--surface-muted);
     display: block;
     margin-top: 6px;
 }
@@ -697,7 +773,9 @@ body {
     max-width: 500px;
     margin: 40px auto;
     padding: 20px;
-    background: #fafaf9;
+    background: var(--bg);
+    color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 .edit-form-group {
     margin-bottom: 15px;
@@ -712,15 +790,17 @@ body {
 .edit-select {
     width: 100%;
     padding: 10px;
-    border: 1px solid #d4d4d4;
+    border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 14px;
     box-sizing: border-box;
     font-family: inherit;
+    background-color: var(--input-bg);
+    color: var(--text);
 }
 .edit-button {
     padding: 10px 24px;
-    background: #1a1a1a;
+    background: var(--btn-bg);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -728,10 +808,10 @@ body {
     font-size: 14px;
 }
 .edit-button:hover {
-    background: #333;
+    background: var(--btn-hover);
 }
 .edit-button:disabled {
-    background: #999;
+    background: var(--btn-disabled);
     cursor: not-allowed;
 }
 .edit-hidden {
@@ -749,7 +829,7 @@ body {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: #eee;
+    background: var(--surface-muted);
     margin-top: 10px;
     object-fit: cover;
 }
@@ -768,23 +848,23 @@ body {
 }
 .edit-form-hint {
     font-size: 12px;
-    color: #888;
+    color: var(--text-muted);
     margin-top: 4px;
 }
 .edit-hr {
     margin: 20px 0;
     border: none;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--border-light);
 }
 /* ========== 个人主页专用样式 ========== */
 .personal-profile-container {
     max-width: 700px;
     margin: 0 auto 40px;
-    background: #fff;
+    background: var(--surface);
     border-radius: 12px;
-    border: 1px solid #e5e5e5;
+    border: 1px solid var(--border-light);
     padding: 30px 35px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    box-shadow: var(--shadow-sm);
 }
 .personal-profile-header {
     display: flex;
@@ -792,14 +872,14 @@ body {
     gap: 24px;
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-light);
 }
 .personal-profile-avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: #f4f3f1;
-    border: 1px dashed #c0c0c0;
+    background: var(--surface-muted);
+    border: 1px dashed var(--border);
     flex-shrink: 0;
     overflow: hidden;
     display: flex;
@@ -813,7 +893,7 @@ body {
 }
 .personal-profile-avatar-placeholder {
     font-size: 28px;
-    color: #b0b0b0;
+    color: var(--placeholder-color);
 }
 .personal-profile-name {
     font-family: var(--font-serif);
@@ -823,12 +903,12 @@ body {
 }
 .personal-profile-nickname {
     font-size: 16px;
-    color: #888;
+    color: var(--text-muted);
     margin-bottom: 6px;
 }
 .personal-profile-quote {
     font-style: italic;
-    color: #5c5c5c;
+    color: var(--text-secondary);
     font-size: 15px;
 }
 .personal-profile-details {
@@ -843,29 +923,29 @@ body {
 }
 .personal-detail-label {
     font-size: 12px;
-    color: #888;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 2px;
 }
 .personal-detail-value {
     font-size: 15px;
-    color: #1a1a1a;
+    color: var(--text);
     word-break: break-word;
 }
 .personal-detail-value.personal-empty {
-    color: #ccc;
+    color: var(--text-muted);
     font-style: italic;
 }
 .personal-profile-actions {
     margin-top: 28px;
     text-align: center;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-light);
     padding-top: 24px;
 }
 .personal-edit-btn {
     display: inline-block;
-    background: #1a1a1a;
+    background: var(--btn-bg);
     color: #fff;
     padding: 8px 28px;
     border-radius: 6px;
@@ -874,12 +954,12 @@ body {
     transition: background 0.2s;
 }
 .personal-edit-btn:hover {
-    background: #333;
+    background: var(--btn-hover);
 }
 .personal-back-link {
     display: inline-block;
     margin-right: 16px;
-    color: #5c5c5c;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 14px;
 }
@@ -915,7 +995,7 @@ body {
     top: 8px;
     bottom: 8px;
     width: 1px;
-    background-color: #d0d0d0;
+    background-color: var(--border);
 }
 .timeline-item {
     position: relative;
@@ -929,10 +1009,10 @@ body {
     top: 6px;
     width: 10px;
     height: 10px;
-    background-color: #1a1a1a;
+    background-color: var(--text);
     border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 1px #aaa;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border);
 }
 .timeline-date {
     font-size: 12px;
@@ -958,8 +1038,8 @@ body {
     max-width: 100%;
     border-radius: var(--radius-sm);
     overflow: hidden;
-    background-color: #f4f3f1;
-    border: 1px dashed #c8c8c8;
+    background-color: var(--surface-muted);
+    border: 1px dashed var(--border);
     position: relative;
 }
 .timeline-photo img {
@@ -982,7 +1062,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #b0b0b0;
+    color: var(--placeholder-color);
     font-size: 12px;
     pointer-events: none;
     z-index: 1;
@@ -1000,7 +1080,7 @@ body {
 }
 .gallery-item {
     position: relative;
-    background-color: #f4f3f1;
+    background-color: var(--surface-muted);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-sm);
     overflow: hidden;
@@ -1008,12 +1088,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #b0b0b0;
+    color: var(--placeholder-color);
     font-size: 13px;
     transition: border-color 0.2s;
 }
 .gallery-item:hover {
-    border-color: #999;
+    border-color: var(--accent-border);
 }
 .gallery-item img {
     position: absolute;
@@ -1036,10 +1116,10 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255,255,255,0.85);
+    background: var(--caption-overlay);
     padding: 4px 8px;
     font-size: 11px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-align: center;
     opacity: 0;
     transition: opacity 0.2s;
@@ -1058,14 +1138,14 @@ body {
     width: 100%;
     max-width: 720px;
     margin: 0 auto;
-    background-color: #f4f3f1;
-    border: 1px dashed #c8c8c8;
+    background-color: var(--surface-muted);
+    border: 1px dashed var(--border);
     border-radius: var(--radius-md);
     aspect-ratio: 16 / 9;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #b0b0b0;
+    color: var(--placeholder-color);
     font-size: 14px;
     overflow: hidden;
 }
@@ -1142,7 +1222,7 @@ body {
     transition: border-color 0.2s;
 }
 .message-card:hover {
-    border-color: #999;
+    border-color: var(--accent-border);
 }
 .message-card .student {
     font-size: 13px;
@@ -1198,21 +1278,21 @@ body {
     font-family: inherit;
     font-size: 14px;
     color: var(--text);
-    background-color: #fdfdfc;
+    background-color: var(--input-bg);
     transition: border-color 0.2s;
     outline: none;
     resize: vertical;
 }
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: #888;
+    border-color: var(--accent-border);
 }
 .form-group textarea {
     min-height: 100px;
 }
 .submit-btn {
     display: inline-block;
-    background-color: #1a1a1a;
+    background-color: var(--btn-bg);
     color: #fff;
     border: none;
     padding: 10px 24px;
@@ -1225,10 +1305,10 @@ body {
     margin-top: 4px;
 }
 .submit-btn:hover {
-    background-color: #333;
+    background-color: var(--btn-hover);
 }
 .submit-btn:disabled {
-    background-color: #999;
+    background-color: var(--btn-disabled);
     cursor: not-allowed;
 }
 .form-feedback {
@@ -1311,12 +1391,13 @@ body {
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid transparent;
+    box-shadow: 0 0 0 1px rgba(128,128,128,0.35);
     transition: 0.2s;
     box-sizing: border-box;
     vertical-align: middle;
 }
-.color-swatch:hover { border-color: #999; }
-.color-swatch.selected { border-color: #1a1a1a; }
+.color-swatch:hover { border-color: var(--accent-border); }
+.color-swatch.selected { border-color: var(--color-swatch-ring); }
 
 
 /* 特别留言卡片：平滑彩色渐变细边框 */

@@ -22,6 +22,31 @@
 
 <script>
 
+    // ---------- 明暗主题切换（全站共享） ----------
+    (function() {
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+
+        function setTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            if (themeToggle) {
+                themeToggle.setAttribute('aria-label', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+                themeToggle.setAttribute('title', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+            }
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                const current = htmlEl.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                setTheme(next);
+                try {
+                    localStorage.setItem('theme', next);
+                } catch (err) {}
+            });
+        }
+    })();
+
 // ---------- 移动端汉堡菜单（所有页面共用） ----------
     (function() {
         const btn = document.getElementById('hamburgerBtn');
