@@ -82,6 +82,59 @@ body {
     flex-direction: column;
 }
 
+/* ========== 首页顶部通知 ========== */
+.domain-notice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 48px 10px 16px;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 14px;
+    z-index: 99;
+}
+.domain-notice-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 450;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+}
+.domain-notice-link:hover {
+    color: var(--text-secondary);
+    text-decoration: underline;
+}
+.domain-notice-close {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background-color 0.15s;
+}
+.domain-notice-close:hover {
+    color: var(--text);
+    background-color: var(--surface-hover);
+}
+.domain-notice.hidden {
+    display: none;
+}
+
 /* ========== 导航栏（基础样式） ========== */
 .nav {
     position: sticky;

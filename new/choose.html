@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>选择首页风格</title>
+  <title>选择风格</title>
   <style>
     :root {
       --bg: #f4f2ec;
@@ -73,12 +73,72 @@
       font-size: 14px;
       line-height: 1.7;
     }
+    .domain-notice {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: -32px -20px 28px;
+      padding: 10px 48px 10px 16px;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+    .domain-notice-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      line-height: 1.5;
+    }
+    .domain-notice-link:hover {
+      color: var(--muted);
+      text-decoration: underline;
+    }
+    .domain-notice-close {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background-color 0.15s;
+    }
+    .domain-notice-close:hover {
+      color: var(--ink);
+      background: #f2efe8;
+    }
+    .domain-notice.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
+
+  <!-- 通知 -->
+    <div class="domain-notice" id="domainNotice">
+        <a class="domain-notice-link" href="https://tp.wjx.com/vm/wRECTSG.aspx#" target="_blank" rel="noopener">
+            <strong>网站风格选择</strong>点击查看详情
+        </a>
+        <button class="domain-notice-close" id="closeNotice" type="button" aria-label="关闭通知">✕</button>
+    </div>
+
   <div class="wrap">
-    <h1>选择首页风格</h1>
-    <p class="sub">下面是 5 种风格的桌面预览（浅色 / 深色）。点击对应链接可打开完整页面，也可直接访问 <code>_preview</code> 文件夹查看手机版截图。</p>
+    <h1>选择风格</h1>
+    <p class="sub">下面是 5 种风格的桌面预览（浅色 / 深色）。点击对应链接可打开完整页面。</p>
     <div class="grid">
       <section class="card">
         <h2>1. 编辑社风格</h2>
@@ -143,5 +203,15 @@
     </div>
     <p class="tip">选定后回复风格编号即可，例如“选 2”。我会把该版本提为网站正式首页，删除其余 4 个风格文件夹、这个对比页和临时预览文件夹，再做最终验证。</p>
   </div>
+  <script>
+    (function () {
+      const notice = document.getElementById('domainNotice');
+      const closeBtn = document.getElementById('closeNotice');
+      if (!notice || !closeBtn) return;
+      closeBtn.addEventListener('click', function () {
+        notice.classList.add('hidden');
+      });
+    })();
+  </script>
 </body>
 </html>

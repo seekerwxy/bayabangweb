@@ -24,12 +24,13 @@
 	
     <?php include '_header.php'; ?>
 
-    <!-- 通知 
-	<div class="domain-notice" id="domainNotice">
-        <span><strong>[六一专属]</strong>六一儿童节快乐～</span>
-        <button class="domain-notice-close" id="closeNotice" aria-label="关闭通知">✕</button>
-    </div>    
-    -->
+    <!-- 首页顶部通知 -->
+    <div class="domain-notice" id="domainNotice">
+        <a class="domain-notice-link" href="https://bayabang.top/new/choose.html" target="_blank" rel="noopener">
+            <strong>网站风格选择</strong>点击查看详情
+        </a>
+        <button class="domain-notice-close" id="closeNotice" type="button" aria-label="关闭通知">✕</button>
+    </div>
 
     <!-- ==================== 主体内容 ==================== -->
     <main class="main">
@@ -115,6 +116,16 @@
                 img.classList.remove('loaded');
             }
         });
+
+        // 顶部通知关闭
+        (function () {
+            const notice = document.getElementById('domainNotice');
+            const closeBtn = document.getElementById('closeNotice');
+            if (!notice || !closeBtn) return;
+            closeBtn.addEventListener('click', function () {
+                notice.classList.add('hidden');
+            });
+        })();
         
     </script>
 
