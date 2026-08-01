@@ -11,7 +11,11 @@
             </a>
             <!-- Cat^_^ -->
             <a title="一只可爱的小猫咪">
-                <i class="fa-solid fa-cat fa-spin fa-spin-reverse fa-lg"></i>
+                <i class="fa-solid fa-cat fa-lg"></i>
+            </a>
+            <!-- 管理员 -->
+            <a href="admin-files/admin-list.php" aria-label="管理员入口" title="管理员入口">
+                <i class="fa-solid fa-user-shield fa-lg"></i>
             </a>
         </div>
         <div class="footer-copyright">
