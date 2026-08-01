@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博雅班首页 · 古风</title>
+    <meta name="description" content="班级纪念册，献给班主任和同学们的回忆与祝福。">
+    <script>
+    (function () {
+        try {
+            var saved = localStorage.getItem('boyaTheme');
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var param = new URLSearchParams(location.search).get('theme');
+            var theme = (param === 'dark' || param === 'light') ? param : ((saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light'));
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+    })();
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="head">
+        <div class="head-inner">
+            <div class="seal-brand">
+                <img class="seal-mark" src="assets/banhui.jpg" alt="班徽">
+                <span class="seal-char">博雅</span>
+            </div>
+            <nav class="nav" aria-label="主导航">
+                <a class="nav-link active" href="index.html">首页</a>
+                <a class="nav-link" href="teacher.php">班主任</a>
+                <a class="nav-link" href="classmates.php">同学录</a>
+                <a class="nav-link" href="memories.php">时光回忆馆</a>
+                <a class="nav-link" href="messages.php">留言板</a>
+            </nav>
+            <div class="head-actions">
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换日夜模式"></button>
+                <button class="hamburger" id="hamburgerBtn" type="button" aria-label="打开菜单" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                        <line x1="4" y1="8" x2="20" y2="8"></line>
+                        <line x1="4" y1="12" x2="20" y2="12"></line>
+                        <line x1="4" y1="16" x2="20" y2="16"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <nav class="mobile-menu" id="mobileMenu" aria-label="移动端导航">
+            <a href="index.html">首页</a>
+            <a href="teacher.php">班主任</a>
+            <a href="classmates.php">同学录</a>
+            <a href="memories.php">时光回忆馆</a>
+            <a href="messages.php">留言板</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-side">
+                <p class="vertical-text">博雅班纪念册</p>
+                <div class="ink-stone"></div>
+            </div>
+            <div class="hero-center">
+                <p class="inscription">博雅之章</p>
+                <h1 class="hero-title">博采众长如星璀璨<br>雅量高致似翰无涯</h1>
+                <p class="hero-dedication">献给班主任和同学们</p>
+                <figure class="scroll-photo">
+                    <img src="assets/hezhao.jpg" alt="班级大合照">
+                    <figcaption>博雅班 · 大合照</figcaption>
+                </figure>
+            </div>
+            <div class="hero-side hero-side-right">
+                <div class="seal-stamp" aria-label="博雅印章">博雅</div>
+                <p class="side-caption">岁在丙午<br>辑录一班之忆</p>
+            </div>
+        </section>
+
+        <section class="catalog" id="catalog">
+            <h2 class="catalog-title">纪念册卷宗</h2>
+            <p class="catalog-sub">探索回忆之四卷</p>
+            <ol class="scroll-list">
+                <li>
+                    <a class="scroll-entry" href="teacher.php">
+                        <span class="chapter-no">卷一</span>
+                        <h3 class="chapter-title">班主任专属空间</h3>
+                        <p class="chapter-desc">老师的抓拍瞬间、经典语录，以及全班同学想对您说的一句句话，都在这里静静安放。</p>
+                        <span class="chapter-enter">入卷 →</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="scroll-entry" href="classmates.php">
+                        <span class="chapter-no">卷二</span>
+                        <h3 class="chapter-title">同学录</h3>
+                        <p class="chapter-desc">比较简陋，不过后续“可能”更新。</p>
+                        <span class="chapter-enter">入卷 →</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="scroll-entry" href="memories.php">
+                        <span class="chapter-no">卷三</span>
+                        <h3 class="chapter-title">时光回忆馆</h3>
+                        <p class="chapter-desc">我们的故事还未完结，不过目前已经有了一些碎片。</p>
+                        <span class="chapter-enter">入卷 →</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="scroll-entry" href="messages.php">
+                        <span class="chapter-no">卷四</span>
+                        <h3 class="chapter-title">留言板</h3>
+                        <p class="chapter-desc">写给班级的祝福，写给未来自己的话。像一面温暖的便利贴墙，每一张都值得被看见。</p>
+                        <span class="chapter-enter">入卷 →</span>
+                    </a>
+                </li>
+            </ol>
+        </section>
+    </main>
+
+    <footer class="colophon">
+        <p class="colophon-line">© 2026 25级博雅班 · All rights reserved</p>
+        <p class="colophon-links">
+            <a href="https://github.com/seekerwxy/bayabangweb" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <span>·</span>
+            <a href="mailto:1708043179@qq.com">邮箱</a>
+            <span>·</span>
+            <a href="admin-files/admin-list.php">管理员</a>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        var root = document.documentElement;
+        var btn = document.getElementById('themeToggle');
+        function paint() {
+            var dark = root.getAttribute('data-theme') === 'dark';
+            btn.textContent = dark ? '昼' : '夜';
+            btn.setAttribute('aria-label', dark ? '切换到白昼模式' : '切换到夜色模式');
+        }
+        paint();
+        if (btn) {
+            btn.addEventListener('click', function () {
+                var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                root.setAttribute('data-theme', next);
+                try { localStorage.setItem('boyaTheme', next); } catch (e) {}
+                paint();
+            });
+        }
+        var ham = document.getElementById('hamburgerBtn');
+        var menu = document.getElementById('mobileMenu');
+        if (ham && menu) {
+            ham.addEventListener('click', function () {
+                var open = menu.classList.toggle('open');
+                ham.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            menu.querySelectorAll('a').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    menu.classList.remove('open');
+                    ham.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+    })();
+    </script>
+</body>
+</html>

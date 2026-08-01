@@ -1,0 +1,552 @@
+:root {
+    color-scheme: light;
+    --paper: #f3ead8;
+    --paper-deep: #e6d9bd;
+    --paper-soft: #faf4e5;
+    --ink: #262019;
+    --ink-soft: #4c4336;
+    --muted: #83745d;
+    --line: #b9a67f;
+    --line-strong: #4a3826;
+    --red: #9e2b25;
+    --red-deep: #7c1e1a;
+    --gold: #8a6b3f;
+    --wash: rgba(38, 32, 25, 0.68);
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #171310;
+    --paper-deep: #201a15;
+    --paper-soft: #1c1713;
+    --ink: #e8dcc1;
+    --ink-soft: #c4b391;
+    --muted: #8d7c61;
+    --line: #51422e;
+    --line-strong: #c2a56c;
+    --red: #c2413a;
+    --red-deep: #9e2b25;
+    --gold: #c8a45c;
+    --wash: rgba(10, 8, 6, 0.74);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Microsoft YaHei", serif;
+    background:
+        radial-gradient(ellipse at 50% -20%, rgba(154, 43, 37, 0.08), transparent 55%),
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(122, 100, 62, 0.06) 39px 40px),
+        var(--paper);
+    color: var(--ink);
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+/* ---------- 页眉 ---------- */
+.head {
+    position: relative;
+    border-bottom: 2px solid var(--line-strong);
+    background: var(--paper-soft);
+}
+
+.head::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -5px;
+    height: 3px;
+    border-top: 1px solid var(--red);
+}
+
+.head-inner {
+    width: min(1120px, 92vw);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    padding: 16px 0 14px;
+}
+
+.seal-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.seal-mark {
+    width: 46px;
+    height: 46px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 2px solid var(--red);
+    padding: 2px;
+}
+
+.seal-char {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--red);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-link {
+    position: relative;
+    padding: 8px 16px;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+    border-left: 1px solid var(--line);
+}
+
+.nav-link:first-child {
+    border-left: 0;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 18px;
+    height: 2px;
+    background: var(--red);
+    transform: translateX(-50%) scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+.nav-link.active {
+    color: var(--ink);
+}
+
+.head-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.theme-toggle {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    color: var(--red);
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle:hover {
+    border-color: var(--red);
+    background: rgba(154, 43, 37, 0.08);
+}
+
+.hamburger {
+    display: none;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.hamburger svg {
+    width: 20px;
+    height: 20px;
+}
+
+.mobile-menu {
+    display: none;
+}
+
+/* ---------- 主视觉 ---------- */
+.hero {
+    width: min(1120px, 92vw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 120px 1fr 120px;
+    align-items: center;
+    gap: 34px;
+    padding: 60px 0 68px;
+}
+
+.hero-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+}
+
+.vertical-text {
+    writing-mode: vertical-rl;
+    font-size: 22px;
+    letter-spacing: 0.42em;
+    color: var(--ink-soft);
+    border-left: 1px solid var(--line);
+    padding-left: 12px;
+}
+
+.ink-stone {
+    width: 64px;
+    height: 64px;
+    border-radius: 50% 44% 52% 42%;
+    background: radial-gradient(circle at 36% 34%, var(--ink), #000 70%);
+    opacity: 0.9;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.hero-side-right {
+    align-items: flex-end;
+}
+
+.seal-stamp {
+    width: 72px;
+    height: 72px;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--red);
+    color: var(--red);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    transform: rotate(-6deg);
+    box-shadow: 0 0 0 1px rgba(154, 43, 37, 0.3);
+}
+
+.side-caption {
+    writing-mode: vertical-rl;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+}
+
+.hero-center {
+    text-align: center;
+}
+
+.inscription {
+    font-size: 13px;
+    letter-spacing: 0.6em;
+    color: var(--red);
+    margin-bottom: 14px;
+}
+
+.hero-title {
+    font-size: clamp(34px, 5vw, 54px);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+}
+
+.hero-dedication {
+    margin-top: 12px;
+    font-size: 15px;
+    letter-spacing: 0.3em;
+    color: var(--ink-soft);
+}
+
+.scroll-photo {
+    position: relative;
+    margin: 34px auto 0;
+    max-width: 560px;
+    padding: 12px;
+    border: 1px solid var(--line-strong);
+    outline: 4px solid var(--paper-soft);
+    outline-offset: -9px;
+    background: var(--paper-soft);
+    box-shadow: 0 18px 44px rgba(54, 42, 24, 0.22);
+}
+
+.scroll-photo::before,
+.scroll-photo::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: repeating-linear-gradient(90deg, rgba(122, 100, 62, 0.16) 0 2px, transparent 2px 7px);
+}
+
+.scroll-photo::before {
+    left: -30px;
+}
+
+.scroll-photo::after {
+    right: -30px;
+}
+
+.scroll-photo img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    filter: sepia(0.24) saturate(0.82) contrast(1.04);
+}
+
+.scroll-photo figcaption {
+    padding-top: 10px;
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--ink-soft);
+    text-align: right;
+}
+
+/* ---------- 卷宗 ---------- */
+.catalog {
+    padding: 56px 0 68px;
+    border-top: 1px solid var(--line);
+    background: var(--paper-deep);
+}
+
+.catalog > * {
+    width: min(1120px, 92vw);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.catalog-title {
+    text-align: center;
+    font-size: 32px;
+    letter-spacing: 0.3em;
+}
+
+.catalog-sub {
+    margin-top: 6px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    color: var(--red);
+}
+
+.scroll-list {
+    list-style: none;
+    margin-top: 34px;
+    border-top: 2px solid var(--line-strong);
+}
+
+.scroll-list li {
+    border-bottom: 1px solid var(--line);
+}
+
+.scroll-entry {
+    display: grid;
+    grid-template-columns: 110px 240px 1fr 90px;
+    align-items: center;
+    gap: 24px;
+    padding: 22px 8px;
+    transition: background 0.25s ease;
+}
+
+.scroll-entry:hover {
+    background: rgba(154, 43, 37, 0.08);
+}
+
+.chapter-no {
+    font-size: 15px;
+    letter-spacing: 0.24em;
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 4px 0;
+    text-align: center;
+    width: 88px;
+}
+
+.chapter-title {
+    font-size: 22px;
+    letter-spacing: 0.08em;
+}
+
+.chapter-desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+}
+
+.chapter-enter {
+    text-align: right;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+}
+
+.scroll-entry:hover .chapter-enter {
+    color: var(--red);
+}
+
+/* ---------- 页脚 ---------- */
+.colophon {
+    margin-top: auto;
+    padding: 30px 24px 36px;
+    text-align: center;
+    border-top: 2px solid var(--line-strong);
+    background: var(--paper-soft);
+}
+
+.colophon-line {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--ink-soft);
+}
+
+.colophon-links {
+    margin-top: 8px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+}
+
+.colophon-links a:hover {
+    color: var(--red);
+}
+
+.colophon-links span {
+    margin: 0 10px;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 960px) {
+    .hero {
+        grid-template-columns: 1fr;
+        padding: 44px 0 52px;
+    }
+
+    .hero-side {
+        display: none;
+    }
+
+    .nav {
+        display: none;
+    }
+
+    .hamburger {
+        display: inline-flex;
+    }
+
+    .mobile-menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        z-index: 50;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line-strong);
+        background: var(--paper-soft);
+    }
+
+    .mobile-menu.open {
+        display: block;
+    }
+
+    .mobile-menu a {
+        display: block;
+        padding: 12px 24px;
+        font-size: 15px;
+        letter-spacing: 0.2em;
+        border-top: 1px solid var(--line);
+    }
+
+    .mobile-menu a:hover {
+        color: var(--red);
+    }
+
+    .scroll-entry {
+        grid-template-columns: 86px 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px 18px;
+    }
+
+    .chapter-desc {
+        grid-column: 1 / 3;
+    }
+
+    .chapter-enter {
+        grid-column: 2;
+        text-align: left;
+    }
+}
+
+@media (max-width: 640px) {
+    .seal-char {
+        font-size: 21px;
+    }
+
+    .hero-title {
+        font-size: 29px;
+        letter-spacing: 0.04em;
+    }
+
+    .scroll-photo {
+        margin-top: 26px;
+    }
+
+    .scroll-photo img {
+        height: 250px;
+    }
+
+    .scroll-photo::before,
+    .scroll-photo::after {
+        display: none;
+    }
+
+    .catalog-title {
+        font-size: 26px;
+    }
+
+    .scroll-entry {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .chapter-no {
+        width: 74px;
+    }
+
+    .chapter-desc,
+    .chapter-enter {
+        grid-column: auto;
+    }
+}
