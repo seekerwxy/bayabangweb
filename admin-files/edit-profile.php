@@ -3,197 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>编辑我的同学录信息</title>
+    <title>博雅班编辑我的同学录信息</title>
+    <meta name="description" content="博雅班编辑我的同学录信息，用于修改个人资料。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            max-width: 500px;
-            margin: 40px auto;
-            padding: 20px;
-            background: #fafaf9;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #d4d4d4;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        button {
-            padding: 10px 24px;
-            background: #1a1a1a;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #333;
-        }
-        button:disabled {
-            background: #999;
-            cursor: not-allowed;
-        }
-        .hidden {
-            display: none;
-        }
-        .error {
-            color: #b71c1c;
-            font-size: 13px;
-        }
-        .success {
-            color: #2e7d32;
-            font-size: 13px;
-        }
-        .avatar-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #eee;
-            margin-top: 10px;
-            object-fit: cover;
-        }
-        #cropContainer {
-            max-width: 100%;
-            margin-top: 15px;
-        }
-        #cropImage {
-            max-width: 100%;
-            max-height: 300px;
-        }
-        .crop-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-        }
-        .form-hint {
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
-        hr {
-            margin: 20px 0;
-            border: none;
-            border-top: 1px solid #e5e5e5;
-        }
-    </style>
+        <link rel="stylesheet" href="../css/beauty.css?v=<?= filemtime(__DIR__ . '/../css/beauty.css') ?>">
 </head>
-<body>
-    <h2>编辑我的同学录信息</h2>
+<body class="edit-body">
+    <h2 class="edit-h2">编辑我的同学录信息</h2>
 
     <!-- 登录区域 -->
-    <div id="loginSection">
-        <div class="form-group">
-            <label>姓名</label>
-            <input type="text" id="loginName" placeholder="你的姓名">
+    <div id="loginSection" class="edit-login-section">
+        <div class="edit-form-group">
+            <label class="edit-label">姓名</label>
+            <input type="text" id="loginName" placeholder="你的姓名" class="edit-input">
         </div>
-        <div class="form-group">
-            <label>密码</label>
-            <input type="password" id="loginPassword" placeholder="输入密码">
+        <div class="edit-form-group">
+            <label class="edit-label">密码</label>
+            <input type="password" id="loginPassword" placeholder="输入密码" class="edit-input">
         </div>
-        <button onclick="login()">登录</button>
-        <p id="loginError" class="error"></p>
+        <button class="edit-button" onclick="login()">登录</button>
+        <p id="loginError" class="edit-error"></p>
     </div>
 
     <!-- 编辑区域（登录后显示） -->
-    <div id="editSection" class="hidden">
+    <div id="editSection" class="edit-edit-section edit-hidden">
         <!-- 基础信息 -->
-        <div class="form-group">
-            <label>座右铭</label>
-            <textarea id="editQuote" rows="2" maxlength="200"></textarea>
+        <div class="edit-form-group">
+            <label class="edit-label">座右铭</label>
+            <textarea id="editQuote" rows="2" maxlength="200" class="edit-textarea"></textarea>
         </div>
-        <div class="form-group">
-            <label>生日</label>
-            <input type="date" id="editBirthday">
-            <p class="form-hint">选填，格式：年-月-日</p>
+        <div class="edit-form-group">
+            <label class="edit-label">生日</label>
+            <input type="date" id="editBirthday" class="edit-input">
+            <p class="edit-form-hint">选填，格式：年-月-日</p>
         </div>
-        <div class="form-group">
-            <label>头像</label>
-            <p class="form-hint">当前头像：</p>
-            <img id="currentAvatar" src="" alt="当前头像" class="avatar-preview" onerror="this.style.display='none'">
-            <input type="file" id="avatarFile" accept="image/*" style="margin-top:10px;">
-            <p class="form-hint">请选择正方形照片，或使用裁剪工具</p>
-            <div id="cropContainer" class="hidden">
-                <img id="cropImage" src="" alt="裁剪图片">
-                <div class="crop-actions">
-                    <button onclick="cropImage()">确认裁剪</button>
-                    <button onclick="cancelCrop()">取消</button>
+        <div class="edit-form-group">
+            <label class="edit-label">头像</label>
+            <p class="edit-form-hint">当前头像：</p>
+            <img id="currentAvatar" src="" alt="当前头像" class="edit-avatar-preview edit-current-avatar" onerror="this.style.display='none'">
+            <input type="file" id="avatarFile" accept="image/*" style="margin-top:10px;" class="edit-input edit-avatar-file">
+            <p class="edit-form-hint">请选择正方形照片，或使用裁剪工具</p>
+            <div id="cropContainer" class="edit-crop-container edit-hidden">
+                <img id="cropImage" src="" alt="裁剪图片" class="edit-crop-image">
+                <div class="edit-crop-actions">
+                    <button class="edit-button" onclick="cropImage()">确认裁剪</button>
+                    <button class="edit-button" onclick="cancelCrop()">取消</button>
                 </div>
             </div>
-            <p id="uploadStatus" class="error"></p>
+            <p id="uploadStatus" class="edit-upload-status edit-error"></p>
         </div>
 
-        <hr>
+        <hr class="edit-hr">
 
         <!-- 扩展信息 -->
-        <div class="form-group">
-            <label>昵称/外号</label>
-            <input type="text" id="editNickname" maxlength="50" placeholder="例如：小星星">
+        <div class="edit-form-group">
+            <label class="edit-label">昵称/外号</label>
+            <input type="text" id="editNickname" maxlength="50" placeholder="例如：小星星" class="edit-input">
         </div>
-        <div class="form-group">
-            <label>性别</label>
-            <select id="editGender">
+        <div class="edit-form-group">
+            <label class="edit-label">性别</label>
+            <select id="editGender" class="edit-select">
                 <option value="男">男</option>
                 <option value="女">女</option>
                 <option value="其他">其他</option>
             </select>
         </div>
-        <div class="form-group">
-            <label>家乡/出生地</label>
-            <input type="text" id="editHometown" maxlength="100" placeholder="例如：浙江杭州">
+        <div class="edit-form-group">
+            <label class="edit-label">家乡/出生地</label>
+            <input type="text" id="editHometown" maxlength="100" placeholder="例如：浙江杭州" class="edit-input">
         </div>
-        <div class="form-group">
-            <label>兴趣爱好</label>
-            <textarea id="editHobbies" rows="2" placeholder="例如：篮球、音乐、阅读"></textarea>
+        <div class="edit-form-group">
+            <label class="edit-label">兴趣爱好</label>
+            <textarea id="editHobbies" rows="2" placeholder="例如：篮球、音乐、阅读" class="edit-textarea"></textarea>
         </div>
-        <div class="form-group">
-            <label>特长/技能</label>
-            <textarea id="editSkills" rows="2" placeholder="例如：编程、绘画、吉他"></textarea>
+        <div class="edit-form-group">
+            <label class="edit-label">特长/技能</label>
+            <textarea id="editSkills" rows="2" placeholder="例如：编程、绘画、吉他" class="edit-textarea"></textarea>
         </div>
-        <div class="form-group">
-            <label>联系方式</label>
-            <input type="text" id="editContact" maxlength="200" placeholder="例如：邮箱、微信、QQ 等">
+        <div class="edit-form-group">
+            <label class="edit-label">联系方式</label>
+            <input type="text" id="editContact" maxlength="200" placeholder="例如：邮箱、微信、QQ 等" class="edit-input">
         </div>
 
-        <hr>
+        <hr class="edit-hr">
 
         <!-- 修改密码区域 -->
-        <div class="form-group" style="border-top: 1px solid #e5e5e5; padding-top: 15px; margin-top: 10px;">
-            <label>修改密码（可选）</label>
-            <p class="form-hint">如果不修改密码，请留空</p>
-            <label>当前密码</label>
-            <input type="password" id="oldPassword" placeholder="输入当前密码">
-            <label>新密码（至少6位）</label>
-            <input type="password" id="newPassword" placeholder="输入新密码">
-            <label>确认新密码</label>
-            <input type="password" id="confirmPassword" placeholder="再次输入新密码">
-            <button type="button" onclick="changePassword()" style="margin-top:8px; background:#444;">修改密码</button>
-            <p id="passwordMessage" class="error"></p>
+        <div class="edit-form-group" style="border-top: 1px solid #e5e5e5; padding-top: 15px; margin-top: 10px;">
+            <label class="edit-label">修改密码（可选）</label>
+            <p class="edit-form-hint">如果不修改密码，请留空</p>
+            <label class="edit-label">当前密码</label>
+            <input type="password" id="oldPassword" placeholder="输入当前密码" class="edit-input">
+            <label class="edit-label">新密码（至少6位）</label>
+            <input type="password" id="newPassword" placeholder="输入新密码" class="edit-input">
+            <label class="edit-label">确认新密码</label>
+            <input type="password" id="confirmPassword" placeholder="再次输入新密码" class="edit-input">
+            <button type="button" class="edit-button" onclick="changePassword()" style="margin-top:8px; background:#444;">修改密码</button>
+            <p id="passwordMessage" class="edit-password-message edit-error"></p>
         </div>
 
-        <button onclick="saveProfile()">保存全部修改</button>
-        <p id="editMessage"></p>
+        <button class="edit-button" onclick="saveProfile()">保存全部修改</button>
+        <p id="editMessage" class="edit-edit-message"></p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
-        const API_BASE = '/api/classmates.php';
-        const UPLOAD_URL = '/api/upload.php';
-        let currentName = '', currentPassword = '';
+        const API_BASE = '../api/classmates.php';
+        const UPLOAD_URL = '../api/upload.php';
+        let currentName = '', csrfToken = '';
         let currentAvatarPath = '';
         let cropper = null;
+
+        const savedName = localStorage.getItem('profile_name');
+        if (savedName) {
+            document.getElementById('loginName').value = savedName;
+        }
+        localStorage.removeItem('profile_password');
 
         // 登录
         async function login() {
@@ -211,15 +135,13 @@
             const data = await resp.json();
             if (data.message === 'success') {
                 currentName = name;
-                currentPassword = password;
-                // 存储到 localStorage 以便 personal.php 识别本人
+                csrfToken = data.csrf_token || '';
+                localStorage.removeItem('profile_password');
                 localStorage.setItem('profile_name', name);
-                localStorage.setItem('profile_password', password);
 
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('editSection').classList.remove('hidden');
+                document.getElementById('loginSection').classList.add('edit-hidden');
+                document.getElementById('editSection').classList.remove('edit-hidden');
 
-                // 填充所有字段
                 const d = data.data;
                 document.getElementById('editQuote').value = d.quote || '';
                 document.getElementById('editBirthday').value = d.birthday || '';
@@ -254,7 +176,7 @@
             }
             const reader = new FileReader();
             reader.onload = function(ev) {
-                document.getElementById('cropContainer').classList.remove('hidden');
+                document.getElementById('cropContainer').classList.remove('edit-hidden');
                 const cropImg = document.getElementById('cropImage');
                 cropImg.src = ev.target.result;
                 if (cropper) cropper.destroy();
@@ -291,7 +213,7 @@
                 const resp = await fetch(UPLOAD_URL, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ image: base64 })
+                    body: JSON.stringify({ image: base64, csrf_token: csrfToken })
                 });
                 if (!resp.ok) {
                     let errorMsg = `服务器错误 (${resp.status})`;
@@ -307,9 +229,8 @@
                     avatarImg.src = data.path;
                     avatarImg.style.display = 'block';
                     currentAvatarPath = data.path;
-                    document.getElementById('cropContainer').classList.add('hidden');
+                    document.getElementById('cropContainer').classList.add('edit-hidden');
                     if (cropper) { cropper.destroy(); cropper = null; }
-                    // 立即更新数据库中的头像（与其它字段一起保存）
                     await updateAvatarInDB(data.path);
                 } else {
                     throw new Error(data.message || '上传失败');
@@ -336,10 +257,9 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: 'update',
-                        name: currentName,
-                        password: currentPassword,
                         quote, birthday, avatar: avatarPath,
-                        nickname, gender, hometown, hobbies, skills, contact_info
+                        nickname, gender, hometown, hobbies, skills, contact_info,
+                        csrf_token: csrfToken
                     })
                 });
                 const data = await resp.json();
@@ -355,7 +275,7 @@
         }
 
         function cancelCrop() {
-            document.getElementById('cropContainer').classList.add('hidden');
+            document.getElementById('cropContainer').classList.add('edit-hidden');
             if (cropper) { cropper.destroy(); cropper = null; }
             document.getElementById('avatarFile').value = '';
         }
@@ -382,20 +302,19 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     action: 'update',
-                    name: currentName,
-                    password: currentPassword,
                     quote, birthday, avatar,
-                    nickname, gender, hometown, hobbies, skills, contact_info
+                    nickname, gender, hometown, hobbies, skills, contact_info,
+                    csrf_token: csrfToken
                 })
             });
             const data = await resp.json();
             const msg = document.getElementById('editMessage');
             if (data.message === '更新成功') {
                 msg.textContent = '保存成功！';
-                msg.className = 'success';
+                msg.className = 'edit-success';
             } else {
                 msg.textContent = data.message;
-                msg.className = 'error';
+                msg.className = 'edit-error';
             }
         }
 
@@ -406,7 +325,7 @@
             const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const msg = document.getElementById('passwordMessage');
             msg.textContent = '';
-            msg.className = 'error';
+            msg.className = 'edit-error';
 
             if (!oldPassword && !newPassword && !confirmPassword) return;
             if (!oldPassword || !newPassword || !confirmPassword) {
@@ -428,20 +347,18 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         action: 'change_password',
-                        name: currentName,
                         old_password: oldPassword,
-                        new_password: newPassword
+                        new_password: newPassword,
+                        csrf_token: csrfToken
                     })
                 });
                 const data = await resp.json();
                 if (data.message === '密码修改成功') {
                     msg.textContent = '密码修改成功！请牢记新密码。';
-                    msg.className = 'success';
+                    msg.className = 'edit-success';
                     document.getElementById('oldPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
-                    currentPassword = newPassword;
-                    localStorage.setItem('profile_password', newPassword);
                 } else {
                     msg.textContent = data.message || '修改失败';
                 }
@@ -450,5 +367,6 @@
             }
         }
     </script>
+
 </body>
 </html>

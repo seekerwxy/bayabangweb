@@ -1,0 +1,54 @@
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-infinityfree
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate config.local.php from secrets
+        env:
+          CONFIG_LOCAL_PHP: ${{ secrets.CONFIG_LOCAL_PHP }}
+        run: |
+          python3 - <<'PY'
+          import os
+
+          content = os.environ['CONFIG_LOCAL_PHP']
+          if not content.strip():
+              raise SystemExit('CONFIG_LOCAL_PHP secret is empty; add it in GitHub Settings -> Secrets')
+          if not content.lstrip().startswith('<?php'):
+              raise SystemExit('CONFIG_LOCAL_PHP secret must be the full content of config.local.php')
+
+          with open('config.local.php', 'w', encoding='utf-8', newline='\n') as f:
+              f.write(content)
+          PY
+
+      - name: Deploy to InfinityFree via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: htdocs/
+          protocol: ftp
+          port: 21
+          log-level: minimal
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.github/**
+            api/photos/classmates/*.jpg
+            api/photos/classmates/*.png
+            api/photos/classmates/*.webp

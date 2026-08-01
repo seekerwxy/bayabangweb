@@ -1,61 +1,18 @@
+<?php $currentPage = 'teacher'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>班主任专属空间</title>
-    <link rel="stylesheet" href="css/beauty.css">
+    <title>博雅班班主任专属空间</title>
+    <meta name="description" content="献给班主任的专属空间，包含班主任小档案、格言，以及同学们的留言墙。">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/beauty.css?v=<?= filemtime(__DIR__ . '/css/beauty.css') ?>">
 </head>
 <body>
 
-    <!-- ==================== 导航栏（与首页相同，当前页高亮为“班主任”） ==================== -->
-    <nav class="nav" id="navbar">
-        <div class="nav-inner">
-            <div class="nav-left">
-                <a href="index.html" class="nav-badge" title="班级首页" aria-label="班级首页">
-                    <!-- ★ 替换为实际班徽图片 ★ -->
-                    <img
-                    src="photos\banhui.jpg"
-                    alt="班徽"
-                    width="38"
-                    height="38"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-                    >
-                    <span class="nav-badge-placeholder" style="display:none;">班徽</span>
-                </a>
-            </div>
+    <?php include '_header.php'; ?>
 
-            <ul class="nav-links" id="navLinksDesktop">
-                <li><a href="index.html">首页</a></li>
-                <li><a href="teacher.html" class="active">班主任</a></li>
-                <li><a href="classmates.html">同学录</a></li>
-                <li><a href="memories.html">时光回忆馆</a></li>
-                <li><a href="messages.html">留言板</a></li>
-            </ul>
-
-            <button class="hamburger" id="hamburgerBtn" aria-label="菜单" aria-expanded="false">
-                <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                    <line x1="4" y1="6" x2="20" y2="6"/>
-                    <line x1="4" y1="12" x2="20" y2="12"/>
-                    <line x1="4" y1="18" x2="20" y2="18"/>
-                </svg>
-                <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                    <line x1="6" y1="6" x2="18" y2="18"/>
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                </svg>
-            </button>
-        </div>
-
-        <div class="nav-mobile-dropdown" id="mobileDropdown">
-            <a href="index.html">首页</a>
-            <a href="teacher.html" class="active">班主任</a>
-            <a href="classmates.html">同学录</a>
-            <a href="memories.html">时光回忆馆</a>
-            <a href="messages.html">留言板</a>
-        </div>
-    </nav>
-
-    <!-- ==================== 班主任专属空间内容 ==================== -->
     <main class="main">
 
         <!-- 页面标题 -->
@@ -165,60 +122,7 @@
 
     </main>
 
-    <!-- ==================== 底部 ==================== -->
-    <footer class="footer">
-        <span>献给最好的班级和班主任</span>
-        <span class="footer-line">— 我已燃尽 —</span>
-    </footer>
-
-    <!-- 移动端菜单脚本 -->
     <script>
-        (function() {
-            const btn = document.getElementById('hamburgerBtn');
-            const dropdown = document.getElementById('mobileDropdown');
-
-            if (!btn || !dropdown) return;
-
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const isOpen = dropdown.classList.contains('visible');
-                if (isOpen) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                } else {
-                    dropdown.classList.add('visible');
-                    btn.classList.add('open');
-                    btn.setAttribute('aria-expanded', 'true');
-                }
-            });
-
-            dropdown.querySelectorAll('a').forEach(function(link) {
-                link.addEventListener('click', function() {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                });
-            });
-
-            document.addEventListener('click', function(event) {
-                if (!dropdown.contains(event.target) && event.target !== btn && !btn.contains(event
-                        .target)) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' && dropdown.classList.contains('visible')) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                    btn.focus();
-                }
-            });
-        })();
         // 班主任照片显示逻辑（避免缓存不触发 onload）
         function handleTeacherImageLoad() {
             const img = document.getElementById('teacherImg');
@@ -244,6 +148,8 @@
             }
 });
     </script>
+
+    <?php include '_footer.php'; ?>
 
 </body>
 </html>

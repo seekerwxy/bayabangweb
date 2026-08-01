@@ -1,49 +1,19 @@
+<?php $currentPage = 'messages'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>留言板</title>
-    <link rel="stylesheet" href="css/beauty.css">
+    <title>博雅班留言板</title>
+    <meta name="description" content="博雅班留言板，同学们可以在这里留下对班级的祝福和期许。">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/beauty.css?v=<?= filemtime(__DIR__ . '/css/beauty.css') ?>">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 </head>
 <body>
-    <nav class="nav" id="navbar">
-        <div class="nav-inner">
-            <div class="nav-left">
-                <a href="index.html" class="nav-badge" title="班级首页" aria-label="班级首页">
-                    <img src="photos/banhui.jpg" alt="班徽" width="38" height="38"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <span class="nav-badge-placeholder" style="display:none;">班徽</span>
-                </a>
-            </div>
-            <ul class="nav-links" id="navLinksDesktop">
-                <li><a href="index.html">首页</a></li>
-                <li><a href="teacher.html">班主任</a></li>
-                <li><a href="classmates.html">同学录</a></li>
-                <li><a href="memories.html">时光回忆馆</a></li>
-                <li><a href="messages.html" class="active">留言板</a></li>
-            </ul>
-            <button class="hamburger" id="hamburgerBtn" aria-label="菜单" aria-expanded="false">
-                <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                    <line x1="4" y1="6" x2="20" y2="6"/>
-                    <line x1="4" y1="12" x2="20" y2="12"/>
-                    <line x1="4" y1="18" x2="20" y2="18"/>
-                </svg>
-                <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                    <line x1="6" y1="6" x2="18" y2="18"/>
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                </svg>
-            </button>
-        </div>
-        <div class="nav-mobile-dropdown" id="mobileDropdown">
-            <a href="index.html">首页</a>
-            <a href="teacher.html">班主任</a>
-            <a href="classmates.html">同学录</a>
-            <a href="memories.html">时光回忆馆</a>
-            <a href="messages.html" class="active">留言板</a>
-        </div>
-    </nav>
+
+    <?php include '_header.php'; ?>
 
     <main class="main">
         <section class="page-header">
@@ -97,54 +67,8 @@
         </div>
     </main>
 
-    <footer class="footer">
-        <span>献给最好的班级和班主任</span>
-        <span class="footer-line">— 我已燃尽 —</span>
-    </footer>
-
     <script>
-        // ---------- 移动端汉堡菜单 ----------
-        (function() {
-            const btn = document.getElementById('hamburgerBtn');
-            const dropdown = document.getElementById('mobileDropdown');
-            if (!btn || !dropdown) return;
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const isOpen = dropdown.classList.contains('visible');
-                if (isOpen) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                } else {
-                    dropdown.classList.add('visible');
-                    btn.classList.add('open');
-                    btn.setAttribute('aria-expanded', 'true');
-                }
-            });
-            dropdown.querySelectorAll('a').forEach(function(link) {
-                link.addEventListener('click', function() {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                });
-            });
-            document.addEventListener('click', function(event) {
-                if (!dropdown.contains(event.target) && event.target !== btn && !btn.contains(event.target)) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                }
-            });
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' && dropdown.classList.contains('visible')) {
-                    dropdown.classList.remove('visible');
-                    btn.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                    btn.focus();
-                }
-            });
-        })();
-
+       
         // ---------- 颜色快捷插入（点击彩色圆点） ----------
         document.querySelectorAll('.color-swatch').forEach(dot => {
             dot.addEventListener('click', function() {
@@ -160,7 +84,7 @@
         });
 
         // ---------- 留言板 API 配置 ----------
-        const API_BASE = '/api/messages.php';
+        const API_BASE = 'api/messages.php';
 
         // 获取所有留言
         async function fetchMessages() {
@@ -207,7 +131,7 @@
             const colorRegex = /\[color=(#[0-9a-fA-F]{6})\](.*?)\[\/color\]/g;
             return text.replace(colorRegex, (match, color, inner) => {
                 // 内部文本可包含任意字符（但不支持嵌套），直接构建 span
-                return `<span style="color:${color}">${inner}</span>`;
+                return `<span style="color:${color}">${escapeHtml(inner)}</span>`;
             });
         }
 
@@ -231,10 +155,10 @@
 
                 // 正文：先转换颜色标记，再解析 Markdown
                 let bodyHtml = convertColorTags(msg.content);
-                bodyHtml = marked.parse(bodyHtml);
+                bodyHtml = DOMPurify.sanitize(marked.parse(bodyHtml), { USE_PROFILES: { html: true } });
 
                 // 判断是否是 id=7 的留言
-                const isHighlight = Number(msg.id) === 1;
+                const isHighlight = Number(msg.id) === 7;
                 const cardClass = isHighlight ? 'message-card glow-card' : 'message-card';
 
                 return `
@@ -299,5 +223,8 @@
         // 页面初始化
         fetchMessages();
     </script>
+
+    <?php include '_footer.php'; ?>
+
 </body>
 </html>

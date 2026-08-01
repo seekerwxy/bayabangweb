@@ -1,1 +1,7 @@
 config.php
+config.local.php
+.ftp-deploy-sync-state.json
+
+# User-uploaded avatars live on the server; do not commit them.
+api/photos/classmates/*
+!api/photos/classmates/.htaccess
