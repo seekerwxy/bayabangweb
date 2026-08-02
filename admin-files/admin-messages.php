@@ -100,7 +100,7 @@ if (!$db_error && isset($_GET['api'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博雅班留言管理</title>
+    <title>管理留言 | 温二外25级博雅班</title>
     <meta name="description" content="博雅班留言管理，用于管理班级的留言。">
     <script>
     (function () {

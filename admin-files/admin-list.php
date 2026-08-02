@@ -6,7 +6,7 @@ require_once __DIR__ . '/_auth.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博雅班管理页面列表</title>
+    <title>管理页面列表 | 温二外25级博雅班</title>
     <script>
     (function () {
         try {

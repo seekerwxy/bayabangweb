@@ -123,7 +123,7 @@ if (!$db_error && isset($_GET['api'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博雅班时光轴管理</title>
+    <title>管理时光轴 | 温二外25级博雅班</title>
     <meta name="description" content="博雅班时光轴管理，用于管理班级的时光回忆事件。">
     <script>
     (function () {

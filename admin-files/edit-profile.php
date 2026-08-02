@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博雅班编辑我的同学录信息</title>
+    <title>编辑我的同学录信息 | 温二外25级博雅班</title>
     <meta name="description" content="博雅班编辑我的同学录信息，用于修改个人资料。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">

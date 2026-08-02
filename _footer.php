@@ -10,7 +10,7 @@
                 <i class="fa-solid fa-envelope fa-lg"></i>
             </a>
             <!-- Cat^_^ -->
-            <a title="一只可爱的小猫咪">
+            <a title="跳转至管理员个人主页" href="https://wangxuanyi.pages.dev" target="_blank" rel="noopener noreferrer" aria-label="管理员个人主页">
                 <i class="fa-solid fa-cat fa-lg"></i>
             </a>
             <!-- 管理员 -->

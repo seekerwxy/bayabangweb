@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>博雅班个人主页</title>
+    <title>个人主页 | 温二外25级博雅班</title>
     <meta name="description" content="博雅班个人主页，展示每位同学的详细信息。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <?php include __DIR__ . '/_head.php'; ?>
