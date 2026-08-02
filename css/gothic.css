@@ -1,0 +1,911 @@
+/* ==========================================================
+   哥特风覆盖样式（配合原版布局，随 html[data-style="gothic"] 启用）
+   ========================================================== */
+
+html[data-style="gothic"] {
+    --parchment: #e9dfc8;
+    --parchment-deep: #d8c8a8;
+    --parchment-soft: #f1e9d6;
+    --gothic-ink: #211712;
+    --gothic-ink-soft: #4e3b30;
+    --gothic-muted: #8a7460;
+    --gothic-line: #a58d6b;
+    --gothic-line-strong: #6b4f36;
+    --gothic-blood: #8c1d24;
+    --gothic-blood-deep: #64141b;
+    --gothic-gold: #b58a4f;
+    --gothic-wash: rgba(28, 18, 14, 0.72);
+    --gothic-arch: polygon(50% 0%, 88% 18%, 92% 100%, 8% 100%, 12% 18%);
+}
+
+html[data-style="gothic"][data-theme="dark"] {
+    --parchment: #0c080d;
+    --parchment-deep: #150d13;
+    --parchment-soft: #110b10;
+    --gothic-ink: #ead9bd;
+    --gothic-ink-soft: #bda989;
+    --gothic-muted: #7f6b57;
+    --gothic-line: #4a3030;
+    --gothic-line-strong: #a34a44;
+    --gothic-blood: #b32730;
+    --gothic-blood-deep: #7c1a22;
+    --gothic-gold: #c99a55;
+    --gothic-wash: rgba(5, 3, 6, 0.8);
+}
+
+html[data-style="gothic"] body {
+    font-family: Georgia, "Times New Roman", "Songti SC", "SimSun", "Microsoft YaHei", serif;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(179, 39, 48, 0.12), transparent 46%),
+        repeating-linear-gradient(45deg, rgba(128, 98, 63, 0.04) 0 2px, transparent 2px 14px),
+        var(--parchment);
+    color: var(--gothic-ink);
+    line-height: 1.8;
+}
+
+html[data-style="gothic"] a {
+    color: inherit;
+}
+
+/* ---------- 顶部通知 ---------- */
+html[data-style="gothic"] .domain-notice {
+    background: var(--parchment-soft);
+    border-bottom: 1px solid var(--gothic-line-strong);
+    color: var(--gothic-ink);
+}
+html[data-style="gothic"] .domain-notice-link {
+    color: var(--gothic-ink);
+}
+html[data-style="gothic"] .domain-notice-link strong {
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .domain-notice-close {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .domain-notice-close:hover {
+    color: var(--gothic-blood);
+    background: rgba(179, 39, 48, 0.08);
+}
+
+/* ---------- 导航 ---------- */
+html[data-style="gothic"] .nav {
+    position: sticky;
+    top: 0;
+    height: var(--nav-height);
+    background: var(--parchment-soft);
+    box-shadow:
+        inset 0 -2px 0 var(--gothic-line-strong),
+        0 1px 0 var(--gothic-blood),
+        0 10px 30px rgba(31, 18, 14, 0.12);
+}
+html[data-style="gothic"] .nav-badge {
+    border-radius: 0;
+    background: transparent;
+    clip-path: var(--gothic-arch);
+    filter: sepia(0.4) saturate(0.9);
+}
+html[data-style="gothic"] .nav-badge:hover {
+    filter: sepia(0.32) saturate(1.05) contrast(1.04);
+}
+html[data-style="gothic"] .nav-badge img {
+    object-fit: cover;
+}
+html[data-style="gothic"] .nav-links a {
+    color: var(--gothic-ink-soft);
+    line-height: 1.7;
+    border-radius: 0;
+    position: relative;
+}
+html[data-style="gothic"] .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 4px;
+    height: 1px;
+    background: var(--gothic-blood);
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+}
+html[data-style="gothic"] .nav-links a:hover,
+html[data-style="gothic"] .nav-links a.active {
+    color: var(--gothic-ink);
+    background: transparent;
+}
+html[data-style="gothic"] .nav-links a:hover::after,
+html[data-style="gothic"] .nav-links a.active::after {
+    transform: scaleX(1);
+}
+html[data-style="gothic"] .style-switch-toggle,
+html[data-style="gothic"] .theme-toggle {
+    border: 1px solid var(--gothic-line);
+    border-radius: 50%;
+    color: var(--gothic-blood);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+html[data-style="gothic"] .style-switch-toggle:hover,
+html[data-style="gothic"] .theme-toggle:hover {
+    border-color: var(--gothic-blood);
+    color: var(--gothic-blood);
+    background: transparent;
+    box-shadow: 0 0 14px rgba(179, 39, 48, 0.35);
+}
+/* 明暗切换按钮：始终显示细线红太阳，外观随主题深浅变化，与预览图保持一致 */
+html[data-style="gothic"] .theme-toggle .fa-moon {
+    display: none;
+}
+html[data-style="gothic"] .theme-toggle .fa-sun {
+    display: none;
+}
+.theme-toggle .gothic-sun {
+    display: none;
+}
+html[data-style="gothic"] .theme-toggle .gothic-sun {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+html[data-style="gothic"] .style-switch-menu {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 16px 34px rgba(31, 18, 14, 0.3);
+}
+html[data-style="gothic"] .style-option {
+    color: var(--gothic-ink-soft);
+    font-family: inherit;
+}
+html[data-style="gothic"] .style-option:hover,
+html[data-style="gothic"] .style-option.active {
+    color: var(--gothic-blood);
+    background: rgba(179, 39, 48, 0.08);
+}
+html[data-style="gothic"] .style-dot {
+    box-shadow: inset 0 0 0 1px rgba(107, 79, 54, 0.4);
+}
+html[data-style="gothic"] .style-dot-default {
+    background: linear-gradient(135deg, #f6efe0 45%, #33261a 45%);
+}
+html[data-style="gothic"] .style-dot-gothic {
+    background: linear-gradient(135deg, #191019 45%, #b32730 45%);
+}
+html[data-style="gothic"] .hamburger {
+    color: var(--gothic-blood);
+    border: 1px solid var(--gothic-line);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+html[data-style="gothic"] .hamburger:hover {
+    color: var(--gothic-blood);
+    background: transparent;
+    box-shadow: 0 0 14px rgba(179, 39, 48, 0.35);
+}
+html[data-style="gothic"] .nav-mobile-dropdown {
+    top: var(--nav-height);
+    padding: 8px 16px 16px;
+    background: var(--parchment-soft);
+    border-top: 1px solid var(--gothic-line);
+    border-bottom: 2px solid var(--gothic-line-strong);
+    box-shadow: 0 16px 30px rgba(31, 18, 14, 0.28);
+}
+html[data-style="gothic"] .nav-mobile-dropdown a {
+    color: var(--gothic-ink-soft);
+    border-radius: 0;
+    letter-spacing: 0.14em;
+}
+html[data-style="gothic"] .nav-mobile-dropdown a:hover,
+html[data-style="gothic"] .nav-mobile-dropdown a.active {
+    color: var(--gothic-blood);
+    background: rgba(179, 39, 48, 0.06);
+}
+html[data-style="gothic"] .nav-mobile-style {
+    border-top: 1px solid var(--gothic-line);
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .nav-mobile-style > span {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .nav-mobile-style .style-option {
+    border: 1px solid var(--gothic-line);
+    background: transparent;
+}
+html[data-style="gothic"] .nav-mobile-style .style-option:hover,
+html[data-style="gothic"] .nav-mobile-style .style-option.active {
+    color: var(--gothic-blood);
+    background: rgba(179, 39, 48, 0.08);
+}
+
+/* ---------- 主体 ---------- */
+html[data-style="gothic"] .main {
+    max-width: 1140px;
+}
+html[data-style="gothic"] .page-header {
+    padding: 54px 20px 36px;
+    border-bottom: 1px solid var(--gothic-line);
+}
+html[data-style="gothic"] .page-header .badge {
+    color: var(--gothic-blood);
+    letter-spacing: 0.3em;
+}
+html[data-style="gothic"] .page-header h2 {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .section-label {
+    color: var(--gothic-blood);
+    letter-spacing: 0.24em;
+    margin-bottom: 32px;
+}
+html[data-style="gothic"] .section-label::before {
+    content: "The Chapters";
+    display: block;
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gothic-ink);
+    margin-bottom: 8px;
+}
+html[data-style="gothic"] .section-title {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.12em;
+    color: var(--gothic-ink);
+}
+html[data-style="gothic"] .section-sub {
+    color: var(--gothic-blood);
+    letter-spacing: 0.24em;
+}
+
+/* ---------- 首页 Hero ---------- */
+html[data-style="gothic"] .hero {
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    grid-template-areas:
+        "photo badge"
+        "photo title"
+        "photo slogan";
+    align-items: center;
+    gap: 54px;
+    text-align: left;
+    padding: 66px 0 74px;
+    border-bottom: 2px solid var(--gothic-line-strong);
+    margin-bottom: 0;
+}
+html[data-style="gothic"] .hero-badge {
+    grid-area: badge;
+    color: var(--gothic-blood);
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+html[data-style="gothic"] .hero-badge::before,
+html[data-style="gothic"] .hero-badge::after {
+    content: "\2726";
+    margin: 0 12px;
+    font-size: 12px;
+    opacity: 0.85;
+}
+html[data-style="gothic"] .hero-title {
+    grid-area: title;
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    font-size: clamp(32px, 4.8vw, 52px);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+}
+html[data-style="gothic"] .hero-slogan {
+    grid-area: slogan;
+    color: var(--gothic-ink-soft);
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    margin-bottom: 0;
+}
+html[data-style="gothic"] .hero-photo {
+    grid-area: photo;
+    height: 470px;
+    max-width: none;
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    clip-path: var(--gothic-arch);
+    box-shadow: 0 24px 54px rgba(31, 18, 14, 0.3);
+}
+html[data-style="gothic"] .hero-photo::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    clip-path: var(--gothic-arch);
+    background:
+        linear-gradient(160deg, rgba(179, 39, 48, 0.22), transparent 42%),
+        linear-gradient(20deg, rgba(181, 138, 79, 0.2), transparent 48%);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 2;
+}
+html[data-style="gothic"] .hero-photo img {
+    object-fit: cover;
+    clip-path: var(--gothic-arch);
+    filter: sepia(0.28) saturate(0.8) contrast(1.04);
+}
+
+/* 章节分隔与装饰 */
+html[data-style="gothic"] .gothic-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    max-width: 620px;
+    margin: 44px auto 18px;
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .gothic-divider span {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gothic-line-strong), transparent);
+}
+
+/* ---------- 首页入口卡片 ---------- */
+html[data-style="gothic"] .cards-grid {
+    margin-top: 36px;
+}
+html[data-style="gothic"] .card {
+    position: relative;
+    min-height: 255px;
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
+    box-shadow: 0 14px 34px rgba(31, 18, 14, 0.16);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+html[data-style="gothic"] .card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--gothic-blood), var(--gothic-gold));
+}
+html[data-style="gothic"] .card:hover {
+    border-color: var(--gothic-blood);
+    box-shadow: 0 20px 44px rgba(179, 39, 48, 0.2);
+    transform: translateY(-4px);
+}
+html[data-style="gothic"] .card-number {
+    color: var(--gothic-blood);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+}
+html[data-style="gothic"] .card-title {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    font-size: 24px;
+    letter-spacing: 0.04em;
+}
+html[data-style="gothic"] .card-desc {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .card-arrow {
+    color: var(--gothic-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 12px;
+}
+html[data-style="gothic"] .card:hover .card-arrow {
+    color: var(--gothic-blood);
+}
+
+/* ---------- 班主任页 ---------- */
+html[data-style="gothic"] .teacher-profile {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(31, 18, 14, 0.16);
+}
+html[data-style="gothic"] .teacher-photo {
+    width: 160px;
+    height: 200px;
+    border-radius: 0;
+    border: 1px solid var(--gothic-line-strong);
+    background: var(--parchment-deep);
+    clip-path: var(--gothic-arch);
+    box-shadow: 0 10px 24px rgba(31, 18, 14, 0.25);
+}
+html[data-style="gothic"] .teacher-photo img {
+    object-fit: cover;
+    clip-path: var(--gothic-arch);
+    filter: sepia(0.2) saturate(0.85);
+}
+html[data-style="gothic"] .teacher-name {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .teacher-bio {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .teacher-quote {
+    background: rgba(179, 39, 48, 0.08);
+    border: 1px solid var(--gothic-line);
+    border-radius: 0;
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .teacher-message {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(31, 18, 14, 0.16);
+}
+html[data-style="gothic"] .teacher-message::before {
+    color: var(--gothic-blood);
+    opacity: 0.55;
+}
+html[data-style="gothic"] .teacher-message h3 {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .teacher-message blockquote {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .message-wall h3 {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.12em;
+}
+html[data-style="gothic"] .message-wall .sub {
+    color: var(--gothic-blood);
+    letter-spacing: 0.2em;
+}
+html[data-style="gothic"] .messages-grid .message-card {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line);
+    border-left: 3px solid var(--gothic-blood);
+    border-radius: 0;
+    box-shadow: 0 10px 24px rgba(31, 18, 14, 0.12);
+}
+html[data-style="gothic"] .messages-grid .message-card:hover {
+    border-color: var(--gothic-line-strong);
+    border-left-color: var(--gothic-gold);
+}
+html[data-style="gothic"] .messages-grid .message-card .student {
+    color: var(--gothic-blood);
+    letter-spacing: 0.14em;
+}
+html[data-style="gothic"] .messages-grid .message-card .words {
+    color: var(--gothic-ink-soft);
+}
+
+/* ---------- 同学录 ---------- */
+html[data-style="gothic"] .members-grid {
+    gap: 18px;
+}
+html[data-style="gothic"] .member-link {
+    transition: transform 0.2s ease;
+}
+html[data-style="gothic"] .member-link:hover {
+    transform: translateY(-4px);
+}
+html[data-style="gothic"] .member-card {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    clip-path: polygon(50% 0%, 82% 7%, 88% 100%, 12% 100%, 18% 7%);
+    padding-top: 34px;
+    box-shadow: 0 12px 26px rgba(31, 18, 14, 0.14);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+html[data-style="gothic"] .member-card:hover,
+html[data-style="gothic"] .member-link:hover .member-card {
+    border-color: var(--gothic-blood);
+    box-shadow: 0 16px 32px rgba(179, 39, 48, 0.2);
+    transform: none;
+}
+html[data-style="gothic"] .member-avatar {
+    width: 88px;
+    height: 110px;
+    border-radius: 0;
+    border: 1px solid var(--gothic-line-strong);
+    background: var(--parchment-deep);
+    clip-path: var(--gothic-arch);
+    overflow: hidden;
+}
+html[data-style="gothic"] .member-avatar img {
+    object-fit: cover;
+    clip-path: var(--gothic-arch);
+    filter: sepia(0.22) saturate(0.85);
+}
+html[data-style="gothic"] .member-avatar-placeholder {
+    color: var(--gothic-muted);
+    font-family: Georgia, serif;
+    font-size: 24px;
+}
+html[data-style="gothic"] .member-name {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.1em;
+}
+html[data-style="gothic"] .member-birthday,
+html[data-style="gothic"] .member-nickname {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .member-quote {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .empty-message {
+    color: var(--gothic-muted);
+}
+
+/* ---------- 编辑入口 ---------- */
+html[data-style="gothic"] .edit-profile-card {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 12px 26px rgba(31, 18, 14, 0.14);
+}
+html[data-style="gothic"] .edit-profile-card h3 {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .edit-profile-card p {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .edit-profile-btn,
+html[data-style="gothic"] .submit-btn,
+html[data-style="gothic"] .edit-button,
+html[data-style="gothic"] .personal-edit-btn {
+    background: linear-gradient(180deg, var(--gothic-blood), var(--gothic-blood-deep));
+    border: 1px solid var(--gothic-gold);
+    border-radius: 0;
+    color: #f6ead2;
+    letter-spacing: 0.14em;
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+html[data-style="gothic"] .edit-profile-btn:hover,
+html[data-style="gothic"] .submit-btn:hover,
+html[data-style="gothic"] .edit-button:hover,
+html[data-style="gothic"] .personal-edit-btn:hover {
+    background: linear-gradient(180deg, #a3262e, var(--gothic-blood-deep));
+    box-shadow: 0 0 16px rgba(179, 39, 48, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ---------- 时光回忆馆 ---------- */
+html[data-style="gothic"] .timeline {
+    padding-left: 44px;
+}
+html[data-style="gothic"] .timeline::before {
+    left: 10px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--gothic-blood), var(--gothic-gold), var(--gothic-line));
+}
+html[data-style="gothic"] .timeline-item {
+    padding-left: 28px;
+}
+html[data-style="gothic"] .timeline-item::before {
+    left: -31px;
+    width: 14px;
+    height: 14px;
+    border-radius: 0;
+    background: var(--gothic-blood);
+    border: 2px solid var(--gothic-gold);
+    box-shadow: 0 0 0 1px var(--gothic-line-strong), 0 0 10px rgba(179, 39, 48, 0.5);
+    transform: rotate(45deg);
+}
+html[data-style="gothic"] .timeline-date {
+    color: var(--gothic-blood);
+    letter-spacing: 0.14em;
+}
+html[data-style="gothic"] .timeline-title {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.06em;
+}
+html[data-style="gothic"] .timeline-desc {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .timeline-photo {
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    background: var(--parchment-deep);
+    box-shadow: 0 8px 18px rgba(31, 18, 14, 0.18);
+}
+html[data-style="gothic"] .timeline-photo img {
+    filter: sepia(0.22) saturate(0.85);
+}
+html[data-style="gothic"] .gallery-item {
+    border: 1px solid var(--gothic-line);
+    border-radius: 0;
+    background: var(--parchment-deep);
+}
+html[data-style="gothic"] .gallery-item:hover {
+    border-color: var(--gothic-blood);
+}
+html[data-style="gothic"] .gallery-item img {
+    filter: sepia(0.22) saturate(0.85);
+}
+html[data-style="gothic"] .video-wrapper {
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    background: var(--parchment-deep);
+}
+html[data-style="gothic"] .days-counter {
+    border-top: 2px solid var(--gothic-line-strong);
+}
+html[data-style="gothic"] .days-counter .label {
+    color: var(--gothic-muted);
+    letter-spacing: 0.3em;
+}
+html[data-style="gothic"] .days-counter .number {
+    color: var(--gothic-blood);
+    font-family: Georgia, "Times New Roman", serif;
+    text-shadow: 0 0 24px rgba(179, 39, 48, 0.35);
+}
+html[data-style="gothic"] .days-counter .unit {
+    color: var(--gothic-muted);
+}
+
+/* ---------- 留言板 ---------- */
+html[data-style="gothic"] .message-form-section {
+    max-width: 640px;
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(31, 18, 14, 0.16);
+}
+html[data-style="gothic"] .message-form-section h3,
+html[data-style="gothic"] .messages-section h3 {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.12em;
+}
+html[data-style="gothic"] .form-desc,
+html[data-style="gothic"] .messages-section .sub {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .form-group label {
+    color: var(--gothic-ink-soft);
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .form-group input,
+html[data-style="gothic"] .form-group textarea {
+    border: 1px solid var(--gothic-line);
+    border-radius: 0;
+    background: var(--parchment);
+    color: var(--gothic-ink);
+    font-family: inherit;
+}
+html[data-style="gothic"] .form-group input:focus,
+html[data-style="gothic"] .form-group textarea:focus {
+    border-color: var(--gothic-gold);
+    box-shadow: 0 0 0 2px rgba(181, 138, 79, 0.18);
+}
+html[data-style="gothic"] .form-feedback.success {
+    color: var(--gothic-gold);
+}
+html[data-style="gothic"] .form-feedback.error {
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .messages-section {
+    margin-bottom: 64px;
+}
+html[data-style="gothic"] .messages-list .message-card {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line);
+    border-left: 3px solid var(--gothic-blood);
+    border-radius: 0;
+    box-shadow: 0 10px 24px rgba(31, 18, 14, 0.12);
+}
+html[data-style="gothic"] .messages-list .message-card:hover {
+    border-color: var(--gothic-line-strong);
+    border-left-color: var(--gothic-gold);
+}
+html[data-style="gothic"] .messages-list .message-card.glow-card::before {
+    border-radius: 0;
+    background: linear-gradient(135deg, var(--gothic-blood), var(--gothic-gold), var(--gothic-blood));
+}
+html[data-style="gothic"] .messages-list .message-card.glow-card:hover {
+    box-shadow: 0 0 10px rgba(179, 39, 48, 0.28);
+}
+html[data-style="gothic"] .message-author {
+    color: var(--gothic-ink);
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.06em;
+}
+html[data-style="gothic"] .message-time {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .message-body {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .color-swatch {
+    border-radius: 0;
+    box-shadow: 0 0 0 1px rgba(107, 79, 54, 0.4);
+}
+
+/* ---------- 个人主页 ---------- */
+html[data-style="gothic"] .personal-profile-container {
+    max-width: 760px;
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(31, 18, 14, 0.16);
+}
+html[data-style="gothic"] .personal-profile-header {
+    border-bottom: 1px solid var(--gothic-line);
+}
+html[data-style="gothic"] .personal-profile-avatar {
+    width: 110px;
+    height: 140px;
+    border-radius: 0;
+    border: 1px solid var(--gothic-line-strong);
+    background: var(--parchment-deep);
+    clip-path: var(--gothic-arch);
+    overflow: hidden;
+}
+html[data-style="gothic"] .personal-profile-avatar img {
+    object-fit: cover;
+    clip-path: var(--gothic-arch);
+    filter: sepia(0.22) saturate(0.85);
+}
+html[data-style="gothic"] .personal-profile-avatar-placeholder {
+    color: var(--gothic-muted);
+    font-family: Georgia, serif;
+}
+html[data-style="gothic"] .personal-profile-name {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .personal-profile-nickname {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .personal-profile-quote {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .personal-profile-details {
+    gap: 14px 28px;
+}
+html[data-style="gothic"] .personal-detail-label {
+    color: var(--gothic-blood);
+    letter-spacing: 0.12em;
+}
+html[data-style="gothic"] .personal-detail-value {
+    color: var(--gothic-ink);
+}
+html[data-style="gothic"] .personal-detail-value.personal-empty {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .personal-profile-actions {
+    border-top: 1px solid var(--gothic-line);
+}
+html[data-style="gothic"] .personal-back-link {
+    color: var(--gothic-ink-soft);
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .personal-back-link:hover {
+    color: var(--gothic-blood);
+}
+
+/* ---------- 编辑资料（独立页，无导航） ---------- */
+html[data-style="gothic"] .edit-body {
+    font-family: Georgia, "Times New Roman", "Songti SC", "Microsoft YaHei", serif;
+    background: var(--parchment);
+    color: var(--gothic-ink);
+}
+html[data-style="gothic"] .edit-h2 {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    letter-spacing: 0.1em;
+}
+html[data-style="gothic"] .edit-login-section,
+html[data-style="gothic"] .edit-edit-section {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(31, 18, 14, 0.16);
+}
+html[data-style="gothic"] .edit-input,
+html[data-style="gothic"] .edit-textarea,
+html[data-style="gothic"] .edit-select {
+    border: 1px solid var(--gothic-line);
+    border-radius: 0;
+    background: var(--parchment);
+    color: var(--gothic-ink);
+}
+html[data-style="gothic"] .edit-label {
+    letter-spacing: 0.08em;
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .edit-current-avatar,
+html[data-style="gothic"] .edit-avatar-preview {
+    border-radius: 0;
+    border: 1px solid var(--gothic-line-strong);
+    clip-path: var(--gothic-arch);
+}
+html[data-style="gothic"] .edit-error {
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .edit-success {
+    color: var(--gothic-gold);
+}
+
+/* ---------- 页脚 ---------- */
+html[data-style="gothic"] .footer {
+    background: var(--parchment-soft);
+    border-top: 2px solid var(--gothic-line-strong);
+    padding-top: 24px;
+}
+html[data-style="gothic"] .footer-links a {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .footer-links a:hover {
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .footer-copyright {
+    color: var(--gothic-muted);
+    letter-spacing: 0.1em;
+}
+html[data-style="gothic"] .toast-capsule {
+    background: rgba(28, 18, 14, 0.85);
+    border: 1px solid var(--gothic-gold);
+    border-radius: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 0.1em;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 860px) {
+    html[data-style="gothic"] .nav-links a::after {
+        left: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    html[data-style="gothic"] .hero {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "photo"
+            "badge"
+            "title"
+            "slogan";
+        gap: 28px;
+        padding: 48px 0 56px;
+        text-align: center;
+    }
+    html[data-style="gothic"] .hero-photo {
+        height: 360px;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 680px) {
+    html[data-style="gothic"] .hero {
+        padding: 40px 0 46px;
+    }
+    html[data-style="gothic"] .hero-photo {
+        height: 250px;
+        max-width: 100%;
+    }
+    html[data-style="gothic"] .hero-title {
+        font-size: 28px;
+    }
+    html[data-style="gothic"] .cards-grid {
+        grid-template-columns: 1fr;
+    }
+    html[data-style="gothic"] .card {
+        min-height: 220px;
+    }
+    html[data-style="gothic"] .teacher-photo {
+        width: 120px;
+        height: 150px;
+    }
+    html[data-style="gothic"] .timeline {
+        padding-left: 30px;
+    }
+    html[data-style="gothic"] .timeline-item {
+        padding-left: 22px;
+    }
+    html[data-style="gothic"] .timeline-item::before {
+        left: -27px;
+    }
+}

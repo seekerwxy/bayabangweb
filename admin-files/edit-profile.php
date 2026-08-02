@@ -6,18 +6,8 @@
     <title>博雅班编辑我的同学录信息</title>
     <meta name="description" content="博雅班编辑我的同学录信息，用于修改个人资料。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-        <script>
-        (function () {
-            try {
-                var saved = localStorage.getItem('theme');
-                var theme = (saved === 'dark' || saved === 'light')
-                    ? saved
-                    : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.setAttribute('data-theme', theme);
-            } catch (e) {}
-        })();
-        </script>
-        <link rel="stylesheet" href="../css/beauty.css?v=<?= filemtime(__DIR__ . '/../css/beauty.css') ?>">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <?php $baseUrl = '../'; include __DIR__ . '/../_head.php'; ?>
 </head>
 <body class="edit-body">
     <h2 class="edit-h2">编辑我的同学录信息</h2>

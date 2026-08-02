@@ -1,0 +1,971 @@
+/* ==========================================================
+   编辑社风覆盖样式（配合原版布局，随 html[data-style="editorial"] 启用）
+   与 new/style-1-editorial 预览保持一致；
+   导航高度、班徽、跳转链接、设置按钮位置均沿用原版
+   ========================================================== */
+
+html[data-style="editorial"] {
+    --editorial-paper: #f4efe5;
+    --editorial-paper-deep: #e8dfcf;
+    --editorial-paper-soft: #faf6ee;
+    --editorial-ink: #17140f;
+    --editorial-ink-soft: #4f473b;
+    --editorial-muted: #7b7161;
+    --editorial-rule: #c8bba6;
+    --editorial-rule-strong: #2b251c;
+    --editorial-accent: #b13a2e;
+    --editorial-accent-deep: #8c2c23;
+    --editorial-accent-soft: #ecd2c5;
+    --editorial-photo-line: #d9ccb6;
+    --editorial-wash: rgba(23, 20, 15, 0.72);
+    --editorial-serif: Georgia, "Times New Roman", "Songti SC", "SimSun", "Microsoft YaHei", serif;
+}
+
+html[data-style="editorial"][data-theme="dark"] {
+    --editorial-paper: #141210;
+    --editorial-paper-deep: #1d1a16;
+    --editorial-paper-soft: #191613;
+    --editorial-ink: #efe7d8;
+    --editorial-ink-soft: #c9bea9;
+    --editorial-muted: #968b77;
+    --editorial-rule: #4a4134;
+    --editorial-rule-strong: #d6c6a9;
+    --editorial-accent: #d95c4b;
+    --editorial-accent-deep: #b54335;
+    --editorial-accent-soft: #5a2f28;
+    --editorial-photo-line: #39322a;
+    --editorial-wash: rgba(12, 10, 8, 0.78);
+}
+
+/* ---------- 全局：米白纸与墨色 ---------- */
+html[data-style="editorial"] body {
+    font-family: var(--editorial-serif);
+    background:
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(128, 112, 82, 0.05) 31px 32px),
+        var(--editorial-paper);
+    color: var(--editorial-ink);
+    line-height: 1.75;
+}
+html[data-style="editorial"] a {
+    color: inherit;
+}
+
+/* ---------- 顶部通知 ---------- */
+html[data-style="editorial"] .domain-notice {
+    background: var(--editorial-paper-soft);
+    border-bottom: 3px double var(--editorial-rule-strong);
+    color: var(--editorial-ink);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+}
+html[data-style="editorial"] .domain-notice-link {
+    color: var(--editorial-ink);
+}
+html[data-style="editorial"] .domain-notice-link strong {
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .domain-notice-close {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .domain-notice-close:hover {
+    color: var(--editorial-accent);
+    background: var(--editorial-accent-soft);
+}
+
+/* ---------- 导航（高度与位置保持原版 56px 布局） ---------- */
+html[data-style="editorial"] .nav {
+    position: sticky;
+    top: 0;
+    height: var(--nav-height);
+    background: var(--editorial-paper-soft);
+    box-shadow:
+        inset 0 -3px 0 var(--editorial-rule-strong),
+        0 8px 22px rgba(43, 37, 28, 0.08);
+}
+html[data-style="editorial"] .nav-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--editorial-rule);
+    background: var(--editorial-paper);
+    padding: 2px;
+    box-shadow: 0 0 0 1px rgba(43, 37, 28, 0.08);
+}
+html[data-style="editorial"] .nav-badge:hover {
+    border-color: var(--editorial-accent);
+    box-shadow: 0 0 0 1px rgba(177, 58, 46, 0.22);
+}
+html[data-style="editorial"] .nav-badge img {
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.02);
+}
+html[data-style="editorial"] .nav-badge-placeholder {
+    color: var(--editorial-muted);
+    font-family: var(--editorial-serif);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+}
+
+html[data-style="editorial"] .nav-links {
+    gap: 6px;
+}
+html[data-style="editorial"] .nav-links a {
+    color: var(--editorial-ink-soft);
+    padding: 8px 14px;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    border-radius: 0;
+    position: relative;
+    transition: color 0.2s ease;
+}
+html[data-style="editorial"] .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 4px;
+    height: 2px;
+    background: var(--editorial-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+}
+html[data-style="editorial"] .nav-links a:hover,
+html[data-style="editorial"] .nav-links a.active {
+    color: var(--editorial-ink);
+    background: transparent;
+}
+html[data-style="editorial"] .nav-links a:hover::after,
+html[data-style="editorial"] .nav-links a.active::after {
+    transform: scaleX(1);
+}
+
+/* 操作按钮：保持 36x36，仅换印刷式边框与朱红色 */
+html[data-style="editorial"] .style-switch-toggle,
+html[data-style="editorial"] .theme-toggle {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--editorial-rule);
+    border-radius: 50%;
+    color: var(--editorial-accent);
+    background: transparent;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+html[data-style="editorial"] .style-switch-toggle:hover,
+html[data-style="editorial"] .theme-toggle:hover {
+    border-color: var(--editorial-accent);
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+    box-shadow: 0 0 0 1px rgba(177, 58, 46, 0.2);
+}
+html[data-style="editorial"] .theme-toggle .fa-moon,
+html[data-style="editorial"] .theme-toggle .fa-sun,
+html[data-style="editorial"] .theme-toggle .gothic-sun {
+    display: none;
+}
+html[data-style="editorial"] .theme-toggle .tech-sun {
+    display: block;
+    width: 17px;
+    height: 17px;
+}
+
+html[data-style="editorial"] .style-switch-menu {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 16px 34px rgba(43, 37, 28, 0.24);
+}
+html[data-style="editorial"] .style-option {
+    color: var(--editorial-ink-soft);
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.1em;
+}
+html[data-style="editorial"] .style-option:hover,
+html[data-style="editorial"] .style-option.active {
+    color: var(--editorial-accent);
+    background: var(--editorial-accent-soft);
+}
+html[data-style="editorial"] .style-dot {
+    box-shadow: inset 0 0 0 1px rgba(43, 37, 28, 0.35);
+}
+html[data-style="editorial"] .style-dot-default {
+    background: linear-gradient(135deg, #f7f2e8 45%, #2b251c 45%);
+}
+html[data-style="editorial"] .style-dot-gothic {
+    background: linear-gradient(135deg, #17121a 45%, #b32730 45%);
+}
+html[data-style="editorial"] .style-dot-tech {
+    background: linear-gradient(135deg, #0a2336 45%, #14c8d8 45%);
+}
+html[data-style="editorial"] .style-dot-classical {
+    background: linear-gradient(135deg, #f3ead8 45%, #9e2b25 45%);
+}
+html[data-style="editorial"] .style-dot-editorial {
+    background: linear-gradient(135deg, var(--editorial-paper-soft) 45%, var(--editorial-accent) 45%);
+    box-shadow: inset 0 0 0 1px rgba(177, 58, 46, 0.45);
+}
+
+html[data-style="editorial"] .hamburger {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin-left: 12px;
+    color: var(--editorial-accent);
+    border: 1px solid var(--editorial-rule);
+    border-radius: 50%;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+html[data-style="editorial"] .hamburger:hover {
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+    border-color: var(--editorial-accent);
+}
+html[data-style="editorial"] .hamburger svg {
+    width: 18px;
+    height: 18px;
+}
+
+html[data-style="editorial"] .nav-mobile-dropdown {
+    top: var(--nav-height);
+    padding: 8px 16px 16px;
+    background: var(--editorial-paper-soft);
+    border-top: 1px solid var(--editorial-rule);
+    border-bottom: 3px double var(--editorial-rule-strong);
+    box-shadow: 0 16px 30px rgba(43, 37, 28, 0.22);
+}
+html[data-style="editorial"] .nav-mobile-dropdown a {
+    color: var(--editorial-ink-soft);
+    border-radius: 0;
+    letter-spacing: 0.12em;
+}
+html[data-style="editorial"] .nav-mobile-dropdown a:hover,
+html[data-style="editorial"] .nav-mobile-dropdown a.active {
+    color: var(--editorial-accent);
+    background: var(--editorial-accent-soft);
+}
+html[data-style="editorial"] .nav-mobile-style {
+    border-top: 1px solid var(--editorial-rule);
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .nav-mobile-style > span {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .nav-mobile-style .style-option {
+    border: 1px solid var(--editorial-rule);
+    background: var(--editorial-paper);
+}
+html[data-style="editorial"] .nav-mobile-style .style-option:hover,
+html[data-style="editorial"] .nav-mobile-style .style-option.active {
+    color: var(--editorial-accent);
+    background: var(--editorial-accent-soft);
+}
+
+/* ---------- 主体 ---------- */
+html[data-style="editorial"] .main {
+    max-width: 1180px;
+}
+html[data-style="editorial"] .page-header {
+    position: relative;
+    padding: 54px 20px 36px;
+    border-bottom: 1px solid var(--editorial-rule);
+}
+html[data-style="editorial"] .page-header::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: -4px;
+    height: 2px;
+    background: var(--editorial-rule-strong);
+}
+html[data-style="editorial"] .page-header .badge {
+    color: var(--editorial-accent);
+    letter-spacing: 0.3em;
+}
+html[data-style="editorial"] .page-header h2 {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.06em;
+}
+html[data-style="editorial"] .section-label {
+    color: var(--editorial-accent);
+    letter-spacing: 0.32em;
+    margin-bottom: 28px;
+}
+html[data-style="editorial"] .section-title {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.08em;
+    color: var(--editorial-ink);
+}
+html[data-style="editorial"] .section-sub {
+    color: var(--editorial-accent);
+    letter-spacing: 0.2em;
+}
+
+/* ---------- 首页 Hero：刊头与通栏照片 ---------- */
+html[data-style="editorial"] .hero {
+    text-align: left;
+    padding: 56px 0 64px;
+    border-bottom: 1px solid var(--editorial-rule);
+    margin-bottom: 0;
+}
+html[data-style="editorial"] .hero-badge {
+    color: var(--editorial-accent);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+html[data-style="editorial"] .hero-title {
+    font-family: var(--editorial-serif);
+    font-size: clamp(34px, 5vw, 58px);
+    line-height: 1.25;
+    letter-spacing: 0;
+    margin-bottom: 16px;
+    max-width: 900px;
+}
+html[data-style="editorial"] .hero-slogan {
+    color: var(--editorial-ink-soft);
+    font-size: 15px;
+    font-style: normal;
+    letter-spacing: 0.08em;
+    margin-bottom: 0;
+    max-width: 660px;
+}
+html[data-style="editorial"] .hero-photo {
+    width: 100%;
+    max-width: 100%;
+    height: 420px;
+    margin: 36px 0 0;
+    background: var(--editorial-paper-deep);
+    border: 1px solid var(--editorial-photo-line);
+    border-radius: 0;
+    overflow: hidden;
+}
+html[data-style="editorial"] .hero-photo img {
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.02);
+}
+html[data-style="editorial"] .hero-photo::after {
+    content: "班级大合照 · 2026";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 28px 16px 10px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: #f6f0e4;
+    background: linear-gradient(transparent, var(--editorial-wash));
+    pointer-events: none;
+    z-index: 2;
+}
+html[data-style="editorial"] .hero-photo-placeholder {
+    color: var(--editorial-muted);
+    font-size: 14px;
+    letter-spacing: 0.16em;
+}
+
+/* 章节分隔：细线夹一颗印 */
+html[data-style="editorial"] .gothic-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    max-width: 640px;
+    margin: 46px auto 20px;
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .gothic-divider span {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--editorial-rule-strong), transparent);
+}
+html[data-style="editorial"] .gothic-divider i {
+    font-style: normal;
+    font-size: 0;
+}
+html[data-style="editorial"] .gothic-divider i::before {
+    content: "✎";
+    font-size: 15px;
+}
+
+/* ---------- 首页入口卡片：双线目录网格 ---------- */
+html[data-style="editorial"] .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    margin-top: 36px;
+    margin-bottom: 64px;
+    border-top: 2px solid var(--editorial-rule-strong);
+    border-left: 2px solid var(--editorial-rule-strong);
+}
+html[data-style="editorial"] .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    padding: 30px 26px 34px;
+    border: 0;
+    border-right: 2px solid var(--editorial-rule-strong);
+    border-bottom: 2px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    background: var(--editorial-paper-soft);
+    box-shadow: none;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+html[data-style="editorial"] .card:hover {
+    background: var(--editorial-accent-soft);
+    box-shadow: none;
+}
+html[data-style="editorial"] .card-number {
+    color: var(--editorial-accent);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    margin-bottom: 22px;
+}
+html[data-style="editorial"] .card-title {
+    font-family: var(--editorial-serif);
+    font-size: 24px;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+}
+html[data-style="editorial"] .card-desc {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .card-arrow {
+    margin-top: auto;
+    padding-top: 18px;
+    color: var(--editorial-accent-deep);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+html[data-style="editorial"] .card:hover .card-arrow {
+    text-decoration: underline;
+}
+
+/* ---------- 班主任页 ---------- */
+html[data-style="editorial"] .teacher-profile {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(43, 37, 28, 0.14);
+}
+html[data-style="editorial"] .teacher-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 0;
+    border: 1px solid var(--editorial-rule-strong);
+    background: var(--editorial-paper);
+    padding: 6px;
+    box-shadow: 0 10px 24px rgba(43, 37, 28, 0.22);
+    overflow: hidden;
+}
+html[data-style="editorial"] .teacher-photo img {
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.02);
+}
+html[data-style="editorial"] .teacher-name {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .teacher-bio {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .teacher-quote {
+    background: var(--editorial-paper);
+    border: 1px solid var(--editorial-rule);
+    border-radius: 0;
+    color: var(--editorial-accent-deep);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .teacher-message {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(43, 37, 28, 0.14);
+}
+html[data-style="editorial"] .teacher-message::before {
+    color: var(--editorial-accent);
+    opacity: 0.55;
+}
+html[data-style="editorial"] .teacher-message h3 {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .teacher-message blockquote {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .message-wall h3 {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.1em;
+}
+html[data-style="editorial"] .message-wall .sub {
+    color: var(--editorial-accent);
+    letter-spacing: 0.18em;
+}
+html[data-style="editorial"] .messages-grid .message-card {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule);
+    border-left: 3px solid var(--editorial-accent);
+    border-radius: 0;
+    box-shadow: 0 10px 24px rgba(43, 37, 28, 0.1);
+}
+html[data-style="editorial"] .messages-grid .message-card:hover {
+    border-color: var(--editorial-rule-strong);
+    border-left-color: var(--editorial-accent-deep);
+}
+html[data-style="editorial"] .messages-grid .message-card .student {
+    color: var(--editorial-accent);
+    letter-spacing: 0.12em;
+}
+html[data-style="editorial"] .messages-grid .message-card .words {
+    color: var(--editorial-ink-soft);
+}
+
+/* ---------- 同学录 ---------- */
+html[data-style="editorial"] .members-grid {
+    gap: 18px;
+}
+html[data-style="editorial"] .member-link {
+    transition: transform 0.2s ease;
+}
+html[data-style="editorial"] .member-link:hover {
+    transform: translateY(-4px);
+}
+html[data-style="editorial"] .member-card {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 12px 26px rgba(43, 37, 28, 0.12);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+html[data-style="editorial"] .member-card:hover,
+html[data-style="editorial"] .member-link:hover .member-card {
+    border-color: var(--editorial-accent);
+    box-shadow: 0 16px 32px rgba(177, 58, 46, 0.16);
+    transform: none;
+}
+html[data-style="editorial"] .member-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 0;
+    border: 1px solid var(--editorial-rule-strong);
+    background: var(--editorial-paper);
+    padding: 4px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(43, 37, 28, 0.14);
+}
+html[data-style="editorial"] .member-avatar img {
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.02);
+}
+html[data-style="editorial"] .member-avatar-placeholder {
+    color: var(--editorial-muted);
+    font-family: var(--editorial-serif);
+    font-size: 24px;
+}
+html[data-style="editorial"] .member-name {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.1em;
+}
+html[data-style="editorial"] .member-birthday,
+html[data-style="editorial"] .member-nickname {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .member-quote {
+    color: var(--editorial-ink-soft);
+    font-style: normal;
+}
+html[data-style="editorial"] .empty-message {
+    color: var(--editorial-muted);
+}
+
+/* ---------- 编辑入口 ---------- */
+html[data-style="editorial"] .edit-profile-card {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 12px 26px rgba(43, 37, 28, 0.12);
+}
+html[data-style="editorial"] .edit-profile-card h3 {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .edit-profile-card p {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .edit-profile-btn,
+html[data-style="editorial"] .submit-btn,
+html[data-style="editorial"] .edit-button,
+html[data-style="editorial"] .personal-edit-btn {
+    background: linear-gradient(180deg, var(--editorial-accent), var(--editorial-accent-deep));
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    color: #faf6ee;
+    letter-spacing: 0.14em;
+    font-family: var(--editorial-serif);
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+html[data-style="editorial"] .edit-profile-btn:hover,
+html[data-style="editorial"] .submit-btn:hover,
+html[data-style="editorial"] .edit-button:hover,
+html[data-style="editorial"] .personal-edit-btn:hover {
+    background: linear-gradient(180deg, #c34135, var(--editorial-accent-deep));
+    box-shadow: 0 0 16px rgba(177, 58, 46, 0.32);
+    transform: translateY(-1px);
+}
+
+/* ---------- 时光回忆馆 ---------- */
+html[data-style="editorial"] .timeline {
+    padding-left: 44px;
+}
+html[data-style="editorial"] .timeline::before {
+    left: 10px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--editorial-accent), var(--editorial-rule-strong), var(--editorial-rule));
+}
+html[data-style="editorial"] .timeline-item {
+    padding-left: 28px;
+}
+html[data-style="editorial"] .timeline-item::before {
+    left: -31px;
+    width: 12px;
+    height: 12px;
+    border-radius: 0;
+    background: var(--editorial-accent);
+    border: 2px solid var(--editorial-paper-soft);
+    box-shadow: 0 0 0 1px var(--editorial-rule-strong);
+    transform: rotate(45deg);
+}
+html[data-style="editorial"] .timeline-date {
+    color: var(--editorial-accent);
+    letter-spacing: 0.14em;
+}
+html[data-style="editorial"] .timeline-title {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.06em;
+}
+html[data-style="editorial"] .timeline-desc {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .timeline-photo {
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    background: var(--editorial-paper);
+    padding: 6px;
+    box-shadow: 0 8px 18px rgba(43, 37, 28, 0.16);
+}
+html[data-style="editorial"] .timeline-photo img {
+    filter: saturate(0.85) contrast(1.02);
+}
+html[data-style="editorial"] .gallery-item {
+    border: 1px solid var(--editorial-rule);
+    border-radius: 0;
+    background: var(--editorial-paper-deep);
+}
+html[data-style="editorial"] .gallery-item:hover {
+    border-color: var(--editorial-accent);
+}
+html[data-style="editorial"] .video-wrapper {
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    background: var(--editorial-paper-deep);
+}
+html[data-style="editorial"] .days-counter {
+    border-top: 2px solid var(--editorial-rule-strong);
+}
+html[data-style="editorial"] .days-counter .label {
+    color: var(--editorial-muted);
+    letter-spacing: 0.26em;
+}
+html[data-style="editorial"] .days-counter .number {
+    color: var(--editorial-accent);
+    font-family: var(--editorial-serif);
+}
+html[data-style="editorial"] .days-counter .unit {
+    color: var(--editorial-muted);
+}
+
+/* ---------- 留言板 ---------- */
+html[data-style="editorial"] .message-form-section {
+    max-width: 640px;
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(43, 37, 28, 0.14);
+}
+html[data-style="editorial"] .message-form-section h3,
+html[data-style="editorial"] .messages-section h3 {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.1em;
+}
+html[data-style="editorial"] .form-desc,
+html[data-style="editorial"] .messages-section .sub {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .form-group label {
+    color: var(--editorial-ink-soft);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .form-group input,
+html[data-style="editorial"] .form-group textarea {
+    border: 1px solid var(--editorial-rule);
+    border-radius: 0;
+    background: var(--editorial-paper);
+    color: var(--editorial-ink);
+    font-family: inherit;
+}
+html[data-style="editorial"] .form-group input:focus,
+html[data-style="editorial"] .form-group textarea:focus {
+    border-color: var(--editorial-accent-deep);
+    box-shadow: 0 0 0 2px rgba(177, 58, 46, 0.16);
+}
+html[data-style="editorial"] .form-feedback.success {
+    color: var(--editorial-accent-deep);
+}
+html[data-style="editorial"] .form-feedback.error {
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .messages-section {
+    margin-bottom: 64px;
+}
+html[data-style="editorial"] .messages-list .message-card {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule);
+    border-left: 3px solid var(--editorial-accent);
+    border-radius: 0;
+    box-shadow: 0 10px 24px rgba(43, 37, 28, 0.1);
+}
+html[data-style="editorial"] .messages-list .message-card:hover {
+    border-color: var(--editorial-rule-strong);
+    border-left-color: var(--editorial-accent-deep);
+}
+html[data-style="editorial"] .messages-list .message-card.glow-card::before {
+    border-radius: 0;
+    background: linear-gradient(135deg, var(--editorial-accent), var(--editorial-accent-soft), var(--editorial-accent));
+}
+html[data-style="editorial"] .messages-list .message-card.glow-card:hover {
+    box-shadow: 0 0 10px rgba(177, 58, 46, 0.22);
+}
+html[data-style="editorial"] .messages-list .msg-title {
+    font-family: var(--editorial-serif);
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    color: var(--editorial-ink);
+    margin-bottom: 6px;
+}
+html[data-style="editorial"] .message-author {
+    color: var(--editorial-ink);
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.06em;
+}
+html[data-style="editorial"] .message-time {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .message-body {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .color-swatch {
+    border-radius: 0;
+    box-shadow: 0 0 0 1px rgba(43, 37, 28, 0.35);
+}
+
+/* ---------- 个人主页 ---------- */
+html[data-style="editorial"] .personal-profile-container {
+    max-width: 760px;
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(43, 37, 28, 0.14);
+}
+html[data-style="editorial"] .personal-profile-header {
+    border-bottom: 1px solid var(--editorial-rule);
+}
+html[data-style="editorial"] .personal-profile-avatar {
+    width: 104px;
+    height: 104px;
+    border-radius: 0;
+    border: 1px solid var(--editorial-rule-strong);
+    background: var(--editorial-paper);
+    padding: 5px;
+    overflow: hidden;
+    box-shadow: 0 8px 18px rgba(43, 37, 28, 0.18);
+}
+html[data-style="editorial"] .personal-profile-avatar img {
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.02);
+}
+html[data-style="editorial"] .personal-profile-avatar-placeholder {
+    color: var(--editorial-muted);
+    font-family: var(--editorial-serif);
+}
+html[data-style="editorial"] .personal-profile-name {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .personal-profile-nickname {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .personal-profile-quote {
+    color: var(--editorial-ink-soft);
+    font-style: normal;
+}
+html[data-style="editorial"] .personal-detail-label {
+    color: var(--editorial-accent);
+    letter-spacing: 0.14em;
+}
+html[data-style="editorial"] .personal-detail-value {
+    color: var(--editorial-ink);
+}
+html[data-style="editorial"] .personal-detail-value.personal-empty {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .personal-profile-actions {
+    border-top: 1px solid var(--editorial-rule);
+}
+html[data-style="editorial"] .personal-back-link {
+    color: var(--editorial-ink-soft);
+    letter-spacing: 0.08em;
+}
+html[data-style="editorial"] .personal-back-link:hover {
+    color: var(--editorial-accent);
+}
+
+/* ---------- 编辑资料（独立页，无导航） ---------- */
+html[data-style="editorial"] .edit-body {
+    font-family: var(--editorial-serif);
+    background:
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(128, 112, 82, 0.05) 31px 32px),
+        var(--editorial-paper);
+    color: var(--editorial-ink);
+}
+html[data-style="editorial"] .edit-h2 {
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.1em;
+}
+html[data-style="editorial"] .edit-login-section,
+html[data-style="editorial"] .edit-edit-section {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 14px 34px rgba(43, 37, 28, 0.14);
+}
+html[data-style="editorial"] .edit-input,
+html[data-style="editorial"] .edit-textarea,
+html[data-style="editorial"] .edit-select {
+    border: 1px solid var(--editorial-rule);
+    border-radius: 0;
+    background: var(--editorial-paper);
+    color: var(--editorial-ink);
+}
+html[data-style="editorial"] .edit-input:focus,
+html[data-style="editorial"] .edit-textarea:focus,
+html[data-style="editorial"] .edit-select:focus {
+    border-color: var(--editorial-accent-deep);
+    box-shadow: 0 0 0 2px rgba(177, 58, 46, 0.16);
+}
+html[data-style="editorial"] .edit-label {
+    letter-spacing: 0.08em;
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .edit-current-avatar,
+html[data-style="editorial"] .edit-avatar-preview {
+    border-radius: 0;
+    border: 1px solid var(--editorial-rule-strong);
+    box-shadow: 0 0 0 1px rgba(43, 37, 28, 0.25);
+}
+html[data-style="editorial"] .edit-error {
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .edit-success {
+    color: var(--editorial-accent-deep);
+}
+
+/* ---------- 页脚 ---------- */
+html[data-style="editorial"] .footer {
+    background: var(--editorial-paper-soft);
+    border-top: 3px double var(--editorial-rule-strong);
+    padding: 30px 16px 38px;
+}
+html[data-style="editorial"] .footer-links a {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .footer-links a:hover {
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .footer-copyright {
+    color: var(--editorial-muted);
+    letter-spacing: 0.14em;
+}
+html[data-style="editorial"] .toast-capsule {
+    background: var(--editorial-wash);
+    border: 1px solid var(--editorial-accent);
+    border-radius: 0;
+    font-family: var(--editorial-serif);
+    letter-spacing: 0.1em;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+    html[data-style="editorial"] .hero-photo {
+        height: 340px;
+    }
+}
+
+@media (max-width: 860px) {
+    html[data-style="editorial"] .nav-links a {
+        padding: 8px 10px;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+    }
+    html[data-style="editorial"] .nav-links a::after {
+        left: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 680px) {
+    html[data-style="editorial"] .hero {
+        padding: 40px 0 48px;
+    }
+    html[data-style="editorial"] .hero-photo {
+        height: 260px;
+    }
+    html[data-style="editorial"] .hero-title {
+        font-size: 30px;
+    }
+    html[data-style="editorial"] .cards-grid {
+        grid-template-columns: 1fr;
+    }
+    html[data-style="editorial"] .card {
+        min-height: 220px;
+    }
+    html[data-style="editorial"] .teacher-photo {
+        width: 120px;
+        height: 120px;
+    }
+    html[data-style="editorial"] .timeline {
+        padding-left: 30px;
+    }
+    html[data-style="editorial"] .timeline-item {
+        padding-left: 22px;
+    }
+    html[data-style="editorial"] .timeline-item::before {
+        left: -27px;
+    }
+}
+
+@media (max-width: 640px) {
+    html[data-style="editorial"] .nav-badge {
+        width: 34px;
+        height: 34px;
+    }
+}
+
+@media (max-width: 380px) {
+    html[data-style="editorial"] .nav-badge {
+        width: 30px;
+        height: 30px;
+    }
+}

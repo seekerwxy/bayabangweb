@@ -51,6 +51,78 @@
         }
     })();
 
+    // ---------- 网站外观切换（原版 / 哥特 / 科技 / 古风 / 编辑社 / 西方风） ----------
+    (function() {
+        const htmlEl = document.documentElement;
+        const switchRoot = document.getElementById('styleSwitch');
+        const switchBtn = document.getElementById('styleSwitchBtn');
+        const switchMenu = document.getElementById('styleSwitchMenu');
+        const options = Array.prototype.slice.call(document.querySelectorAll('.style-option[data-style]'));
+
+        function syncOptions() {
+            const current = htmlEl.getAttribute('data-style') === 'western'
+                ? 'western'
+                : (htmlEl.getAttribute('data-style') === 'editorial'
+                    ? 'editorial'
+                    : (htmlEl.getAttribute('data-style') === 'classical'
+                        ? 'classical'
+                        : (htmlEl.getAttribute('data-style') === 'tech'
+                            ? 'tech'
+                            : (htmlEl.getAttribute('data-style') === 'gothic' ? 'gothic' : 'default'))));
+            options.forEach(function(opt) {
+                const active = opt.getAttribute('data-style') === current;
+                opt.classList.toggle('active', active);
+                if (opt.getAttribute('role') === 'menuitemradio') {
+                    opt.setAttribute('aria-checked', active ? 'true' : 'false');
+                }
+            });
+        }
+
+        function setStyle(style) {
+            htmlEl.setAttribute('data-style', style);
+            try { localStorage.setItem('boya-style', style); } catch (err) {}
+            syncOptions();
+        }
+
+        function closeMenu() {
+            if (switchMenu) switchMenu.classList.remove('open');
+            if (switchBtn) switchBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        if (switchBtn && switchMenu) {
+            switchBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isOpen = switchMenu.classList.toggle('open');
+                switchBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+            switchMenu.addEventListener('click', function(e) {
+                const opt = e.target.closest('.style-option');
+                if (!opt) return;
+                const style = opt.getAttribute('data-style');
+                if (style) setStyle(style);
+                closeMenu();
+            });
+            document.addEventListener('click', function(e) {
+                if (switchRoot && !switchRoot.contains(e.target)) closeMenu();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && switchMenu.classList.contains('open')) {
+                    closeMenu();
+                    switchBtn.focus();
+                }
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const opt = e.target.closest('.nav-mobile-style .style-option');
+            if (!opt) return;
+            const style = opt.getAttribute('data-style');
+            if (style) setStyle(style);
+        });
+
+        syncOptions();
+    })();
+
 // ---------- 移动端汉堡菜单（所有页面共用） ----------
     (function() {
         const btn = document.getElementById('hamburgerBtn');

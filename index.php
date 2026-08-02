@@ -7,30 +7,11 @@
     <title>博雅班首页</title>
     <meta name="description" content="班级纪念册，献给班主任和同学们的回忆与祝福。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
-    <link rel="stylesheet" href="css/beauty.css?v=<?= filemtime(__DIR__ . '/css/beauty.css') ?>">
+    <?php include __DIR__ . '/_head.php'; ?>
 </head>
 <body>
 	
     <?php include '_header.php'; ?>
-
-    <!-- 首页顶部通知 -->
-    <div class="domain-notice" id="domainNotice">
-        <a class="domain-notice-link" href="https://bayabang.top/new/choose.html" target="_blank" rel="noopener">
-            <strong>网站风格选择</strong>点击查看详情
-        </a>
-        <button class="domain-notice-close" id="closeNotice" type="button" aria-label="关闭通知">✕</button>
-    </div>
 
     <!-- ==================== 主体内容 ==================== -->
     <main class="main">
@@ -53,7 +34,23 @@
                 >
                 <span class="hero-photo-placeholder">📷 班级大合照</span>
             </div>
+
+            <!-- 科技风终端状态条 -->
+            <div class="tech-hero-telemetry" aria-hidden="true">
+                <div class="tech-hero-telemetry-boxes">
+                    <span>EDITION <b>01</b></span>
+                    <span>MODULES <b>04</b></span>
+                    <span>STATUS <b class="ok">READY</b></span>
+                </div>
+            </div>
         </section>
+
+        <!-- 哥特风章节分隔 -->
+        <div class="gothic-divider" aria-hidden="true">
+            <span></span>
+            <i>✠</i>
+            <span></span>
+        </div>
 
         <!-- 板块导航入口 -->
         <p class="section-label">探索纪念册</p>
@@ -117,16 +114,6 @@
             }
         });
 
-        // 顶部通知关闭
-        (function () {
-            const notice = document.getElementById('domainNotice');
-            const closeBtn = document.getElementById('closeNotice');
-            if (!notice || !closeBtn) return;
-            closeBtn.addEventListener('click', function () {
-                notice.classList.add('hidden');
-            });
-        })();
-        
     </script>
 
     <?php include '_footer.php'; ?>

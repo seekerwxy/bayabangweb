@@ -7,18 +7,7 @@
     <title>博雅班班主任专属空间</title>
     <meta name="description" content="献给班主任的专属空间，包含班主任小档案、格言，以及同学们的留言墙。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
-    <link rel="stylesheet" href="css/beauty.css?v=<?= filemtime(__DIR__ . '/css/beauty.css') ?>">
+    <?php include __DIR__ . '/_head.php'; ?>
 </head>
 <body>
 

@@ -73,72 +73,13 @@
       font-size: 14px;
       line-height: 1.7;
     }
-    .domain-notice {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin: -32px -20px 28px;
-      padding: 10px 48px 10px 16px;
-      background: var(--card);
-      border-bottom: 1px solid var(--line);
-      font-size: 14px;
-    }
-    .domain-notice-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--ink);
-      text-decoration: none;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      line-height: 1.5;
-    }
-    .domain-notice-link:hover {
-      color: var(--muted);
-      text-decoration: underline;
-    }
-    .domain-notice-close {
-      position: absolute;
-      top: 50%;
-      right: 12px;
-      transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
-      border: none;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--muted);
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.2s, background-color 0.15s;
-    }
-    .domain-notice-close:hover {
-      color: var(--ink);
-      background: #f2efe8;
-    }
-    .domain-notice.hidden {
-      display: none;
-    }
   </style>
 </head>
 <body>
 
-  <!-- 通知 -->
-    <div class="domain-notice" id="domainNotice">
-        <a class="domain-notice-link" href="https://tp.wjx.com/vm/wRECTSG.aspx#" target="_blank" rel="noopener">
-            <strong>网站风格选择</strong>点击查看详情
-        </a>
-        <button class="domain-notice-close" id="closeNotice" type="button" aria-label="关闭通知">✕</button>
-    </div>
-
   <div class="wrap">
     <h1>选择风格</h1>
-    <p class="sub">下面是 5 种风格的桌面预览（浅色 / 深色）。点击对应链接可打开完整页面。</p>
+    <p class="sub">原版、哥特、科技、古风、编辑社、西方风已全部上线，站点右上角可以随时切换。</p>
     <div class="grid">
       <section class="card">
         <h2>1. 编辑社风格</h2>
@@ -148,6 +89,7 @@
           <figure><img src="_preview/editorial-dark-desktop.png" alt="编辑社风格深色版预览" loading="lazy"><figcaption>深色</figcaption></figure>
         </div>
         <div class="links">
+          <a href="../index.php?style=editorial">直接体验编辑社风</a>
           <a href="style-1-editorial/index.html">打开浅色版</a>
           <a href="style-1-editorial/index.html?theme=dark">打开深色版</a>
         </div>
@@ -160,6 +102,7 @@
           <figure><img src="_preview/tech-dark-desktop.png" alt="科技风格深色版预览" loading="lazy"><figcaption>深色</figcaption></figure>
         </div>
         <div class="links">
+          <a href="../index.php?style=tech">直接体验科技风</a>
           <a href="style-2-tech/index.html">打开浅色版</a>
           <a href="style-2-tech/index.html?theme=dark">打开深色版</a>
         </div>
@@ -172,6 +115,7 @@
           <figure><img src="_preview/classical-dark-desktop.png" alt="古风深色版预览" loading="lazy"><figcaption>深色</figcaption></figure>
         </div>
         <div class="links">
+          <a href="../index.php?style=classical">直接体验古风</a>
           <a href="style-3-classical/index.html">打开浅色版</a>
           <a href="style-3-classical/index.html?theme=dark">打开深色版</a>
         </div>
@@ -184,6 +128,7 @@
           <figure><img src="_preview/western-dark-desktop.png" alt="西方风格深色版预览" loading="lazy"><figcaption>深色</figcaption></figure>
         </div>
         <div class="links">
+          <a href="../index.php?style=western">直接体验西方风</a>
           <a href="style-4-western/index.html">打开浅色版</a>
           <a href="style-4-western/index.html?theme=dark">打开深色版</a>
         </div>
@@ -196,22 +141,12 @@
           <figure><img src="_preview/gothic-dark-desktop.png" alt="哥特风深色版预览" loading="lazy"><figcaption>深色</figcaption></figure>
         </div>
         <div class="links">
-          <a href="style-5-gothic/index.html">打开浅色版</a>
-          <a href="style-5-gothic/index.html?theme=dark">打开深色版</a>
+          <a href="../index.php?style=gothic">直接体验哥特风</a>
+          <a href="style-5-gothic/index.html">静态预览</a>
         </div>
       </section>
     </div>
-    <p class="tip">选定后回复风格编号即可，例如“选 2”。我会把该版本提为网站正式首页，删除其余 4 个风格文件夹、这个对比页和临时预览文件夹，再做最终验证。</p>
+    <p class="tip">原版为站点默认外观；哥特、科技、古风、编辑社、西方风已全部上线，进入后点右上角外观按钮即可切换。浅色 / 深色模式在六种外观下都可用。</p>
   </div>
-  <script>
-    (function () {
-      const notice = document.getElementById('domainNotice');
-      const closeBtn = document.getElementById('closeNotice');
-      if (!notice || !closeBtn) return;
-      closeBtn.addEventListener('click', function () {
-        notice.classList.add('hidden');
-      });
-    })();
-  </script>
 </body>
 </html>

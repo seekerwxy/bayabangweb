@@ -5,3 +5,7 @@ config.local.php
 # User-uploaded avatars live on the server; do not commit them.
 api/photos/classmates/*
 !api/photos/classmates/.htaccess
+
+# Local browser profiles used for visual previews; do not commit.
+new/_preview/edge-profile/
+new/_preview/edge-profile-choose/
