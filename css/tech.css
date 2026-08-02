@@ -67,6 +67,91 @@ html[data-style="tech"] body::before {
     z-index: 9999;
 }
 
+/* ---------- 动态背景：科技风粒子星网 ---------- */
+html[data-style="tech"] #tech-bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
+}
+html[data-style="tech"] #tech-meteor-blessing {
+    position: fixed;
+    z-index: 2000;
+    max-width: min(320px, calc(100vw - 32px));
+    padding: 10px 14px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -130%) scale(0.96);
+    transform-origin: 50% 100%;
+    color: var(--tech-ink);
+    background: var(--tech-surface-solid);
+    border: 1px solid var(--tech-line-strong);
+    border-radius: 8px;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+        0 8px 24px rgba(4, 10, 19, 0.28),
+        0 0 18px var(--tech-glow);
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    letter-spacing: 0;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+html[data-style="tech"] #tech-meteor-blessing::before,
+html[data-style="tech"] #tech-meteor-blessing::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 100%;
+    width: 0;
+    height: 0;
+}
+html[data-style="tech"] #tech-meteor-blessing::before {
+    border: 7px solid transparent;
+    border-top-color: var(--tech-line-strong);
+}
+html[data-style="tech"] #tech-meteor-blessing::after {
+    margin-top: -1px;
+    border: 6px solid transparent;
+    border-top-color: var(--tech-surface-solid);
+}
+html[data-style="tech"] #tech-meteor-blessing.visible {
+    opacity: 1;
+    transform: translate(-50%, -130%) scale(1);
+}
+html[data-style="tech"] #tech-meteor-blessing.below {
+    transform: translate(-50%, 0) scale(0.96);
+    transform-origin: 50% 0;
+}
+html[data-style="tech"] #tech-meteor-blessing.below::before,
+html[data-style="tech"] #tech-meteor-blessing.below::after {
+    top: auto;
+    bottom: 100%;
+}
+html[data-style="tech"] #tech-meteor-blessing.below::before {
+    border-top-color: transparent;
+    border-bottom-color: var(--tech-line-strong);
+}
+html[data-style="tech"] #tech-meteor-blessing.below::after {
+    margin-top: 0;
+    margin-bottom: -1px;
+    border-top-color: transparent;
+    border-bottom-color: var(--tech-surface-solid);
+}
+html[data-style="tech"] #tech-meteor-blessing.below.visible {
+    transform: translate(-50%, 0) scale(1);
+}
+html:not([data-style="tech"]) #tech-meteor-blessing {
+    display: none;
+}
+html[data-style="tech"] .tech-statusbar,
+html[data-style="tech"] .main,
+html[data-style="tech"] .footer {
+    position: relative;
+    z-index: 1;
+}
+
 /* ---------- 顶部通知 ---------- */
 html[data-style="tech"] .domain-notice {
     background: var(--tech-surface-solid);

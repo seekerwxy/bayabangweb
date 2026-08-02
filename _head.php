@@ -54,3 +54,4 @@ $westernCss = file_exists($rootDir . '/css/western.css')
 <link rel="stylesheet" href="<?= $baseUrl ?>css/classical.css?v=<?= filemtime($classicalCss) ?>">
 <link rel="stylesheet" href="<?= $baseUrl ?>css/editorial.css?v=<?= filemtime($editorialCss) ?>">
 <link rel="stylesheet" href="<?= $baseUrl ?>css/western.css?v=<?= filemtime($westernCss) ?>">
+<script src="<?= $baseUrl ?>js/tech-bg.js?v=<?= filemtime($rootDir . '/js/tech-bg.js') ?>" defer></script>
