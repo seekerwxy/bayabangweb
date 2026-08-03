@@ -152,27 +152,34 @@ html[data-style="tech"] .footer {
     z-index: 1;
 }
 
-/* ---------- 顶部通知 ---------- */
-html[data-style="tech"] .domain-notice {
+/* ---------- 下载通知栏 ---------- */
+html[data-style="tech"] .download-notice {
     background: var(--tech-surface-solid);
     border-bottom: 1px solid var(--tech-line);
     color: var(--tech-ink);
     font-family: var(--tech-font-mono);
-    font-size: 13px;
     letter-spacing: 0.04em;
 }
-html[data-style="tech"] .domain-notice-link {
-    color: var(--tech-ink);
+html[data-style="tech"] .download-notice::before {
+    background: var(--tech-accent);
 }
-html[data-style="tech"] .domain-notice-link strong {
-    color: var(--tech-accent);
+html[data-style="tech"] .download-notice:hover {
+    background: color-mix(in srgb, var(--tech-surface-solid) 88%, var(--tech-accent));
+    border-bottom-color: var(--tech-line-strong);
 }
-html[data-style="tech"] .domain-notice-close {
+html[data-style="tech"] .download-notice-icon {
+    background: var(--tech-accent);
+    color: var(--tech-bg-deep);
+}
+html[data-style="tech"] .download-notice-copy {
     color: var(--tech-muted);
 }
-html[data-style="tech"] .domain-notice-close:hover {
+html[data-style="tech"] .download-notice-copy strong {
     color: var(--tech-accent);
-    background: rgba(20, 200, 216, 0.1);
+}
+html[data-style="tech"] .download-notice-arrow {
+    color: var(--tech-ink);
+    border-color: var(--tech-line);
 }
 
 /* ---------- 顶部状态栏（仅科技风显示） ---------- */

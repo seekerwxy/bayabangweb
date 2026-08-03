@@ -50,26 +50,32 @@ html[data-style="editorial"] a {
     color: inherit;
 }
 
-/* ---------- 顶部通知 ---------- */
-html[data-style="editorial"] .domain-notice {
+/* ---------- 下载通知栏 ---------- */
+html[data-style="editorial"] .download-notice {
     background: var(--editorial-paper-soft);
     border-bottom: 3px double var(--editorial-rule-strong);
-    color: var(--editorial-ink);
-    font-size: 13px;
+}
+html[data-style="editorial"] .download-notice::before {
+    background: var(--editorial-accent);
+}
+html[data-style="editorial"] .download-notice:hover {
+    background: var(--editorial-paper);
+    border-bottom-color: var(--editorial-accent);
+}
+html[data-style="editorial"] .download-notice-icon {
+    background: var(--editorial-accent);
+    color: #fff;
+}
+html[data-style="editorial"] .download-notice-copy {
+    color: var(--editorial-muted);
     letter-spacing: 0.06em;
 }
-html[data-style="editorial"] .domain-notice-link {
+html[data-style="editorial"] .download-notice-copy strong {
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .download-notice-arrow {
     color: var(--editorial-ink);
-}
-html[data-style="editorial"] .domain-notice-link strong {
-    color: var(--editorial-accent);
-}
-html[data-style="editorial"] .domain-notice-close {
-    color: var(--editorial-muted);
-}
-html[data-style="editorial"] .domain-notice-close:hover {
-    color: var(--editorial-accent);
-    background: var(--editorial-accent-soft);
+    border-color: var(--editorial-rule-strong);
 }
 
 /* ---------- 导航（高度与位置保持原版 56px 布局） ---------- */

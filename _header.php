@@ -115,3 +115,16 @@ $currentPage = $currentPage ?? '';
         </div>
     </div>
 </nav>
+
+<a class="download-notice" href="download.php" aria-label="前往下载博雅 APP">
+    <span class="download-notice-icon" aria-hidden="true">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+    </span>
+    <span class="download-notice-copy">
+        <strong>博雅 APP 已上线</strong>
+        <span>点击下载安装包，把班级纪念装进口袋</span>
+    </span>
+    <span class="download-notice-arrow" aria-hidden="true">
+        <i class="fa-solid fa-arrow-right"></i>
+    </span>
+</a>

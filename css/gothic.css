@@ -47,24 +47,31 @@ html[data-style="gothic"] a {
     color: inherit;
 }
 
-/* ---------- 顶部通知 ---------- */
-html[data-style="gothic"] .domain-notice {
+/* ---------- 下载通知栏 ---------- */
+html[data-style="gothic"] .download-notice {
     background: var(--parchment-soft);
-    border-bottom: 1px solid var(--gothic-line-strong);
-    color: var(--gothic-ink);
+    border-bottom: 2px solid var(--gothic-line-strong);
 }
-html[data-style="gothic"] .domain-notice-link {
-    color: var(--gothic-ink);
+html[data-style="gothic"] .download-notice::before {
+    background: var(--gothic-blood);
 }
-html[data-style="gothic"] .domain-notice-link strong {
-    color: var(--gothic-blood);
+html[data-style="gothic"] .download-notice:hover {
+    background: var(--parchment);
+    border-bottom-color: var(--gothic-blood);
 }
-html[data-style="gothic"] .domain-notice-close {
+html[data-style="gothic"] .download-notice-icon {
+    background: var(--gothic-blood);
+    color: #fff;
+}
+html[data-style="gothic"] .download-notice-copy {
     color: var(--gothic-muted);
 }
-html[data-style="gothic"] .domain-notice-close:hover {
+html[data-style="gothic"] .download-notice-copy strong {
     color: var(--gothic-blood);
-    background: rgba(179, 39, 48, 0.08);
+}
+html[data-style="gothic"] .download-notice-arrow {
+    color: var(--gothic-ink);
+    border-color: var(--gothic-line-strong);
 }
 
 /* ---------- 导航 ---------- */

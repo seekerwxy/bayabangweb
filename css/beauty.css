@@ -408,6 +408,94 @@ html[data-theme="dark"] .theme-toggle .fa-moon {
     background-color: #313131;
 }
 
+/* ========== 下载通知栏 ========== */
+.download-notice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 12px 24px;
+    background: linear-gradient(90deg, var(--surface), var(--surface-muted) 55%, var(--surface));
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text);
+    text-decoration: none;
+    overflow: hidden;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.download-notice::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--accent-border);
+}
+.download-notice:hover {
+    background: var(--surface-hover);
+    border-bottom-color: var(--accent-border);
+}
+.download-notice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    background: var(--nav-bg);
+    color: var(--nav-text);
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.download-notice-copy {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+.download-notice-copy strong {
+    color: var(--text);
+    font-weight: 650;
+    white-space: nowrap;
+}
+.download-notice-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border-light);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.download-notice:hover .download-notice-arrow {
+    color: var(--text);
+    border-color: var(--accent-border);
+    transform: translateX(2px);
+}
+@media (max-width: 640px) {
+    .download-notice {
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 10px 16px;
+    }
+    .download-notice-copy {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        font-size: 13px;
+    }
+    .download-notice-arrow {
+        margin-left: auto;
+    }
+}
+
 /* ========== 主体区域 ========== */
 .main {
     flex: 1;

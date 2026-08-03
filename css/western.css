@@ -51,26 +51,32 @@ html[data-style="western"] a {
     color: inherit;
 }
 
-/* ---------- 顶部通知 ---------- */
-html[data-style="western"] .domain-notice {
+/* ---------- 下载通知栏 ---------- */
+html[data-style="western"] .download-notice {
     background: var(--western-ivory-soft);
     border-bottom: 3px double var(--western-line-strong);
-    color: var(--western-ink);
-    font-size: 13px;
+}
+html[data-style="western"] .download-notice::before {
+    background: var(--western-gold);
+}
+html[data-style="western"] .download-notice:hover {
+    background: var(--western-ivory);
+    border-bottom-color: var(--western-gold);
+}
+html[data-style="western"] .download-notice-icon {
+    background: var(--western-gold);
+    color: #fff;
+}
+html[data-style="western"] .download-notice-copy {
+    color: var(--western-muted);
     letter-spacing: 0.08em;
 }
-html[data-style="western"] .domain-notice-link {
+html[data-style="western"] .download-notice-copy strong {
+    color: var(--western-gold);
+}
+html[data-style="western"] .download-notice-arrow {
     color: var(--western-ink);
-}
-html[data-style="western"] .domain-notice-link strong {
-    color: var(--western-gold);
-}
-html[data-style="western"] .domain-notice-close {
-    color: var(--western-muted);
-}
-html[data-style="western"] .domain-notice-close:hover {
-    color: var(--western-gold);
-    background: rgba(169, 134, 63, 0.12);
+    border-color: var(--western-line-strong);
 }
 
 /* ---------- 导航（高度与位置保持原版 56px 布局） ---------- */

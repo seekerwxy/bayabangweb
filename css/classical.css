@@ -50,25 +50,32 @@ html[data-style="classical"] a {
     color: inherit;
 }
 
-/* ---------- 顶部通知 ---------- */
-html[data-style="classical"] .domain-notice {
+/* ---------- 下载通知栏 ---------- */
+html[data-style="classical"] .download-notice {
     background: var(--classical-paper-soft);
     border-bottom: 2px solid var(--classical-line-strong);
-    color: var(--classical-ink);
 }
-html[data-style="classical"] .domain-notice-link {
-    color: var(--classical-ink);
+html[data-style="classical"] .download-notice::before {
+    background: var(--classical-red);
+}
+html[data-style="classical"] .download-notice:hover {
+    background: var(--classical-paper);
+    border-bottom-color: var(--classical-red);
+}
+html[data-style="classical"] .download-notice-icon {
+    background: var(--classical-red);
+    color: #fff;
+}
+html[data-style="classical"] .download-notice-copy {
+    color: var(--classical-muted);
     letter-spacing: 0.08em;
 }
-html[data-style="classical"] .domain-notice-link strong {
+html[data-style="classical"] .download-notice-copy strong {
     color: var(--classical-red);
 }
-html[data-style="classical"] .domain-notice-close {
-    color: var(--classical-muted);
-}
-html[data-style="classical"] .domain-notice-close:hover {
-    color: var(--classical-red);
-    background: rgba(154, 43, 37, 0.08);
+html[data-style="classical"] .download-notice-arrow {
+    color: var(--classical-ink);
+    border-color: var(--classical-line-strong);
 }
 
 /* ---------- 导航（高度与位置保持原版 56px 布局） ---------- */
