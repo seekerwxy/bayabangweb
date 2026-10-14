@@ -1,172 +1,7 @@
 <?php
+// 这个页面只负责显示；所有接口都在 api/admin-memories.php
 require_once __DIR__ . '/_auth.php';
-require_once __DIR__ . '/../_photo.php';
 
-// ================== 数据库配置 ==================
-$db_host = $config['messages_db']['host'];
-$db_user = $config['messages_db']['username'];
-$db_pass = $config['messages_db']['password'];
-$db_name = $config['messages_db']['database'];
-
-// 连接数据库
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-$db_error = null;
-if ($conn->connect_error) {
-    error_log('admin memories DB connect failed: ' . $conn->connect_error);
-    $db_error = '数据库连接失败，请稍后重试';
-} else {
-    $conn->set_charset("utf8mb4");
-    // 自动创建表（如果不存在）
-    $conn->query("CREATE TABLE IF NOT EXISTS `timeline_events` (
-        `id` int(11) NOT NULL AUTO_INCREMENT,
-        `event_date` varchar(50) NOT NULL,
-        `title` varchar(100) NOT NULL,
-        `description` text,
-        `photo` varchar(255) DEFAULT NULL,
-        `display_order` int(11) DEFAULT 0,
-        `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (`id`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
-}
-
-// ========== API 路由 ==========
-if (!$db_error && isset($_GET['api'])) {
-    header('Content-Type: application/json; charset=utf-8');
-    $action = $_GET['api'];
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !admin_verify_csrf($_POST['csrf_token'] ?? '')) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'CSRF验证失败'], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    // ---------- 列表 ----------
-    if ($action === 'list') {
-        $result = $conn->query("SELECT * FROM timeline_events ORDER BY display_order ASC, id ASC");
-        $events = [];
-        while ($row = $result->fetch_assoc()) {
-            // 后台编辑框里也显示归一化后的路径，避免同一条数据出现多种写法
-            $row['photo'] = boya_normalize_photo($row['photo'] ?? '');
-            $events[] = $row;
-        }
-        echo json_encode(['success' => true, 'data' => $events], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    // ---------- 添加 ----------
-    if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $date = trim($_POST['event_date'] ?? '');
-        $title = trim($_POST['title'] ?? '');
-        $desc = trim($_POST['description'] ?? '');
-        $photo = boya_normalize_photo($_POST['photo'] ?? '');
-        $order = intval($_POST['display_order'] ?? 0);
-        if (empty($date) || empty($title)) {
-            echo json_encode(['success' => false, 'error' => '日期和标题不能为空'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        // 列宽限制：event_date varchar(50)、title varchar(100)、photo varchar(255)
-        if (mb_strlen($date) > 50 || mb_strlen($title) > 100 || mb_strlen($photo) > 255) {
-            echo json_encode(['success' => false, 'error' => '日期/标题/图片路径过长（日期≤50、标题≤100、路径≤255）'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        // 防呆：图片路径必须在服务器上真实存在，否则前台只会是一张裂图
-        if ($photo !== '' && !boya_photo_exists($photo)) {
-            $suggestions = boya_photo_suggestions();
-            echo json_encode([
-                'success' => false,
-                'error' => '图片路径在服务器上找不到：' . $photo
-                    . ($suggestions ? '（候选路径已写进输入框的提示里）' : ''),
-                'photo_suggestions' => $suggestions
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt = $conn->prepare("INSERT INTO timeline_events (event_date, title, description, photo, display_order) VALUES (?, ?, ?, ?, ?)");
-        if (!$stmt) {
-            error_log('admin timeline add prepare failed: ' . $conn->error);
-            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt->bind_param("ssssi", $date, $title, $desc, $photo, $order);
-        $success = $stmt->execute();
-        if (!$success) {
-            error_log('admin timeline add failed: ' . $stmt->error);
-        }
-        echo json_encode(['success' => $success, 'error' => $success ? null : '保存失败'], JSON_UNESCAPED_UNICODE);
-        $stmt->close();
-        exit;
-    }
-
-    // ---------- 编辑 ----------
-    if ($action === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id = intval($_POST['id'] ?? 0);
-        $date = trim($_POST['event_date'] ?? '');
-        $title = trim($_POST['title'] ?? '');
-        $desc = trim($_POST['description'] ?? '');
-        $photo = boya_normalize_photo($_POST['photo'] ?? '');
-        $order = intval($_POST['display_order'] ?? 0);
-        if ($id <= 0 || empty($date) || empty($title)) {
-            echo json_encode(['success' => false, 'error' => '参数不完整'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        // 列宽限制：event_date varchar(50)、title varchar(100)、photo varchar(255)
-        if (mb_strlen($date) > 50 || mb_strlen($title) > 100 || mb_strlen($photo) > 255) {
-            echo json_encode(['success' => false, 'error' => '日期/标题/图片路径过长（日期≤50、标题≤100、路径≤255）'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        // 防呆：图片路径必须在服务器上真实存在，否则前台只会是一张裂图
-        if ($photo !== '' && !boya_photo_exists($photo)) {
-            $suggestions = boya_photo_suggestions();
-            echo json_encode([
-                'success' => false,
-                'error' => '图片路径在服务器上找不到：' . $photo
-                    . ($suggestions ? '（候选路径已写进输入框的提示里）' : ''),
-                'photo_suggestions' => $suggestions
-            ], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt = $conn->prepare("UPDATE timeline_events SET event_date=?, title=?, description=?, photo=?, display_order=? WHERE id=?");
-        if (!$stmt) {
-            error_log('admin timeline edit prepare failed: ' . $conn->error);
-            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt->bind_param("ssssii", $date, $title, $desc, $photo, $order, $id);
-        $success = $stmt->execute();
-        if (!$success) {
-            error_log('admin timeline edit failed: ' . $stmt->error);
-        }
-        echo json_encode(['success' => $success, 'error' => $success ? null : '保存失败'], JSON_UNESCAPED_UNICODE);
-        $stmt->close();
-        exit;
-    }
-
-    // ---------- 删除 ----------
-    if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id = intval($_POST['id'] ?? 0);
-        if ($id <= 0) {
-            echo json_encode(['success' => false, 'error' => '无效ID'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt = $conn->prepare("DELETE FROM timeline_events WHERE id = ?");
-        if (!$stmt) {
-            error_log('admin timeline delete prepare failed: ' . $conn->error);
-            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt->bind_param("i", $id);
-        $success = $stmt->execute();
-        if (!$success) {
-            error_log('admin timeline delete failed: ' . $stmt->error);
-        }
-        echo json_encode(['success' => $success], JSON_UNESCAPED_UNICODE);
-        $stmt->close();
-        exit;
-    }
-
-    echo json_encode(['success' => false, 'error' => '未知API'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -220,12 +55,6 @@ if (!$db_error && isset($_GET['api'])) {
 </head>
 <body>
 <div class="container">
-    <?php if ($db_error): ?>
-        <div class="alert alert-error">
-            <strong>数据库连接错误</strong><br>
-            <?= htmlspecialchars($db_error) ?>
-        </div>
-    <?php endif; ?>
     <div class="admin-header">
         <div style="display: flex; gap: 12px; align-items: baseline;">
             <h1>📅 时光轴管理</h1>
@@ -242,11 +71,7 @@ if (!$db_error && isset($_GET['api'])) {
         </div>
     </div>
     <div class="event-list" id="eventList">
-        <?php if ($db_error): ?>
-            <div class="alert">数据库未连接，无法加载</div>
-        <?php else: ?>
-            <div class="alert">加载中...</div>
-        <?php endif; ?>
+        <div class="alert">加载中...</div>
     </div>
 </div>
 
@@ -270,16 +95,12 @@ if (!$db_error && isset($_GET['api'])) {
 
 <script>
     const CSRF_TOKEN = '<?= htmlspecialchars(admin_csrf_token()) ?>';
-    const API_URL = '?api=';  // 相对路径，调用自身
+    const API_URL = '../api/admin-memories.php?action=';  // 接口都在 api/ 下
 
     // 加载列表
     async function loadEvents() {
         const container = document.getElementById('eventList');
         container.innerHTML = '<div class="alert">加载中...</div>';
-        <?php if ($db_error): ?>
-        container.innerHTML = '<div class="alert">数据库连接错误，无法加载</div>';
-        return;
-        <?php endif; ?>
         try {
             const res = await fetch(API_URL + 'list');
             if (res.status === 401) {
@@ -321,7 +142,7 @@ if (!$db_error && isset($_GET['api'])) {
                 });
                 container.innerHTML = html;
             } else {
-                container.innerHTML = '<div class="alert">加载失败，请刷新</div>';
+                container.innerHTML = '<div class="alert">' + escapeHtml(result.error || '加载失败，请刷新') + '</div>';
             }
         } catch (err) {
             container.innerHTML = '<div class="alert">网络错误，请检查网络</div>';

@@ -29,12 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && admin_verify_csrf($_POST['csrf_token'] ?? '')) {
     $_SESSION = [];
     session_destroy();
+    if (isset($_GET['api']) || (defined('BOYA_ADMIN_API') && BOYA_ADMIN_API)) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['success' => true, 'message' => '已退出登录'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     header('Location: login.php');
     exit;
 }
 
 if (empty($_SESSION['admin_logged_in'])) {
-    if (isset($_GET['api'])) {
+    if (isset($_GET['api']) || (defined('BOYA_ADMIN_API') && BOYA_ADMIN_API)) {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => '未登录或登录已过期'], JSON_UNESCAPED_UNICODE);

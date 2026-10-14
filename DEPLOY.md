@@ -47,7 +47,7 @@ server-dir: bayabang.top/htdocs/
 
 ## 目录约定
 
-- `api/`：只放接口脚本（`.php`），不放用户上传的文件。
+- `api/`：只放接口脚本（`.php`），不放用户上传的文件；后台接口也在这里（`api/admin-memories.php`、`api/admin-messages.php`）。
 - `uploads/classmates/`：同学自己上传的头像，只存在服务器上，不进仓库、不参与部署。
 - `photos/`：网站自带的照片，随仓库一起部署。
 - `text/`：站内文本与 APP 安装包。

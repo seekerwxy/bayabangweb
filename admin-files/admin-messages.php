@@ -1,122 +1,7 @@
 <?php
-
+// 这个页面只负责显示；所有接口都在 api/admin-messages.php
 require_once __DIR__ . '/_auth.php';
 
-// ================== 数据库配置 ==================
-$db_host = $config['messages_db']['host'];     // 数据库主机
-$db_user = $config['messages_db']['username'];    // 数据库用户名
-$db_pass = $config['messages_db']['password'];   // 数据库密码
-$db_name = $config['messages_db']['database'];      // 数据库名
-
-// 连接数据库
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-$db_error = null;
-if ($conn->connect_error) {
-    error_log('admin messages DB connect failed: ' . $conn->connect_error);
-    $db_error = '数据库连接失败，请稍后重试';
-} else {
-    $conn->set_charset("utf8mb4");
-    // 自动创建/修复表（增加 color 字段）
-    $conn->query("CREATE TABLE IF NOT EXISTS `messages` (
-        `id` int(11) NOT NULL AUTO_INCREMENT,
-        `title` varchar(255) DEFAULT '',
-        `author` varchar(30) NOT NULL,
-        `content` text NOT NULL,
-        `color` varchar(7) DEFAULT '',
-        `created_at` datetime NOT NULL,
-        PRIMARY KEY (`id`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
-    // 如果表存在但没有 color 字段，则添加
-    $res = $conn->query("SHOW COLUMNS FROM `messages` LIKE 'color'");
-    if ($res->num_rows == 0) {
-        $conn->query("ALTER TABLE `messages` ADD COLUMN `color` varchar(7) DEFAULT ''");
-    }
-}
-
-// ========== API 路由 ==========
-if (!$db_error && isset($_GET['api'])) {
-    header('Content-Type: application/json; charset=utf-8');
-    $action = $_GET['api'];
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !admin_verify_csrf($_POST['csrf_token'] ?? '')) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'CSRF验证失败'], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    if ($action === 'list') {
-        $result = $conn->query("SELECT id, title, author, content, color, created_at FROM messages ORDER BY id DESC");
-        $messages = [];
-        while ($row = $result->fetch_assoc()) {
-            $row['content_preview'] = mb_substr(strip_tags($row['content']), 0, 100);
-            $messages[] = $row;
-        }
-        echo json_encode(['success' => true, 'data' => $messages], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id = intval($_POST['id'] ?? 0);
-        $title = trim($_POST['title'] ?? '');
-        $author = trim($_POST['author'] ?? '');
-        $content = trim($_POST['content'] ?? '');
-        $color = trim($_POST['color'] ?? '');
-        if ($color !== '' && !preg_match('/^#[0-9a-fA-F]{6}$/', $color)) $color = '';
-        if ($id <= 0 || empty($author) || empty($content)) {
-            echo json_encode(['success' => false, 'error' => '参数不完整'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        // 列宽限制：author varchar(30)、title varchar(255)，正文与留言板前台保持一致上限 2000 字
-        if (mb_strlen($author) > 30) {
-            echo json_encode(['success' => false, 'error' => '署名不能超过30个字符'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        if (mb_strlen($title) > 255) {
-            echo json_encode(['success' => false, 'error' => '标题不能超过255个字符'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        if (mb_strlen($content) > 2000) {
-            echo json_encode(['success' => false, 'error' => '内容不能超过2000个字符'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt = $conn->prepare("UPDATE messages SET title = ?, author = ?, content = ?, color = ? WHERE id = ?");
-        if (!$stmt) {
-            error_log('admin message update prepare failed: ' . $conn->error);
-            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt->bind_param("ssssi", $title, $author, $content, $color, $id);
-        $success = $stmt->execute();
-        if (!$success) {
-            error_log('admin message update failed: ' . $stmt->error);
-        }
-        echo json_encode(['success' => $success, 'error' => $success ? null : '更新失败'], JSON_UNESCAPED_UNICODE);
-        $stmt->close();
-        exit;
-    }
-
-    if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id = intval($_POST['id'] ?? 0);
-        if ($id <= 0) { echo json_encode(['success' => false, 'error' => '无效ID'], JSON_UNESCAPED_UNICODE); exit; }
-        $stmt = $conn->prepare("DELETE FROM messages WHERE id = ?");
-        if (!$stmt) {
-            error_log('admin message delete prepare failed: ' . $conn->error);
-            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
-            exit;
-        }
-        $stmt->bind_param("i", $id);
-        $success = $stmt->execute();
-        if (!$success) {
-            error_log('admin message delete failed: ' . $stmt->error);
-        }
-        echo json_encode(['success' => $success], JSON_UNESCAPED_UNICODE);
-        $stmt->close();
-        exit;
-    }
-
-    echo json_encode(['success' => false, 'error' => '未知API'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -171,12 +56,6 @@ if (!$db_error && isset($_GET['api'])) {
 </head>
 <body>
 <div class="container">
-    <?php if ($db_error): ?>
-        <div class="alert alert-error">
-            <strong>数据库连接错误</strong><br>
-            <?= htmlspecialchars($db_error) ?>
-        </div>
-    <?php endif; ?>
     <div class="admin-header">
         <div style="display: flex; gap: 12px; align-items: baseline;">
             <h1>留言管理</h1>
@@ -193,11 +72,7 @@ if (!$db_error && isset($_GET['api'])) {
         </div>
     </div>
     <div class="messages-list" id="messagesContainer">
-        <?php if ($db_error): ?>
-            <div class="alert">数据库未连接，无法加载留言</div>
-        <?php else: ?>
-            <div class="alert">加载中...</div>
-        <?php endif; ?>
+        <div class="alert">加载中...</div>
     </div>
 </div>
 
@@ -217,6 +92,7 @@ if (!$db_error && isset($_GET['api'])) {
 
 <script>
     const CSRF_TOKEN = '<?= htmlspecialchars(admin_csrf_token()) ?>';
+    const API_URL = '../api/admin-messages.php?action=';  // 接口都在 api/ 下
     const colorList = ["#000000","#e60000","#ff9900","#008000","#0000ff","#800080","#ff1493","#00ced1","#32cd32","#ffd700","#ff4500","#8a2be2"];
     let currentColor = "";
 
@@ -258,12 +134,8 @@ if (!$db_error && isset($_GET['api'])) {
     async function loadMessages() {
         const container = document.getElementById('messagesContainer');
         container.innerHTML = '<div class="alert">加载留言中...</div>';
-        <?php if ($db_error): ?>
-        container.innerHTML = '<div class="alert">数据库连接错误，无法加载留言</div>';
-        return;
-        <?php endif; ?>
         try {
-            const res = await fetch('?api=list');
+            const res = await fetch(API_URL + 'list');
             if (res.status === 401) {
                 container.innerHTML = '<div class="alert">认证失败，请刷新页面重新输入密码</div>';
                 return;
@@ -294,7 +166,7 @@ if (!$db_error && isset($_GET['api'])) {
                 document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id, btn.dataset.title, btn.dataset.author, btn.dataset.content, btn.dataset.color)));
                 document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', async () => { if (confirm('确定删除这条留言？')) await deleteMessage(btn.dataset.id); }));
             } else {
-                container.innerHTML = '<div class="alert">加载失败，请刷新页面重试</div>';
+                container.innerHTML = '<div class="alert">' + escapeHtml(result.error || '加载失败，请刷新页面重试') + '</div>';
             }
         } catch (err) {
             container.innerHTML = '<div class="alert">网络错误，请检查网络或刷新页面</div>';
@@ -322,7 +194,7 @@ if (!$db_error && isset($_GET['api'])) {
         formData.append('content', content); formData.append('color', currentColor);
         formData.append('csrf_token', CSRF_TOKEN);
         try {
-            const res = await fetch('?api=update', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData });
+            const res = await fetch(API_URL + 'update', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData });
             const result = await res.json();
             if (result.success) { showToast('更新成功'); closeModal(); loadMessages(); }
             else showToast('更新失败: ' + (result.error || '未知错误'));
@@ -331,7 +203,7 @@ if (!$db_error && isset($_GET['api'])) {
     async function deleteMessage(id) {
         const formData = new URLSearchParams(); formData.append('id', id); formData.append('csrf_token', CSRF_TOKEN);
         try {
-            const res = await fetch('?api=delete', { method: 'POST', body: formData });
+            const res = await fetch(API_URL + 'delete', { method: 'POST', body: formData });
             const result = await res.json();
             if (result.success) { showToast('已删除'); loadMessages(); }
             else showToast('删除失败');
