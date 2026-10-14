@@ -64,7 +64,7 @@
                 return;
             }
             grid.innerHTML = classmates.map(member => {
-                const placeholder = escapeHtml(member.name.charAt(0));
+                const placeholder = escapeHtml((member.name || '').charAt(0));
                 const birthdayStr = formatBirthday(member.birthday);
                 const avatar = (member.avatar && member.avatar !== 'null' && member.avatar.trim() !== '') 
                                 ? member.avatar.trim() 

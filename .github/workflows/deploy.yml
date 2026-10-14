@@ -40,11 +40,16 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          # FTP 登录后根目录里同时能看到 bayabang.top/ 和 htdocs/，bayabang.top 是附加域名，
+          # 它的站点根目录是 bayabang.top/htdocs/（不是 htdocs/）。
+          # 不要加前导 "/"：加了会被当作 FTP 服务器根目录；路径必须落在 htdocs 内，
+          # 否则 InfinityFree 会自动删除上传的文件。
           server-dir: bayabang.top/htdocs/
           state-name: .ftp-deploy-sync-state-v2.json
           protocol: ftp
           port: 21
-          log-level: minimal
+          # standard 会打印真实的部署路径和每个上传/删除动作，便于排查“部署了却没生效”
+          log-level: standard
           exclude: |
             **/.git*
             **/.git*/**

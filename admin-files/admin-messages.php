@@ -66,7 +66,25 @@ if (!$db_error && isset($_GET['api'])) {
             echo json_encode(['success' => false, 'error' => '参数不完整'], JSON_UNESCAPED_UNICODE);
             exit;
         }
+        // 列宽限制：author varchar(30)、title varchar(255)，正文与留言板前台保持一致上限 2000 字
+        if (mb_strlen($author) > 30) {
+            echo json_encode(['success' => false, 'error' => '署名不能超过30个字符'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if (mb_strlen($title) > 255) {
+            echo json_encode(['success' => false, 'error' => '标题不能超过255个字符'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if (mb_strlen($content) > 2000) {
+            echo json_encode(['success' => false, 'error' => '内容不能超过2000个字符'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt = $conn->prepare("UPDATE messages SET title = ?, author = ?, content = ?, color = ? WHERE id = ?");
+        if (!$stmt) {
+            error_log('admin message update prepare failed: ' . $conn->error);
+            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt->bind_param("ssssi", $title, $author, $content, $color, $id);
         $success = $stmt->execute();
         if (!$success) {
@@ -81,6 +99,11 @@ if (!$db_error && isset($_GET['api'])) {
         $id = intval($_POST['id'] ?? 0);
         if ($id <= 0) { echo json_encode(['success' => false, 'error' => '无效ID'], JSON_UNESCAPED_UNICODE); exit; }
         $stmt = $conn->prepare("DELETE FROM messages WHERE id = ?");
+        if (!$stmt) {
+            error_log('admin message delete prepare failed: ' . $conn->error);
+            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt->bind_param("i", $id);
         $success = $stmt->execute();
         if (!$success) {
@@ -164,6 +187,7 @@ if (!$db_error && isset($_GET['api'])) {
             &nbsp;|&nbsp;
             <form method="post" action="?logout=1" style="display:inline;">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
+                <input type="hidden" name="logout" value="1">
                 <button type="submit" style="border:0;background:none;cursor:pointer;padding:0;color:#888;font-size:0.7rem;">退出登录</button>
             </form>
         </div>

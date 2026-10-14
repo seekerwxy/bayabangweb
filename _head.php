@@ -1,26 +1,50 @@
 <?php
 // 公共头部：主题与外观样式初始化。$baseUrl 用于子目录页面（如 admin/）。
 $baseUrl = $baseUrl ?? '';
-$styleUrl = isset($styleUrl) && $styleUrl !== '' ? $styleUrl : $baseUrl . 'css/gothic.css';
 $rootDir = __DIR__;
-$beautyCss = file_exists($rootDir . '/css/beauty.css')
-    ? $rootDir . '/css/beauty.css'
-    : $rootDir . '/../css/beauty.css';
-$gothicCss = file_exists($rootDir . '/css/gothic.css')
-    ? $rootDir . '/css/gothic.css'
-    : $rootDir . '/../css/gothic.css';
-$techCss = file_exists($rootDir . '/css/tech.css')
-    ? $rootDir . '/css/tech.css'
-    : $rootDir . '/../css/tech.css';
-$classicalCss = file_exists($rootDir . '/css/classical.css')
-    ? $rootDir . '/css/classical.css'
-    : $rootDir . '/../css/classical.css';
-$editorialCss = file_exists($rootDir . '/css/editorial.css')
-    ? $rootDir . '/css/editorial.css'
-    : $rootDir . '/../css/editorial.css';
-$westernCss = file_exists($rootDir . '/css/western.css')
-    ? $rootDir . '/css/western.css'
-    : $rootDir . '/../css/western.css';
+
+// 解析静态资源真实路径：优先按 $baseUrl 找（admin-files 下 $baseUrl 为 '../'），
+// 并对 filemtime() 做存在性保护，避免文件缺失时产生 PHP 警告、版本号变成空值。
+if (!function_exists('boya_asset_path')) {
+    function boya_asset_path($rootDir, $baseUrl, $relative)
+    {
+        $relative = ltrim(str_replace('\\', '/', (string)$relative), '/');
+        $candidates = [
+            $rootDir . '/' . $relative,
+            $rootDir . '/' . $baseUrl . $relative,
+            $rootDir . '/../' . $relative,
+        ];
+        foreach ($candidates as $path) {
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+        return $candidates[0];
+    }
+}
+
+if (!function_exists('boya_asset_version')) {
+    function boya_asset_version($path)
+    {
+        $time = @filemtime($path);
+        return $time === false ? '0' : (string)$time;
+    }
+}
+
+$styleUrl = isset($styleUrl) && $styleUrl !== '' ? $styleUrl : $baseUrl . 'css/gothic.css';
+$styleRelative = ltrim(preg_replace('#^[./]+#', '', explode('?', $styleUrl, 2)[0]), '/');
+if ($styleRelative === '') {
+    $styleRelative = 'css/gothic.css';
+}
+
+$beautyCss = boya_asset_path($rootDir, $baseUrl, 'css/beauty.css');
+$gothicCss = boya_asset_path($rootDir, $baseUrl, 'css/gothic.css');
+$techCss = boya_asset_path($rootDir, $baseUrl, 'css/tech.css');
+$classicalCss = boya_asset_path($rootDir, $baseUrl, 'css/classical.css');
+$editorialCss = boya_asset_path($rootDir, $baseUrl, 'css/editorial.css');
+$westernCss = boya_asset_path($rootDir, $baseUrl, 'css/western.css');
+$styleCss = boya_asset_path($rootDir, $baseUrl, $styleRelative);
+$techBgJs = boya_asset_path($rootDir, $baseUrl, 'js/tech-bg.js');
 ?>
 <script>
 (function () {
@@ -48,10 +72,10 @@ $westernCss = file_exists($rootDir . '/css/western.css')
     }
 })();
 </script>
-<link rel="stylesheet" href="<?= $baseUrl ?>css/beauty.css?v=<?= filemtime($beautyCss) ?>">
-<link rel="stylesheet" href="<?= $styleUrl ?>?v=<?= filemtime($gothicCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/tech.css?v=<?= filemtime($techCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/classical.css?v=<?= filemtime($classicalCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/editorial.css?v=<?= filemtime($editorialCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/western.css?v=<?= filemtime($westernCss) ?>">
-<script src="<?= $baseUrl ?>js/tech-bg.js?v=<?= filemtime($rootDir . '/js/tech-bg.js') ?>" defer></script>
+<link rel="stylesheet" href="<?= $baseUrl ?>css/beauty.css?v=<?= boya_asset_version($beautyCss) ?>">
+<link rel="stylesheet" href="<?= $styleUrl ?>?v=<?= boya_asset_version($styleCss) ?>">
+<link rel="stylesheet" href="<?= $baseUrl ?>css/tech.css?v=<?= boya_asset_version($techCss) ?>">
+<link rel="stylesheet" href="<?= $baseUrl ?>css/classical.css?v=<?= boya_asset_version($classicalCss) ?>">
+<link rel="stylesheet" href="<?= $baseUrl ?>css/editorial.css?v=<?= boya_asset_version($editorialCss) ?>">
+<link rel="stylesheet" href="<?= $baseUrl ?>css/western.css?v=<?= boya_asset_version($westernCss) ?>">
+<script src="<?= $baseUrl ?>js/tech-bg.js?v=<?= boya_asset_version($techBgJs) ?>" defer></script>

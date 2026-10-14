@@ -1,5 +1,5 @@
 <?php
-$currentPage = 'home';
+$currentPage = '';
 
 function boyaFormatBytes($bytes, $precision = 1)
 {

@@ -26,7 +26,7 @@
             <div class="hero-photo" id="heroPhoto">
                 <img
                   id="heroImg"
-                  src="photos\hezhao.jpg"
+                  src="photos/hezhao.jpg"
                   alt="班级大合照"
                   loading="lazy"
                   onload="handleHeroImageLoad()"

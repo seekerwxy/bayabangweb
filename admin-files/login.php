@@ -31,6 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $failures = $_SESSION['admin_login_failures'] ?? 0;
     $lockedUntil = $_SESSION['admin_login_locked_until'] ?? 0;
 
+    // 锁定时间已过就清零，避免解锁后再错一次立刻又被锁 15 分钟
+    if ($lockedUntil > 0 && time() >= $lockedUntil) {
+        $failures = 0;
+        $lockedUntil = 0;
+        unset($_SESSION['admin_login_failures'], $_SESSION['admin_login_locked_until']);
+    }
+
     $validToken = is_string($token)
         && isset($_SESSION['admin_csrf_token'])
         && hash_equals($_SESSION['admin_csrf_token'], $token);

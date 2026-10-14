@@ -41,7 +41,7 @@
         <div class="edit-form-group">
             <label class="edit-label">头像</label>
             <p class="edit-form-hint">当前头像：</p>
-            <img id="currentAvatar" src="" alt="当前头像" class="edit-avatar-preview edit-current-avatar" onerror="this.style.display='none'">
+            <img id="currentAvatar" alt="当前头像" class="edit-avatar-preview edit-current-avatar" onerror="this.style.display='none'">
             <input type="file" id="avatarFile" accept="image/*" style="margin-top:10px;" class="edit-input edit-avatar-file">
             <p class="edit-form-hint">请选择正方形照片，或使用裁剪工具</p>
             <div id="cropContainer" class="edit-crop-container edit-hidden">
@@ -124,17 +124,32 @@
         async function login() {
             const name = document.getElementById('loginName').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
+            const loginError = document.getElementById('loginError');
             if (!name || !password) {
-                document.getElementById('loginError').textContent = '请填写姓名和密码';
+                loginError.textContent = '请填写姓名和密码';
                 return;
             }
-            const resp = await fetch(API_BASE, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'login', name, password })
-            });
-            const data = await resp.json();
-            if (data.message === 'success') {
+            loginError.textContent = '';
+            try {
+                const resp = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action: 'login', name, password })
+                });
+                if (!resp.ok) {
+                    let message = `服务器错误 (${resp.status})`;
+                    try {
+                        const errData = await resp.json();
+                        if (errData && errData.message) message = errData.message;
+                    } catch (e) {}
+                    throw new Error(message);
+                }
+                const data = await resp.json();
+                if (data.message !== 'success') {
+                    loginError.textContent = data.message || '登录失败';
+                    return;
+                }
+
                 currentName = name;
                 csrfToken = data.csrf_token || '';
                 localStorage.removeItem('profile_password');
@@ -143,7 +158,7 @@
                 document.getElementById('loginSection').classList.add('edit-hidden');
                 document.getElementById('editSection').classList.remove('edit-hidden');
 
-                const d = data.data;
+                const d = data.data || {};
                 document.getElementById('editQuote').value = d.quote || '';
                 document.getElementById('editBirthday').value = d.birthday || '';
                 document.getElementById('editNickname').value = d.nickname || '';
@@ -159,11 +174,12 @@
                     avatarImg.style.display = 'block';
                     currentAvatarPath = d.avatar;
                 } else {
+                    avatarImg.removeAttribute('src');
                     avatarImg.style.display = 'none';
                     currentAvatarPath = '';
                 }
-            } else {
-                document.getElementById('loginError').textContent = data.message;
+            } catch (err) {
+                loginError.textContent = '登录失败：' + (err.message || '网络错误');
             }
         }
 
@@ -292,29 +308,40 @@
             const skills = document.getElementById('editSkills').value.trim();
             const contact_info = document.getElementById('editContact').value.trim();
 
-            let avatar = currentAvatarPath;
-            if (!avatar) {
-                const avatarImg = document.getElementById('currentAvatar');
-                avatar = (avatarImg && avatarImg.src && !avatarImg.src.endsWith('/')) ? avatarImg.src : '';
-            }
-
-            const resp = await fetch(API_BASE, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    action: 'update',
-                    quote, birthday, avatar,
-                    nickname, gender, hometown, hobbies, skills, contact_info,
-                    csrf_token: csrfToken
-                })
-            });
-            const data = await resp.json();
             const msg = document.getElementById('editMessage');
-            if (data.message === '更新成功') {
-                msg.textContent = '保存成功！';
-                msg.className = 'edit-success';
-            } else {
-                msg.textContent = data.message;
+            // 只信任上传接口返回的路径。原来用 img.src 兜底会把空 src 解析出的
+            // 当前页面地址（https://bayabang.top/admin-files/edit-profile.php）当成头像写进数据库。
+            const avatar = currentAvatarPath || '';
+
+            try {
+                const resp = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'update',
+                        quote, birthday, avatar,
+                        nickname, gender, hometown, hobbies, skills, contact_info,
+                        csrf_token: csrfToken
+                    })
+                });
+                if (!resp.ok) {
+                    let message = `服务器错误 (${resp.status})`;
+                    try {
+                        const errData = await resp.json();
+                        if (errData && errData.message) message = errData.message;
+                    } catch (e) {}
+                    throw new Error(message);
+                }
+                const data = await resp.json();
+                if (data.message === '更新成功') {
+                    msg.textContent = '保存成功！';
+                    msg.className = 'edit-success';
+                } else {
+                    msg.textContent = data.message || '保存失败';
+                    msg.className = 'edit-error';
+                }
+            } catch (err) {
+                msg.textContent = '保存失败：' + (err.message || '网络错误');
                 msg.className = 'edit-error';
             }
         }
@@ -353,6 +380,14 @@
                         csrf_token: csrfToken
                     })
                 });
+                if (!resp.ok) {
+                    let message = `服务器错误 (${resp.status})`;
+                    try {
+                        const errData = await resp.json();
+                        if (errData && errData.message) message = errData.message;
+                    } catch (e) {}
+                    throw new Error(message);
+                }
                 const data = await resp.json();
                 if (data.message === '密码修改成功') {
                     msg.textContent = '密码修改成功！请牢记新密码。';
@@ -364,7 +399,7 @@
                     msg.textContent = data.message || '修改失败';
                 }
             } catch (err) {
-                msg.textContent = '网络错误，修改失败';
+                msg.textContent = '修改失败：' + (err.message || '网络错误');
             }
         }
     </script>

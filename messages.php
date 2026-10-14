@@ -80,6 +80,9 @@
                 const tag = `[color=${color}]${selectedText}[/color]`;
                 textarea.setRangeText(tag, start, end, 'end');
                 textarea.focus();
+                // 同步到隐藏字段：提交后整条留言默认使用这个颜色
+                const colorInput = document.getElementById('messageColor');
+                if (colorInput) colorInput.value = color;
             });
         });
 
@@ -121,6 +124,7 @@
 
         // 安全的 HTML 转义
         function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -153,8 +157,11 @@
                 // 标题（若存在）
                 const titleHtml = msg.title ? `<h4 class="msg-title">${escapeHtml(msg.title)}</h4>` : '';
 
+                // 整条留言的颜色（存在 color 列），作为正文默认色
+                const bodyColor = /^#[0-9a-fA-F]{6}$/.test(msg.color || '') ? msg.color : '';
+
                 // 正文：先转换颜色标记，再解析 Markdown
-                let bodyHtml = convertColorTags(msg.content);
+                let bodyHtml = convertColorTags(msg.content || '');
                 bodyHtml = DOMPurify.sanitize(marked.parse(bodyHtml), { USE_PROFILES: { html: true } });
 
                 // 判断是否是 id=7 的留言
@@ -164,7 +171,7 @@
                 return `
                     <div class="${cardClass}">
                         ${titleHtml}
-                        <div class="message-body">${bodyHtml}</div>
+                        <div class="message-body"${bodyColor ? ` style="color:${bodyColor}"` : ''}>${bodyHtml}</div>
                         <div class="message-meta">
                             <span class="message-author">—— ${escapeHtml(msg.author)}</span>
                             <span class="message-time">${time}</span>
@@ -204,10 +211,11 @@
             feedback.className = 'form-feedback';
 
             try {
-                await submitMessage({ title, content, author });
+                await submitMessage({ title, content, author, color: document.getElementById('messageColor').value });
                 titleInput.value = '';
                 contentInput.value = '';
                 authorInput.value = '';
+                document.getElementById('messageColor').value = '';
                 feedback.textContent = '留言发布成功！';
                 feedback.className = 'form-feedback success';
                 fetchMessages();

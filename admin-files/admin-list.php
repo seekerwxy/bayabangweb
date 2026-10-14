@@ -38,6 +38,7 @@ require_once __DIR__ . '/_auth.php';
         <h1>管理面板</h1>
         <form method="post" action="?logout=1" style="display:inline;">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
+            <input type="hidden" name="logout" value="1">
             <button class="logout" type="submit" style="border:0;background:none;cursor:pointer;padding:0;">退出登录</button>
         </form>
     </div>

@@ -62,7 +62,17 @@ if (!$db_error && isset($_GET['api'])) {
             echo json_encode(['success' => false, 'error' => '日期和标题不能为空'], JSON_UNESCAPED_UNICODE);
             exit;
         }
+        // 列宽限制：event_date varchar(50)、title varchar(100)、photo varchar(255)
+        if (mb_strlen($date) > 50 || mb_strlen($title) > 100 || mb_strlen($photo) > 255) {
+            echo json_encode(['success' => false, 'error' => '日期/标题/图片路径过长（日期≤50、标题≤100、路径≤255）'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt = $conn->prepare("INSERT INTO timeline_events (event_date, title, description, photo, display_order) VALUES (?, ?, ?, ?, ?)");
+        if (!$stmt) {
+            error_log('admin timeline add prepare failed: ' . $conn->error);
+            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt->bind_param("ssssi", $date, $title, $desc, $photo, $order);
         $success = $stmt->execute();
         if (!$success) {
@@ -85,7 +95,17 @@ if (!$db_error && isset($_GET['api'])) {
             echo json_encode(['success' => false, 'error' => '参数不完整'], JSON_UNESCAPED_UNICODE);
             exit;
         }
+        // 列宽限制：event_date varchar(50)、title varchar(100)、photo varchar(255)
+        if (mb_strlen($date) > 50 || mb_strlen($title) > 100 || mb_strlen($photo) > 255) {
+            echo json_encode(['success' => false, 'error' => '日期/标题/图片路径过长（日期≤50、标题≤100、路径≤255）'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt = $conn->prepare("UPDATE timeline_events SET event_date=?, title=?, description=?, photo=?, display_order=? WHERE id=?");
+        if (!$stmt) {
+            error_log('admin timeline edit prepare failed: ' . $conn->error);
+            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt->bind_param("ssssii", $date, $title, $desc, $photo, $order, $id);
         $success = $stmt->execute();
         if (!$success) {
@@ -104,6 +124,11 @@ if (!$db_error && isset($_GET['api'])) {
             exit;
         }
         $stmt = $conn->prepare("DELETE FROM timeline_events WHERE id = ?");
+        if (!$stmt) {
+            error_log('admin timeline delete prepare failed: ' . $conn->error);
+            echo json_encode(['success' => false, 'error' => '数据库准备失败'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
         $stmt->bind_param("i", $id);
         $success = $stmt->execute();
         if (!$success) {
@@ -185,6 +210,7 @@ if (!$db_error && isset($_GET['api'])) {
             <a href="admin-list.php" style="font-size:0.8rem; color:#555;">返回面板</a>
             <form method="post" action="?logout=1" style="display:inline;">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
+                <input type="hidden" name="logout" value="1">
                 <button type="submit" style="border:0;background:none;cursor:pointer;padding:0;font-size:0.8rem;color:#555;">退出登录</button>
             </form>
             <button class="btn btn-add" onclick="openAddForm()">➕ 添加事件</button>
@@ -207,7 +233,7 @@ if (!$db_error && isset($_GET['api'])) {
         <label>日期</label><input type="text" id="editDate" placeholder="如 2025.10.17">
         <label>标题</label><input type="text" id="editTitle" placeholder="事件标题">
         <label>描述</label><textarea id="editDesc" placeholder="详细描述"></textarea>
-        <label>图片路径</label><input type="text" id="editPhoto" placeholder="如 photos/shijian1.jpg">
+        <label>图片路径</label><input type="text" id="editPhoto" placeholder="如 photos/shijian1.jpg（站点根相对路径）">
         <label>排序数字</label><input type="number" id="editOrder" value="0" min="0">
         <div class="modal-buttons">
             <button class="btn btn-cancel" id="closeModalBtn">取消</button>
@@ -245,7 +271,14 @@ if (!$db_error && isset($_GET['api'])) {
                 }
                 let html = '';
                 events.forEach(ev => {
-                    const photoHtml = ev.photo ? `<img src="${escapeHtml(ev.photo)}" class="event-photo-preview" onerror="this.style.display='none'">` : '';
+                    // 数据库里存的是站点根相对路径（如 photos/xxx.jpg），后台页面在 /admin-files/ 下，预览要补 ../
+                    const photoPath = ev.photo ? String(ev.photo).trim() : '';
+                    const photoUrl = photoPath === ''
+                        ? ''
+                        : (/^https?:\/\//i.test(photoPath) || photoPath.startsWith('/')
+                            ? photoPath
+                            : '../' + photoPath.replace(/^\.\//, ''));
+                    const photoHtml = photoUrl ? `<img src="${escapeHtml(photoUrl)}" class="event-photo-preview" onerror="this.style.display='none'">` : '';
                     html += `
                         <div class="event-item">
                             <div class="event-info">
@@ -288,7 +321,7 @@ if (!$db_error && isset($_GET['api'])) {
             const res = await fetch(API_URL + 'list');
             const result = await res.json();
             if (!result.success) return;
-            const ev = result.data.find(e => e.id === id);
+            const ev = result.data.find(e => Number(e.id) === Number(id));
             if (!ev) return alert('未找到该事件');
             document.getElementById('modalTitle').innerText = '编辑事件';
             document.getElementById('editId').value = ev.id;

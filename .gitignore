@@ -1,6 +1,7 @@
-config.php
+# config.php 是站点运行必需的引导文件（不含任何密码），必须入库并随 FTP 部署上传。
+# 只有 config.local.php 保存数据库/管理员凭据，由 GitHub Secret 在部署时生成，绝不入库。
 config.local.php
-.ftp-deploy-sync-state.json
+.ftp-deploy-sync-state*.json
 
 # User-uploaded avatars live on the server; do not commit them.
 api/photos/classmates/*

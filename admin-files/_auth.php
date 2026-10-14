@@ -25,8 +25,7 @@ function admin_verify_csrf($token) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
-    && isset($_POST['logout'])
-    && $_POST['logout'] === '1'
+    && ($_POST['logout'] ?? '') === '1'
     && admin_verify_csrf($_POST['csrf_token'] ?? '')) {
     $_SESSION = [];
     session_destroy();

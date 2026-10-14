@@ -27,7 +27,7 @@
             <!-- ★ 替换 src 为班主任正方形照片路径 ★ -->
             <img
               id="teacherImg"
-              src="photos\qikaijie.jpg"
+              src="photos/qikaijie.jpg"
               alt="班主任照片"
               loading="lazy"
               onload="handleTeacherImageLoad()"

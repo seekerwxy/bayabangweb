@@ -30,14 +30,34 @@
 
 推送成功后，到 GitHub 仓库的 `Actions` 页面查看部署是否成功。
 
+## 目录结构（很重要，改错会白忙）
+
+本账号用 FTP 登录后，根目录里同时能看到 `bayabang.top/` 和 `htdocs/`：`bayabang.top` 是附加域名，它的网站根目录是 `bayabang.top/htdocs/`，**不是** `htdocs/`。所以 workflow 里的 `server-dir` 固定为：
+
+```yaml
+server-dir: bayabang.top/htdocs/
+```
+
+两个容易踩的坑：
+
+- **不要加前导 `/`**。加了斜杠会被 FTP-Deploy-Action 理解成「FTP 服务器根目录」而不是登录目录，文件就传错地方了。
+- `server-dir` 必须落在某个 `htdocs` 文件夹内。InfinityFree 会自动删除上传到 htdocs 之外的文件；免费主机的单文件上限则是 HTML/PHP/JS 1 MB、其他文件 10 MB，超限的文件也会被自动删除。
+
+想确认文件到底传到了哪里，可以临时给 workflow 加上 `dry-run: true` 跑一次：日志会列出所有将要执行的动作，不会真的改动服务器。
+
 ## 不会被动的东西
 
+- `config.php`：所有接口和后台的必需引导文件，**必须入库并随部署上传**（已在 `.gitignore` 中放行）。它不含任何密码。
+- `config.local.php`：保存数据库和管理员凭据，不入库，由 `CONFIG_LOCAL_PHP` Secret 在部署时生成后上传。
 - `api/photos` 下用户上传的头像图片：部署时被排除，不会覆盖也不会删除。
 - InfinityFree 上的三个 MySQL 数据库：只由网站代码读取，部署不会改动数据。
 
+FTP-Deploy-Action 是按「上次部署留下的状态文件」做差分的：**从仓库里删掉的文件会在下次部署时从服务器删除**，而手工放在服务器上、从未被这个 Action 上传过的文件不会被扫描删除。改动 `server-dir` 后，新目录会被当成首次发布，只上传、不删除。
+
 ## 常见问题
 
-- 部署后网站没变化：先看 `Actions` 是否成功；再确认上传目录。当前 `server-dir` 设置为 `htdocs/`，如果文件被传到 `htdocs/htdocs`，把 workflow 里的 `server-dir` 改成 `/` 再试。
+- 部署后网站没变化：先看 `Actions` 是否成功；再按上面的「目录结构」核对 `server-dir`，并用 `dry-run` 确认真实落点。
+- PHP 页面全部 500／空白，但 css、图片、js 正常：目标目录里缺 `config.php`。它是必需文件，用 `git ls-files config.php` 确认它已经在仓库里。
 - FTP 连接报 TLS/加密错误：把 workflow 里的 `protocol` 从 `ftp` 改成 `ftps`。
 - 只改了数据库密码：更新 `CONFIG_LOCAL_PHP` Secret，然后重新 push 或到 `Actions` 页面点 `Run workflow`。
 - 部署成功后网站还是旧页面：确认 `CLOUDFLARE_API_TOKEN` 和 `CLOUDFLARE_ZONE_ID` 两个 Secret 已配置；也可以到 Cloudflare 后台手动“清除所有缓存”立即生效。

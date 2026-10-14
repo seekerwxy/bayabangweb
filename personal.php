@@ -52,8 +52,8 @@
         function renderProfile(data) {
             // 头像 —— 使用新的前缀类
             const avatarHtml = data.avatar
-                ? `<img src="${escapeHtml(data.avatar)}" alt="头像" onerror="this.onerror=null;this.parentElement.innerHTML='<span class=\'personal-profile-avatar-placeholder\'>${escapeHtml(data.name.charAt(0))}</span>';">`
-                : `<span class="personal-profile-avatar-placeholder">${escapeHtml(data.name.charAt(0))}</span>`;
+                ? `<img src="${escapeHtml(data.avatar)}" alt="头像" onerror="this.onerror=null;this.parentElement.innerHTML='<span class=\'personal-profile-avatar-placeholder\'>${escapeHtml((data.name || '').charAt(0))}</span>';">`
+                : `<span class="personal-profile-avatar-placeholder">${escapeHtml((data.name || '').charAt(0))}</span>`;
 
             // 性别显示
             const genderMap = { '男': '♂ 男', '女': '♀ 女', '其他': '其他' };
