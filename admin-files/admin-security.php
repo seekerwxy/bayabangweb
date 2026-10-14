@@ -190,12 +190,12 @@ $logs = boya_audit_tail(100);
         <?php if (!$adminIsSet): ?>
             <div class="alert alert-error">配置里没有读到管理员口令，请检查 <code>config.local.php</code> 的 <code>admin_db</code>。</div>
         <?php elseif ($adminIsHash): ?>
-            <div class="alert alert-ok">当前以 <code>password_hash()</code> 哈希形式保存，泄露配置也不会直接暴露口令。</div>
+            <div class="alert alert-ok">当前以 <code>password_hash()</code> 哈希形式保存。</div>
         <?php else: ?>
-            <div class="alert">⚠️ 当前是<b>明文</b>口令。下面生成一个 hash 替换掉它，可以显著降低配置泄露的后果。</div>
+            <div class="alert">当前以<b>明文</b>保存在 <code>config.local.php</code> 里。站点一直支持这种写法，<b>保持不动完全可以</b>，本页也不会去改它。</div>
         <?php endif; ?>
 
-        <p>生成新口令的哈希（只在本次响应里显示，不会保存到任何地方）：</p>
+        <p><b>（可选）</b>生成管理员口令 hash：只是把你在下面输入的内容算成一个哈希并显示出来，<b>不写入任何文件或数据库，也不会改掉现在的口令</b>。只有你主动把这串填进 GitHub 的 <code>CONFIG_LOCAL_PHP</code> Secret 并 push，登录口令才会变；不填就什么都不变。</p>
         <form method="post">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
             <input type="hidden" name="action" value="hash">
@@ -221,7 +221,7 @@ $logs = boya_audit_tail(100);
                 仍为明文 <b><?= $plainStudents === null ? '?' : (int)$plainStudents ?></b> 位；
                 空口令 <b><?= $emptyStudents === null ? '?' : (int)$emptyStudents ?></b> 位（无法登录，需要单独重置）。
             </p>
-            <p class="muted">同学登录时会自动把明文口令升级成 hash；这个按钮可以一次性把剩下的全部升级（不需要知道明文）。</p>
+            <p class="muted">这一块<b>只影响同学录里的学生账号，不碰管理员账号</b>；也<b>不会改掉同学的密码本身</b>——只是把数据库里的保存形式从明文换成哈希，同学仍然用原来那个密码登录。同学自己登录时也会自动完成这一步，所以这个按钮只是把剩下的一次性做完。</p>
             <?php if ($upgradeResult !== null): ?>
                 <div class="alert alert-ok">已升级 <?= (int)$upgradeResult['upgraded'] ?> 条，失败 <?= (int)$upgradeResult['failed'] ?> 条。</div>
             <?php endif; ?>

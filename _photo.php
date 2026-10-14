@@ -31,7 +31,14 @@ function boya_normalize_photo($path)
 }
 
 /**
- * 判断路径在本站是否真实存在。外链与空值一律视为可用（不做检查）。
+ * 判断路径在本站是否真实存在、且允许被当作图片使用。
+ *
+ * 规则（外链与空值一律放行，不做检查）：
+ *   1. 拒绝含 `..` 的路径穿越写法；
+ *   2. 必须以图片扩展名结尾（jpg/jpeg/png/webp/gif）；
+ *   3. 只允许这几个目录下的文件：/photos/、/uploads/、/text/、/api/photos/（旧头像目录），
+ *      以及站点根目录下的单个图片文件。
+ * 这样 `/../config.local.php`、`/api/classmates.php` 这类值不会“看起来是存在的文件”而被写入数据库。
  */
 function boya_photo_exists($path, $rootDir = null)
 {
@@ -39,6 +46,24 @@ function boya_photo_exists($path, $rootDir = null)
     if ($value === '' || preg_match('#^https?://#i', $value)) {
         return true;
     }
+
+    // 1. 路径穿越
+    if (strpos($value, '..') !== false) {
+        return false;
+    }
+
+    // 2. 必须是图片扩展名
+    if (!preg_match('#\.(jpe?g|png|webp|gif)$#i', $value)) {
+        return false;
+    }
+
+    // 3. 目录白名单（或站点根目录下的图片）
+    $allowedPrefix = preg_match('#^/(photos|uploads|text|api/photos)/#', $value) === 1;
+    $rootLevelImage = preg_match('#^/[^/]+\.(jpe?g|png|webp|gif)$#i', $value) === 1;
+    if (!$allowedPrefix && !$rootLevelImage) {
+        return false;
+    }
+
     $rootDir = $rootDir === null ? __DIR__ : rtrim($rootDir, '/');
     return is_file($rootDir . $value);
 }

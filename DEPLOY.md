@@ -67,6 +67,7 @@ server-dir: bayabang.top/htdocs/
 - **上传配额**：`uploads/classmates/` 文件数上限 3000；同学换头像时旧文件自动删除（只删本站生成的「32 位十六进制 + 图片扩展名」文件名，不会误删别的）。
 - **前端依赖**：`marked`、`DOMPurify` 已自托管到 `js/vendor/`（不依赖 CDN，中国大陆访问更稳，也不怕 CDN 被篡改）；Font Awesome 与 Cropper.js 仍走 cdnjs，但加了 `integrity`(SRI)。
 - **口令轮换**：几个数据库口令互相独立；`memories_db` 那段已经删掉（从未被代码使用），可以从 Secret 里一并删掉。改口令顺序：InfinityFree 控制面板改 → 更新 `CONFIG_LOCAL_PHP` Secret → push。
+- **图片路径白名单**：`_photo.php` 只接受 `/photos/`、`/uploads/`、`/text/`、`/api/photos/`（旧头像目录）下的图片，或站点根目录下的单个图片文件，并且必须是图片扩展名、不能含 `..`。
 - **出问题怎么回滚**：`.htaccess` 写错会导致整站 500，用 FTP 把根目录的 `.htaccess` 改名或删除即可立刻恢复。
 
 ### 把老头像迁到新目录（可选，不急）
