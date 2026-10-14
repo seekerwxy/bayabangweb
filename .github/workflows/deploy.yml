@@ -46,7 +46,10 @@ jobs:
           # 否则 InfinityFree 会自动删除上传的文件。
           server-dir: bayabang.top/htdocs/
           state-name: .ftp-deploy-sync-state-v2.json
-          protocol: ftp
+          # 明文 FTP 会把 config.local.php（数据库口令 + 管理员口令）暴露在公网上，
+          # 这里使用 FTPS（21 端口显式 TLS）。InfinityFree 的 ftpupload.net 支持。
+          # 万一 TLS 握手失败导致部署报错，可临时改回 ftp，但请尽快改回来。
+          protocol: ftps
           port: 21
           # standard 会打印真实的部署路径和每个上传/删除动作，便于排查“部署了却没生效”
           log-level: standard
@@ -61,6 +64,8 @@ jobs:
             api/photos/classmates/*.jpg
             api/photos/classmates/*.png
             api/photos/classmates/*.webp
+            data/*.log
+            data/*.json
 
       - name: Purge Cloudflare cache
         env:

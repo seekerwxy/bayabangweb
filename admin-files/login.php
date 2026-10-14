@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../_login_guard.php';
+require_once __DIR__ . '/../_audit.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
@@ -20,6 +22,12 @@ if (empty($_SESSION['admin_csrf_token'])) {
     $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
 }
 
+/** 管理员口令允许是 password_hash() 生成的 hash，也兼容旧的明文写法。 */
+function boya_admin_password_is_hash($value)
+{
+    return is_string($value) && preg_match('/^\$(2[aby]|argon2)/', $value) === 1;
+}
+
 $error = '';
 $username = '';
 
@@ -28,47 +36,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = (string)($_POST['password'] ?? '');
 
-    $failures = $_SESSION['admin_login_failures'] ?? 0;
-    $lockedUntil = $_SESSION['admin_login_locked_until'] ?? 0;
-
-    // 锁定时间已过就清零，避免解锁后再错一次立刻又被锁 15 分钟
-    if ($lockedUntil > 0 && time() >= $lockedUntil) {
-        $failures = 0;
-        $lockedUntil = 0;
-        unset($_SESSION['admin_login_failures'], $_SESSION['admin_login_locked_until']);
-    }
-
     $validToken = is_string($token)
         && isset($_SESSION['admin_csrf_token'])
         && hash_equals($_SESSION['admin_csrf_token'], $token);
 
+    // 服务端限速：计数存在服务器文件里，换浏览器 / 清 cookie / 伪造 IP 头都绕不过
+    $blockedSeconds = boya_login_guard_blocked_seconds('admin', 'account');
+
     if (!$validToken) {
         $error = '表单已过期，请重试';
-    } elseif ($failures >= 5 && time() < $lockedUntil) {
-        $error = '尝试次数过多，请15分钟后再试';
+    } elseif ($blockedSeconds > 0) {
+        $error = '尝试次数过多，请 ' . max(1, (int)ceil($blockedSeconds / 60)) . ' 分钟后再试';
     } else {
         $adminUsername = $config['admin_db']['username'] ?? '';
         $adminPassword = $config['admin_db']['password'] ?? '';
-        $validUser = is_string($adminUsername) && $adminUsername !== '' && hash_equals($adminUsername, $username);
-        $validPassword = is_string($adminPassword) && $adminPassword !== ''
-            && (password_verify($password, $adminPassword) || hash_equals($adminPassword, $password));
+
+        $validUser = is_string($adminUsername) && $adminUsername !== ''
+            && hash_equals($adminUsername, $username);
+
+        $validPassword = false;
+        if (is_string($adminPassword) && $adminPassword !== '') {
+            $validPassword = boya_admin_password_is_hash($adminPassword)
+                ? password_verify($password, $adminPassword)
+                : hash_equals($adminPassword, $password);
+        }
 
         if ($validUser && $validPassword) {
+            boya_login_guard_clear('admin', 'account');
             session_regenerate_id(true);
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
             unset($_SESSION['admin_login_failures'], $_SESSION['admin_login_locked_until']);
+            boya_audit('admin-login-ok', 'username=' . $username, 'admin');
             header('Location: admin-list.php');
             exit;
         }
 
-        $_SESSION['admin_login_failures'] = $failures + 1;
-        if ($_SESSION['admin_login_failures'] >= 5) {
-            $_SESSION['admin_login_locked_until'] = time() + 900;
-            $error = '尝试次数过多，请15分钟后再试';
-        } else {
-            $error = '用户名或密码错误';
-        }
+        $entry = boya_login_guard_fail('admin', 'account');
+        boya_login_guard_global_fail('admin');
+        boya_audit(
+            'admin-login-fail',
+            'username=' . $username . ' fails=' . (int)($entry['fails'] ?? 0),
+            'guest'
+        );
+        $error = (int)($entry['until'] ?? 0) > time()
+            ? '尝试次数过多，请 15 分钟后再试'
+            : '用户名或密码错误';
     }
 }
 ?>

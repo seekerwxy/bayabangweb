@@ -11,6 +11,11 @@ uploads/classmates/*
 api/photos/classmates/*
 !api/photos/classmates/.htaccess
 
+# 运行期数据（登录限速记录、审计日志）只存在服务器上，不提交
+data/*.log
+data/*.json
+!data/.htaccess
+
 # Local browser profiles used for visual previews; do not commit.
 new/_preview/edge-profile/
 new/_preview/edge-profile-choose/

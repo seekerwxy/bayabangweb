@@ -50,6 +50,10 @@ require_once __DIR__ . '/_auth.php';
         <div><strong>留言管理</strong><span>编辑或删除留言板内容。</span></div>
         <a class="btn" href="admin-messages.php">进入</a>
     </div>
+    <div class="card">
+        <div><strong>安全设置</strong><span>生成管理员口令 hash、批量升级学生明文口令、查看操作日志。</span></div>
+        <a class="btn" href="admin-security.php">进入</a>
+    </div>
 </div>
 </body>
 </html>

@@ -27,12 +27,8 @@ $defaults = [
         'password' => getenv('CLASSMATES_DB_PASSWORD') ?: '',
         'database' => getenv('CLASSMATES_DB_NAME') ?: ''
     ],
-    'memories_db' => [
-        'host' => getenv('MEMORIES_DB_HOST') ?: '',
-        'username' => getenv('MEMORIES_DB_USER') ?: '',
-        'password' => getenv('MEMORIES_DB_PASSWORD') ?: '',
-        'database' => getenv('MEMORIES_DB_NAME') ?: ''
-    ],
+    // 说明：原来的 memories_db 一段从未被任何代码使用（时光轴和留言都在 messages_db 里），
+    // 已经删掉以减少需要维护的口令数量。config.local.php 里若还留着这段，删不删都不影响运行。
     'admin_db' => [
         'username' => getenv('ADMIN_USER') ?: '',
         'password' => getenv('ADMIN_PASSWORD') ?: ''

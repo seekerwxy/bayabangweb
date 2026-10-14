@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>留言板 | 温二外25级博雅班</title>
     <meta name="description" content="博雅班留言板，同学们可以在这里留下对班级的祝福和期许。">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php include __DIR__ . '/_head.php'; ?>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+    <script src="js/vendor/marked.min.js?v=<?= filemtime(__DIR__ . '/js/vendor/marked.min.js') ?>"></script>
+    <script src="js/vendor/purify.min.js?v=<?= filemtime(__DIR__ . '/js/vendor/purify.min.js') ?>"></script>
 </head>
 <body>
 

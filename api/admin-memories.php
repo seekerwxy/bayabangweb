@@ -4,6 +4,7 @@
 define('BOYA_ADMIN_API', true);
 require_once __DIR__ . '/../admin-files/_auth.php';   // 内含 config.php、session、登录校验、CSRF 校验函数
 require_once __DIR__ . '/../_photo.php';
+require_once __DIR__ . '/../_audit.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -92,10 +93,14 @@ if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt->bind_param("ssssi", $date, $title, $desc, $photo, $order);
     $success = $stmt->execute();
+    $newId = (int)$conn->insert_id;
     if (!$success) {
         error_log('admin timeline add failed: ' . $stmt->error);
     }
     $stmt->close();
+    if ($success) {
+        boya_audit('timeline-add', 'id=' . $newId . ' title=' . $title . ' date=' . $date);
+    }
     timeline_response(['success' => (bool)$success, 'error' => $success ? null : '保存失败']);
 }
 
@@ -135,6 +140,9 @@ if ($action === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log('admin timeline edit failed: ' . $stmt->error);
     }
     $stmt->close();
+    if ($success) {
+        boya_audit('timeline-edit', 'id=' . $id . ' title=' . $title . ' date=' . $date);
+    }
     timeline_response(['success' => (bool)$success, 'error' => $success ? null : '保存失败']);
 }
 
@@ -155,6 +163,9 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log('admin timeline delete failed: ' . $stmt->error);
     }
     $stmt->close();
+    if ($success) {
+        boya_audit('timeline-delete', 'id=' . $id);
+    }
     timeline_response(['success' => (bool)$success]);
 }
 

@@ -1,6 +1,7 @@
 <?php
 // api/upload.php
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../_audit.php';
 
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
@@ -102,12 +103,22 @@ if (!is_dir($absoluteDir) && !@mkdir($absoluteDir, 0755, true)) {
     upload_response(500, ['message' => '无法创建上传目录']);
 }
 
+// 空间保护：目录文件数上限。免费主机只有 30000 inode / 5GB，
+// 没有上限的话任何一个有账号的人都能把整站配额塞满。
+$maxUploadFiles = 3000;
+$existingFiles = @glob($absoluteDir . '*');
+if (is_array($existingFiles) && count($existingFiles) >= $maxUploadFiles) {
+    error_log('upload rejected: directory full (' . count($existingFiles) . ' files)');
+    upload_response(507, ['message' => '头像空间已满，请联系管理员清理']);
+}
+
 $extension = $allowedMimeMap[$declaredMime];
 $filename = bin2hex(random_bytes(16)) . '.' . $extension;
 $absolutePath = $absoluteDir . $filename;
 $webPath = '/' . $relativeDir . $filename;
 
 if (file_put_contents($absolutePath, $imageData)) {
+    boya_audit('avatar-upload', 'path=' . $webPath . ' bytes=' . strlen($imageData));
     upload_response(200, ['success' => true, 'path' => $webPath]);
 }
 

@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../_photo.php';
+require_once __DIR__ . '/../_login_guard.php';
+require_once __DIR__ . '/../_audit.php';
 
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
@@ -46,28 +48,24 @@ function require_classmate_csrf($input) {
     }
 }
 
-function login_blocked() {
-    $failures = $_SESSION['classmate_login_failures'] ?? 0;
-    $lockedUntil = $_SESSION['classmate_login_locked_until'] ?? 0;
-    if ($failures >= 5 && time() < $lockedUntil) {
-        return true;
+/**
+ * 删除被替换掉的头像文件，避免上传目录无限膨胀。
+ * 只处理 /uploads/classmates/ 与旧的 /api/photos/classmates/ 下
+ * 由本站生成的文件名（32 位十六进制 + 图片扩展名），其他路径一律不碰。
+ */
+function boya_remove_old_avatar($oldAvatar, $newAvatar)
+{
+    $old = (string)$oldAvatar;
+    if ($old === '' || $old === (string)$newAvatar) {
+        return;
     }
-    if ($lockedUntil > 0 && time() >= $lockedUntil) {
-        $_SESSION['classmate_login_failures'] = 0;
-        unset($_SESSION['classmate_login_locked_until']);
+    if (!preg_match('#^/(uploads|api/photos)/classmates/[0-9a-f]{32}\.(jpg|png|webp)$#', $old)) {
+        return;
     }
-    return false;
-}
-
-function record_login_failure() {
-    $_SESSION['classmate_login_failures'] = ($_SESSION['classmate_login_failures'] ?? 0) + 1;
-    if ($_SESSION['classmate_login_failures'] >= 5) {
-        $_SESSION['classmate_login_locked_until'] = time() + 900;
+    $path = dirname(__DIR__) . $old;
+    if (is_file($path)) {
+        @unlink($path);
     }
-}
-
-function clear_login_failures() {
-    unset($_SESSION['classmate_login_failures'], $_SESSION['classmate_login_locked_until']);
 }
 
 function authenticate($conn, $name, $password) {
@@ -190,24 +188,31 @@ if ($method === 'POST') {
         if ($name === '' || $password === '') {
             json_response(400, ['message' => '姓名和密码不能为空']);
         }
-        if (login_blocked()) {
-            json_response(429, ['message' => '尝试次数过多，请稍后再试']);
+
+        // 服务端限速：按姓名计数，换浏览器 / 清 cookie / 伪造 IP 头都绕不过
+        $guardKey = mb_strtolower($name);
+        $blockedSeconds = boya_login_guard_blocked_seconds('classmate', $guardKey);
+        if ($blockedSeconds > 0) {
+            json_response(429, ['message' => '尝试次数过多，请 ' . max(1, (int)ceil($blockedSeconds / 60)) . ' 分钟后再试']);
         }
 
         $auth = authenticate($conn, $name, $password);
         if (!$auth) {
-            record_login_failure();
+            boya_login_guard_fail('classmate', $guardKey);
+            boya_login_guard_global_fail('classmate');
+            boya_audit('classmate-login-fail', 'name=' . $name, 'guest');
             json_response(401, ['message' => '姓名或密码错误']);
         }
 
         if ($auth['upgrade']) {
             upgrade_password($conn, $auth['id'], $password);
         }
-        clear_login_failures();
+        boya_login_guard_clear('classmate', $guardKey);
 
         session_regenerate_id(true);
         $_SESSION['classmate_id'] = $auth['id'];
         $_SESSION['classmate_name'] = $name;
+        boya_audit('classmate-login-ok', 'name=' . $name);
 
         $stmt = $conn->prepare('SELECT ' . profile_select_columns() . ' FROM classmates WHERE id = ?');
         if (!$stmt) {
@@ -253,6 +258,16 @@ if ($method === 'POST') {
             json_response(400, ['message' => '头像文件不存在（可能上传未完成），请重新上传头像']);
         }
 
+        // 先取出旧头像，更新成功后删掉旧文件（只删本站生成的文件名）
+        $oldAvatar = '';
+        $stmtOld = $conn->prepare('SELECT avatar FROM classmates WHERE id = ?');
+        if ($stmtOld) {
+            $stmtOld->bind_param('i', $_SESSION['classmate_id']);
+            $stmtOld->execute();
+            $oldAvatar = (string)($stmtOld->get_result()->fetch_assoc()['avatar'] ?? '');
+            $stmtOld->close();
+        }
+
         $stmt = $conn->prepare(
             'UPDATE classmates SET
                 quote = ?, avatar = ?, birthday = ?,
@@ -277,6 +292,8 @@ if ($method === 'POST') {
             $_SESSION['classmate_id']
         );
         if ($stmt->execute()) {
+            boya_remove_old_avatar($oldAvatar, $avatar);
+            boya_audit('classmate-profile-update', 'avatar=' . ($avatar !== '' ? $avatar : '(空)'));
             json_response(200, ['message' => '更新成功']);
         }
         error_log('classmate update failed: ' . $stmt->error);

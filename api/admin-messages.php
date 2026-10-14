@@ -3,6 +3,7 @@
 // 这样 api/ 只放接口脚本，后台页面只留 HTML/JS。
 define('BOYA_ADMIN_API', true);
 require_once __DIR__ . '/../admin-files/_auth.php';   // 内含 config.php、session、登录校验、CSRF 校验函数
+require_once __DIR__ . '/../_audit.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -95,6 +96,9 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log('admin message update failed: ' . $stmt->error);
     }
     $stmt->close();
+    if ($success) {
+        boya_audit('message-edit', 'id=' . $id . ' author=' . $author);
+    }
     admin_messages_response(['success' => (bool)$success, 'error' => $success ? null : '更新失败']);
 }
 
@@ -115,6 +119,9 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log('admin message delete failed: ' . $stmt->error);
     }
     $stmt->close();
+    if ($success) {
+        boya_audit('message-delete', 'id=' . $id);
+    }
     admin_messages_response(['success' => (bool)$success]);
 }
 

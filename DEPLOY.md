@@ -51,6 +51,23 @@ server-dir: bayabang.top/htdocs/
 - `uploads/classmates/`：同学自己上传的头像，只存在服务器上，不进仓库、不参与部署。
 - `photos/`：网站自带的照片，随仓库一起部署。
 - `text/`：站内文本与 APP 安装包。
+- `data/`：运行期数据（登录限速 `login-guard.json`、审计日志 `admin-audit.log`），只存在服务器上，`.htaccess` 禁止外部访问。
+- `js/vendor/`：自托管的前端依赖（marked、DOMPurify），版本与校验值见 `js/vendor/README.md`。
+- 根目录 `.htaccess`：强制 HTTPS + 安全响应头 + 屏蔽不该被访问的文件。
+
+## 安全设置（代码里已经做好，了解即可）
+
+- **部署走 FTPS**：workflow 里的 `protocol` 是 `ftps`（21 端口显式 TLS）。明文 FTP 会把 `config.local.php`（数据库口令 + 管理员口令）暴露在网络上，所以别为了省事改回 `ftp`；万一 TLS 握手失败，先看 Actions 日志，临时改回后请尽快改回来。
+- **强制 HTTPS**：根目录 `.htaccess` 会把 http 请求 301 到 https，并兼容 Cloudflare 的 Flexible / Full / Full(strict)（不会死循环）。建议同时在 Cloudflare 打开 `SSL/TLS → Edge Certificates → Always Use HTTPS`。
+- **安全响应头**：`.htaccess` 里设了 `X-Content-Type-Options`、`X-Frame-Options`、`Referrer-Policy`、`Permissions-Policy` 和 HSTS（30 天）。
+- **管理员口令建议存 hash**：后台 →「安全设置」→ 输入新口令（≥12 位）→ 把生成的 `$2y$...` 填进 `CONFIG_LOCAL_PHP` Secret 的 `admin_db.password` → push。旧明文写法仍然兼容，但页面会提示“仍是明文”。
+- **学生口令**：同学登录时会自动把明文升级成 `password_hash()`；也可以到「安全设置 → 批量升级明文口令」一次性处理完（不需要知道明文）。
+- **登录限速**：记录写在 `data/login-guard.json`，按「账号」计数，不依赖 Cookie 或 IP —— 换浏览器、清 Cookie、伪造 `CF-Connecting-IP` 都绕不过。单账号连续 5 次失败锁 15 分钟，另有全局闸门（15 分钟 200 次）防止海量喷洒。
+- **操作审计**：登录成功/失败、时光轴增删改、留言编辑删除、头像上传都会写进 `data/admin-audit.log`（JSON Lines，最多保留约 1000 行），后台「安全设置」页可看最近 100 条。
+- **上传配额**：`uploads/classmates/` 文件数上限 3000；同学换头像时旧文件自动删除（只删本站生成的「32 位十六进制 + 图片扩展名」文件名，不会误删别的）。
+- **前端依赖**：`marked`、`DOMPurify` 已自托管到 `js/vendor/`（不依赖 CDN，中国大陆访问更稳，也不怕 CDN 被篡改）；Font Awesome 与 Cropper.js 仍走 cdnjs，但加了 `integrity`(SRI)。
+- **口令轮换**：几个数据库口令互相独立；`memories_db` 那段已经删掉（从未被代码使用），可以从 Secret 里一并删掉。改口令顺序：InfinityFree 控制面板改 → 更新 `CONFIG_LOCAL_PHP` Secret → push。
+- **出问题怎么回滚**：`.htaccess` 写错会导致整站 500，用 FTP 把根目录的 `.htaccess` 改名或删除即可立刻恢复。
 
 ### 把老头像迁到新目录（可选，不急）
 

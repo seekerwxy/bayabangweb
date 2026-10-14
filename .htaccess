@@ -1,0 +1,32 @@
+# 站点级配置：强制 HTTPS、安全响应头、屏蔽不该被访问的文件。
+#
+# 注意：.htaccess 写错会让整站 500。如果部署后整站打不开，
+# 用 FTP 把这个文件改名或删除即可立刻恢复。
+
+# ========== 1. 强制 HTTPS（兼容 Cloudflare 代理）==========
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Cloudflare 会把访客的真实协议放在 X-Forwarded-Proto 里。
+    # 只有当「访客侧」和「源站侧」都不是 https 时才跳转，
+    # 这样在 Cloudflare 的 Flexible / Full / Full(strict) 各种模式下都不会死循环。
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# ========== 2. 安全响应头 ==========
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # HSTS：只在确认全站 https 正常后才有意义；要撤销就删掉这一行
+    Header always set Strict-Transport-Security "max-age=2592000"
+</IfModule>
+
+# ========== 3. 不对外暴露的文件 ==========
+# 下划线开头的都是被 include 的公共片段，config*.php 是配置，
+# 另外挡住部署状态文件（它由 FTP 动作写在站点根目录）与仓库说明文档。
+<FilesMatch "^(_.*\.php|config\.php|config\.local\.php|DEPLOY\.md|README\.md|\.gitignore|\.ftp-deploy-sync-state.*)$">
+    Require all denied
+</FilesMatch>
