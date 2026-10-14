@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../_photo.php';
 
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
@@ -229,7 +230,7 @@ if ($method === 'POST') {
         require_classmate_csrf($input);
 
         $quote = trim($input['quote'] ?? '');
-        $avatar = trim($input['avatar'] ?? '');
+        $avatar = boya_normalize_photo($input['avatar'] ?? '');
         $birthday = trim($input['birthday'] ?? '');
         $nickname = trim($input['nickname'] ?? '');
         $gender = trim($input['gender'] ?? '其他');
@@ -246,6 +247,10 @@ if ($method === 'POST') {
         }
         if ($birthday === '') {
             $birthday = null;
+        }
+        // 防呆：头像必须是服务器上真实存在的文件（外链不检查），避免写入页面地址之类的脏值
+        if ($avatar !== '' && !boya_photo_exists($avatar)) {
+            json_response(400, ['message' => '头像文件不存在（可能上传未完成），请重新上传头像']);
         }
 
         $stmt = $conn->prepare(

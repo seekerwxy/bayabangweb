@@ -1,3 +1,5 @@
+# 旧头像目录（历史数据）：新上传已迁移到 /uploads/classmates/。
+# 保留本文件，避免服务器上的旧目录失去 PHP 执行保护。
 RemoveHandler .php .phtml .php3 .php4 .php5 .phar
 RemoveType .php .phtml .php3 .php4 .php5 .phar
 

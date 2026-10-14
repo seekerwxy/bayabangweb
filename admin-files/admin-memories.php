@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/_auth.php';
+require_once __DIR__ . '/../_photo.php';
 
 // ================== 数据库配置 ==================
 $db_host = $config['messages_db']['host'];
@@ -45,6 +46,8 @@ if (!$db_error && isset($_GET['api'])) {
         $result = $conn->query("SELECT * FROM timeline_events ORDER BY display_order ASC, id ASC");
         $events = [];
         while ($row = $result->fetch_assoc()) {
+            // 后台编辑框里也显示归一化后的路径，避免同一条数据出现多种写法
+            $row['photo'] = boya_normalize_photo($row['photo'] ?? '');
             $events[] = $row;
         }
         echo json_encode(['success' => true, 'data' => $events], JSON_UNESCAPED_UNICODE);
@@ -56,7 +59,7 @@ if (!$db_error && isset($_GET['api'])) {
         $date = trim($_POST['event_date'] ?? '');
         $title = trim($_POST['title'] ?? '');
         $desc = trim($_POST['description'] ?? '');
-        $photo = trim($_POST['photo'] ?? '');
+        $photo = boya_normalize_photo($_POST['photo'] ?? '');
         $order = intval($_POST['display_order'] ?? 0);
         if (empty($date) || empty($title)) {
             echo json_encode(['success' => false, 'error' => '日期和标题不能为空'], JSON_UNESCAPED_UNICODE);
@@ -65,6 +68,17 @@ if (!$db_error && isset($_GET['api'])) {
         // 列宽限制：event_date varchar(50)、title varchar(100)、photo varchar(255)
         if (mb_strlen($date) > 50 || mb_strlen($title) > 100 || mb_strlen($photo) > 255) {
             echo json_encode(['success' => false, 'error' => '日期/标题/图片路径过长（日期≤50、标题≤100、路径≤255）'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        // 防呆：图片路径必须在服务器上真实存在，否则前台只会是一张裂图
+        if ($photo !== '' && !boya_photo_exists($photo)) {
+            $suggestions = boya_photo_suggestions();
+            echo json_encode([
+                'success' => false,
+                'error' => '图片路径在服务器上找不到：' . $photo
+                    . ($suggestions ? '（候选路径已写进输入框的提示里）' : ''),
+                'photo_suggestions' => $suggestions
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
         $stmt = $conn->prepare("INSERT INTO timeline_events (event_date, title, description, photo, display_order) VALUES (?, ?, ?, ?, ?)");
@@ -89,7 +103,7 @@ if (!$db_error && isset($_GET['api'])) {
         $date = trim($_POST['event_date'] ?? '');
         $title = trim($_POST['title'] ?? '');
         $desc = trim($_POST['description'] ?? '');
-        $photo = trim($_POST['photo'] ?? '');
+        $photo = boya_normalize_photo($_POST['photo'] ?? '');
         $order = intval($_POST['display_order'] ?? 0);
         if ($id <= 0 || empty($date) || empty($title)) {
             echo json_encode(['success' => false, 'error' => '参数不完整'], JSON_UNESCAPED_UNICODE);
@@ -98,6 +112,17 @@ if (!$db_error && isset($_GET['api'])) {
         // 列宽限制：event_date varchar(50)、title varchar(100)、photo varchar(255)
         if (mb_strlen($date) > 50 || mb_strlen($title) > 100 || mb_strlen($photo) > 255) {
             echo json_encode(['success' => false, 'error' => '日期/标题/图片路径过长（日期≤50、标题≤100、路径≤255）'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        // 防呆：图片路径必须在服务器上真实存在，否则前台只会是一张裂图
+        if ($photo !== '' && !boya_photo_exists($photo)) {
+            $suggestions = boya_photo_suggestions();
+            echo json_encode([
+                'success' => false,
+                'error' => '图片路径在服务器上找不到：' . $photo
+                    . ($suggestions ? '（候选路径已写进输入框的提示里）' : ''),
+                'photo_suggestions' => $suggestions
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
         $stmt = $conn->prepare("UPDATE timeline_events SET event_date=?, title=?, description=?, photo=?, display_order=? WHERE id=?");
@@ -373,6 +398,9 @@ if (!$db_error && isset($_GET['api'])) {
                 loadEvents();
             } else {
                 showToast('保存失败: ' + (result.error || '未知错误'));
+                if (result.photo_suggestions && result.photo_suggestions.length) {
+                    document.getElementById('editPhoto').placeholder = '可用：' + result.photo_suggestions.join('、');
+                }
             }
         } catch (err) {
             showToast('网络错误');

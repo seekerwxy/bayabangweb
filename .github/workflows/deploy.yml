@@ -55,6 +55,9 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/.github/**
+            uploads/classmates/*.jpg
+            uploads/classmates/*.png
+            uploads/classmates/*.webp
             api/photos/classmates/*.jpg
             api/photos/classmates/*.png
             api/photos/classmates/*.webp

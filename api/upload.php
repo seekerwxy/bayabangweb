@@ -93,8 +93,9 @@ if (class_exists('finfo')) {
     }
 }
 
-$relativeDir = 'photos/classmates/';
-$absoluteDir = __DIR__ . '/' . $relativeDir;
+// 用户上传的图片放在站点根的 uploads/ 下，api/ 只留接口脚本
+$relativeDir = 'uploads/classmates/';
+$absoluteDir = dirname(__DIR__) . '/' . $relativeDir;
 
 if (!is_dir($absoluteDir) && !@mkdir($absoluteDir, 0755, true)) {
     error_log('upload directory create failed: ' . $absoluteDir);
@@ -104,7 +105,7 @@ if (!is_dir($absoluteDir) && !@mkdir($absoluteDir, 0755, true)) {
 $extension = $allowedMimeMap[$declaredMime];
 $filename = bin2hex(random_bytes(16)) . '.' . $extension;
 $absolutePath = $absoluteDir . $filename;
-$webPath = '/api/' . $relativeDir . $filename;
+$webPath = '/' . $relativeDir . $filename;
 
 if (file_put_contents($absolutePath, $imageData)) {
     upload_response(200, ['success' => true, 'path' => $webPath]);

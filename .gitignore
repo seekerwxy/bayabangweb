@@ -3,7 +3,11 @@
 config.local.php
 .ftp-deploy-sync-state*.json
 
-# User-uploaded avatars live on the server; do not commit them.
+# 用户上传的头像只存在服务器上，不提交（新目录：uploads/）
+uploads/classmates/*
+!uploads/classmates/.htaccess
+
+# 旧头像目录（历史数据），保留 .htaccess 以免服务器上的旧目录失去 PHP 执行保护
 api/photos/classmates/*
 !api/photos/classmates/.htaccess
 

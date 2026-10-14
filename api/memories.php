@@ -2,6 +2,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../_photo.php';
 
 $db_host = $config['messages_db']['host'];
 $db_user = $config['messages_db']['username'];
@@ -33,6 +34,8 @@ if (!$result) {
 }
 $events = [];
 while ($row = $result->fetch_assoc()) {
+    // 统一成站点根绝对路径，后台填成 htdocs/… 、../photos/… 时前台也不会 404
+    $row['photo'] = boya_normalize_photo($row['photo'] ?? '');
     $events[] = $row;
 }
 echo json_encode($events, JSON_UNESCAPED_UNICODE);

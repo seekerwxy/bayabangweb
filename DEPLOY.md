@@ -45,11 +45,32 @@ server-dir: bayabang.top/htdocs/
 
 想确认文件到底传到了哪里，可以临时给 workflow 加上 `dry-run: true` 跑一次：日志会列出所有将要执行的动作，不会真的改动服务器。
 
+## 目录约定
+
+- `api/`：只放接口脚本（`.php`），不放用户上传的文件。
+- `uploads/classmates/`：同学自己上传的头像，只存在服务器上，不进仓库、不参与部署。
+- `photos/`：网站自带的照片，随仓库一起部署。
+- `text/`：站内文本与 APP 安装包。
+
+### 把老头像迁到新目录（可选，不急）
+
+新上传的头像已经写进 `uploads/classmates/`；老数据里存的是 `/api/photos/classmates/…`，只要服务器上那些文件还在就照旧能显示。想彻底统一：
+
+1. 用 FTP 把 `api/photos/classmates/` 下的图片移动到 `uploads/classmates/`；
+2. 在 phpMyAdmin 里执行：
+
+   ```sql
+   UPDATE classmates SET avatar = REPLACE(avatar, '/api/photos/classmates/', '/uploads/classmates/')
+   WHERE avatar LIKE '/api/photos/classmates/%';
+   ```
+
+3. 前台确认头像都正常后，再删掉 `api/photos/` 目录。
+
 ## 不会被动的东西
 
 - `config.php`：所有接口和后台的必需引导文件，**必须入库并随部署上传**（已在 `.gitignore` 中放行）。它不含任何密码。
 - `config.local.php`：保存数据库和管理员凭据，不入库，由 `CONFIG_LOCAL_PHP` Secret 在部署时生成后上传。
-- `api/photos` 下用户上传的头像图片：部署时被排除，不会覆盖也不会删除。
+- 用户上传的头像图片：存在 `uploads/classmates/`（旧的在 `api/photos/classmates/`），部署时被排除，不会覆盖也不会删除。
 - InfinityFree 上的三个 MySQL 数据库：只由网站代码读取，部署不会改动数据。
 
 FTP-Deploy-Action 是按「上次部署留下的状态文件」做差分的：**从仓库里删掉的文件会在下次部署时从服务器删除**，而手工放在服务器上、从未被这个 Action 上传过的文件不会被扫描删除。改动 `server-dir` 后，新目录会被当成首次发布，只上传、不删除。
