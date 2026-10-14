@@ -57,12 +57,36 @@ server-dir: bayabang.top/htdocs/
 
 ## 留言板（帖子 + 回复）
 
-- **数据表**：`forum_posts`、`forum_replies` 建在留言那个库（`liuyan`）里，第一次访问接口时自动创建；`classmates` 表会自动补齐账号字段（`username`、`created_at`、`last_active_at`、`signature`、`title`、`is_admin`），**不需要手动跑 SQL**。
+- **数据表**：`forum_posts`、`forum_replies` 建在留言那个库（`liuyan`）里，第一次访问接口时自动创建；`classmates` 表会自动补齐账号字段（`username`、`created_at`、`last_active_at`、`title`、`is_admin`），**不需要手动跑 SQL**。
+- **已弃用字段 `signature`**：资料上的「个性签名」和「座右铭」原本各存一列、个人主页上重复显示，现在**只保留 `quote`（座右铭）**。代码里已不再读写 `classmates.signature`，并且每次访问接口时都会自动把还没搬过来的签名并进空着的座右铭、然后删掉这一列（见 `_member.php` 的 `$deprecated`，删列失败只写日志、不影响站点）。想立刻手动处理，两种方式选一个：
+
+  1）后台「账号管理」页点 **「清理重复的个性签名字段」**按钮（幂等，可重复点；只填空着的座右铭，不覆盖同学自己填的）；
+
+  2）在 phpMyAdmin 里按顺序执行（**确认上一条成功再执行下一条**）：
+
+  ```sql
+  -- 1) 看看有多少行需要搬运：座右铭为空、签名非空
+  SELECT COUNT(*) FROM classmates WHERE (quote IS NULL OR quote = '') AND signature <> '';
+
+  -- 2) 搬运（WHERE 里带条件，不会覆盖同学自己填的座右铭）
+  UPDATE classmates SET quote = signature
+   WHERE (quote IS NULL OR quote = '') AND signature IS NOT NULL AND signature <> '';
+
+  -- 3) 删除重复的列。想更保险可以先改名留个备份，确认没问题再删：
+  -- 方案 A：留备份（老版本 MySQL/MariaDB 用这句，一路都兼容）
+  ALTER TABLE classmates CHANGE COLUMN signature signature_legacy varchar(100) DEFAULT NULL;
+  -- 方案 B：直接删（唯一不可逆的一步，确认前两步无误再执行）
+  -- ALTER TABLE classmates DROP COLUMN signature;
+  ```
+
+  方案 A 之后如果一切正常，再执行 `ALTER TABLE classmates DROP COLUMN signature_legacy;` 收尾。
+  注意 `signature` 是 `varchar(100)`，`quote` 是更宽的列，搬运不会截断。
 - **账号是正式的用户账号**：`classmates.id` 就是 **UID**，`username` 是登录名 / 论坛显示名（唯一、3-20 位、不能与同学真实姓名重复、7 天只能改一次），`name` 是真实姓名，`nickname` 是昵称；登录可以用**用户名或真实姓名**。
 - **前台显示**：帖子/回复旁显示 **用户名 + UID + 昵称 + 称号 + 管理徽章**，点名字进**个人主页**（`/user/123`，等价于 `personal.php?id=123`）；真实姓名只在个人主页的「资料」页签里出现。
-- **个人主页（用户空间）**：头像 / 用户名 / 昵称 / 称号 / UID / 加入时间 / 最后活跃 / 帖子数 / 回复数 / 个性签名，下面三个页签——**动态**（帖子 + 回复混排的时间线）、**资料**（原来的一切字段，联系方式只有本人可见）、**回复**。数据来自 `api/user.php`。
+- **个人主页（用户空间）**：头像 / 用户名 / 昵称 / 称号 / UID / 加入时间 / 最后活跃 / 帖子数 / 回复数 / 座右铭，下面三个页签——**动态**（帖子 + 回复混排的时间线）、**资料**（原来的一切字段，联系方式只有本人可见）、**回复**。数据来自 `api/user.php`。
+- **留言列表的卡片结构**：`messages.php` 里每条帖子是 `<div class="forum-item" data-post="…">`，标题才是 `<a>`。**不要**把整张卡片改回 `<a>`：作者行里也有一个链接，`<a>` 不能嵌套 `<a>`，浏览器会在内层链接处强行闭合外层，卡片样式就只套住一个空 `<a>`、标题和摘要全跑到卡片外面（线上踩过这个坑）。点卡片空白处跳详情是靠 `#postList` 上那个委托 click 事件。
 - **管理权限**：① 后台「论坛管理」页（`admin-files/admin-forum.php`）的 config 管理员；② 在「账号管理」里被标为 `is_admin` 的同学，论坛页面上会直接出现管理按钮。可置顶 / 取消置顶 / 锁定 / 解锁 / 删除 / 恢复，动作全部写审计日志。
-- **账号管理**（`admin-files/admin-users.php`）：名单与搜索、设称号、设/取消论坛管理员、重置口令（新口令只显示一次，日志绝不记录口令）、指定用户名、给未设用户名的同学批量分配 `boya001` 这种、新增同学（自动生成初始口令）。
+- **账号管理**（`admin-files/admin-users.php`）：名单与搜索、设称号、设/取消论坛管理员、重置口令（新口令只显示一次，日志绝不记录口令）、指定用户名、给未设用户名的同学批量分配 `boya001` 这种、新增同学（自动生成初始口令）、清理重复的个性签名字段。
 - **权限**：游客只能看；发帖/回复必须登录并已设置用户名，删除只能删自己 10 分钟内的内容。
 - **防滥用**：发帖 60 秒 1 条、回复 15 秒 1 条、每人每天最多 20 帖 / 100 回复；记录写在 `data/rate-limit.json`，与 Cookie/IP 无关。标题 ≤60 字、正文 ≤5000 字、回复 ≤2000 字，并且服务端会拦掉 `<script>`、`onclick=` 这类片段（前端还有 DOMPurify 第二道）。
 - **旧留言导入**：后台 →「旧留言导入」，把旧 `messages` 表的内容一次性变成帖子（作者显示原署名并带「历史留言」标记）。操作是幂等的，导过的行会记 `migrated_post_id`，重复点不会产生第二份，旧数据不会被删改。

@@ -105,7 +105,7 @@ $sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
                 + ' ' + badgeHtml(user) + '</h1>'
                 + '<p class="uspace-sub">' + esc(sub) + '</p>'
                 + '<p class="uspace-stats">帖子 <b>' + (stats.post_count || 0) + '</b> · 回复 <b>' + (stats.reply_count || 0) + '</b></p>'
-                + (user.signature ? '<p class="uspace-sign">' + esc(user.signature) + '</p>' : '')
+                + (user.quote ? '<p class="uspace-sign">' + esc(user.quote) + '</p>' : '')
                 + '<div class="uspace-actions">'
                 + (user.is_self ? '<a class="forum-login-btn" href="' + esc(profileBase) + 'admin-files/edit-profile.php">编辑我的资料</a>' : '')
                 + '<a class="forum-login-btn" href="' + esc(profileBase) + 'classmates.php">同学录</a>'
@@ -128,8 +128,9 @@ $sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
                 ['家乡/出生地', user.hometown],
                 ['兴趣爱好', user.hobbies],
                 ['特长/技能', user.skills],
-                ['座右铭', user.quote],
-                ['个性签名', user.signature],
+                // 座右铭就是资料上的「个性签名」，以前两个字段各存一份、主页上重复显示，
+                // 现在统一只保留 quote 这一个（signature 字段已弃用，见 DEPLOY.md）。
+                ['座右铭 / 个性签名', user.quote],
                 ['论坛用户名', user.username],
                 ['称号', user.title],
                 ['联系方式', user.contact_info],

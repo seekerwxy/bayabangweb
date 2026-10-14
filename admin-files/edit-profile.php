@@ -37,19 +37,15 @@
             <p id="usernameMessage" class="edit-edit-message"></p>
         </div>
 
-        <!-- 个性签名 -->
+        <!-- 个人主页展示的字段 -->
         <div class="edit-form-group">
-            <label class="edit-label">个性签名</label>
-            <input type="text" id="editSignature" class="edit-input" maxlength="100" placeholder="一句话签名（最多 100 字）">
-            <p class="edit-form-hint">会显示在你的个人主页上；保存时点页面最下方的「保存全部修改」。</p>
+            <label class="edit-label">座右铭</label>
+            <input type="text" id="editQuote" class="edit-input" maxlength="200" placeholder="一句话介绍自己（最多 200 字）">
+            <p class="edit-form-hint">会显示在你的个人主页上（就是资料页的「座右铭 / 个性签名」）；保存时点页面最下方的「保存全部修改」。</p>
         </div>
         <p class="edit-form-hint" id="accountInfo"></p>
 
         <!-- 基础信息 -->
-        <div class="edit-form-group">
-            <label class="edit-label">座右铭</label>
-            <textarea id="editQuote" rows="2" maxlength="200" class="edit-textarea"></textarea>
-        </div>
         <div class="edit-form-group">
             <label class="edit-label">生日</label>
             <input type="date" id="editBirthday" class="edit-input">
@@ -187,7 +183,6 @@
                 document.getElementById('editContact').value = d.contact_info || '';
                 document.getElementById('editUsername').value = d.username || '';
                 currentUsername = d.username || '';
-                document.getElementById('editSignature').value = d.signature || '';
                 document.getElementById('accountInfo').textContent =
                     'UID ' + (d.id || '') + ' · 称号：' + (d.title || '（未设置，可让管理员设）')
                     + ' · 加入时间：' + (d.created_at || '') + (Number(d.is_admin) === 1 ? ' · 论坛管理员' : '');
@@ -395,7 +390,6 @@
                         action: 'update',
                         quote, birthday, avatar,
                         nickname, gender, hometown, hobbies, skills, contact_info,
-                        signature: document.getElementById('editSignature').value.trim(),
                         csrf_token: csrfToken
                     })
                 });

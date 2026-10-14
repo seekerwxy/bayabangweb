@@ -150,9 +150,14 @@
                     ? '最后回复 ' + Forum.formatTime(post.last_reply_at)
                     : '发表于 ' + Forum.formatTime(post.created_at);
 
-                return '<a class="forum-item" href="post.php?id=' + post.id + '">'
+                // 注意：整张卡片不能再是 <a>！作者行里也有一个 <a>（进个人主页），
+                // <a> 不能嵌套 <a>，浏览器会在内层链接处强行闭合外层，
+                // 结果卡片样式只套住一个空 <a>，标题和摘要全跑到卡片外面去。
+                // 所以卡片用 div + data-post，标题单独做链接，点击卡片时由下面的委托脚本跳转。
+                return '<div class="forum-item" data-post="' + post.id + '">'
                     + '<div class="forum-item-top">'
-                    + '<span class="forum-item-title">' + Forum.escapeHtml(post.title) + '</span>'
+                    + '<a class="forum-item-title" href="' + Forum.siteBase() + 'post.php?id=' + post.id + '">'
+                    + Forum.escapeHtml(post.title) + '</a>'
                     + badges.join(' ')
                     + '</div>'
                     + '<div class="forum-item-excerpt">' + Forum.escapeHtml(post.excerpt || '') + '</div>'
@@ -161,7 +166,7 @@
                     + '<span>回复 ' + post.reply_count + '</span>'
                     + '<span>浏览 ' + post.view_count + '</span>'
                     + '<span>' + time + '</span>'
-                    + '</div></a>';
+                    + '</div></div>';
             }).join('');
 
             if (data.totalPages <= 1) {
@@ -322,6 +327,18 @@
         });
 
         // ---------------------------------------------------- 初始化
+        // 卡片是 div（见 renderPosts 的注释），点卡片空白处跳帖子详情；
+        // 点在卡片内部的链接/按钮上时交回给它们自己处理。
+        byId('postList').addEventListener('click', function (event) {
+            if (event.target.closest('a, button')) {
+                return;
+            }
+            var card = event.target.closest('.forum-item[data-post]');
+            if (card) {
+                window.location.href = Forum.siteBase() + 'post.php?id=' + card.dataset.post;
+            }
+        });
+
         Forum.setupSwatches('#postColors .color-swatch', 'postContent', '');
         loadSession().then(loadPosts);
     })();

@@ -15,7 +15,7 @@ if (!$conn) {
 }
 
 $stmt = $conn->prepare('SELECT id, name, username, nickname, gender, birthday, hometown, hobbies, skills,
-                               contact_info, quote, avatar, signature, title, is_admin, created_at, last_active_at
+                               contact_info, quote, avatar, title, is_admin, created_at, last_active_at
                         FROM classmates WHERE id = ? LIMIT 1');
 if (!$stmt) {
     error_log('user profile prepare failed: ' . $conn->error);

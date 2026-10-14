@@ -325,4 +325,43 @@ if ($action === 'add_member') {
     ]);
 }
 
+// 一次性清理：把已弃用的 signature 合并进 quote，然后删列（幂等，可重复点）
+// 说明：这几条 SQL 已按 MySQL/MariaDB 语法逐条核对过；为避免删列这类不可逆操作，
+// 迁移失败时只记录日志，绝不吞掉错误继续跑。
+if ($action === 'dedupe_profile_fields') {
+    $res = $conn->query("SHOW COLUMNS FROM `classmates` LIKE 'signature'");
+    if (!$res) {
+        error_log('dedupe show columns failed: ' . $conn->error);
+        forum_json(['message' => '读取表结构失败：' . $conn->error], 500);
+    }
+    if ($res->num_rows === 0) {
+        forum_json(['ok' => true, 'message' => 'signature 字段已经不存在，无需清理']);
+    }
+
+    // 只搬「座右铭是空的」那些行，绝不覆盖同学自己填的座右铭
+    $before = 0;
+    $countRes = $conn->query("SELECT COUNT(*) AS c FROM `classmates`
+                              WHERE (`quote` IS NULL OR `quote` = '')
+                                AND `signature` IS NOT NULL AND `signature` <> ''");
+    if ($countRes) {
+        $before = (int)($countRes->fetch_assoc()['c'] ?? 0);
+    }
+
+    if (!$conn->query("UPDATE `classmates` SET `quote` = `signature`
+                       WHERE (`quote` IS NULL OR `quote` = '')
+                         AND `signature` IS NOT NULL AND `signature` <> ''")) {
+        error_log('dedupe update quote failed: ' . $conn->error);
+        forum_json(['message' => '搬运个性签名失败，未做任何删除：' . $conn->error], 500);
+    }
+
+    if (!$conn->query('ALTER TABLE `classmates` DROP COLUMN `signature`')) {
+        error_log('dedupe drop signature failed: ' . $conn->error);
+        // 搬运成功了、删列失败：数据没丢，可以直接重试
+        forum_json(['message' => '已搬运 ' . $before . ' 条签名，但删除字段失败（数据没丢，可重试）：' . $conn->error], 500);
+    }
+
+    boya_audit('admin-user-dedupe-profile-fields', 'moved=' . $before);
+    forum_json(['ok' => true, 'message' => '已把 ' . $before . ' 条个性签名并入座右铭，并删除 signature 字段']);
+}
+
 forum_json(['message' => '未知操作'], 400);

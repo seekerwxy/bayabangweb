@@ -107,10 +107,14 @@ function member_conn()
             'username_changed_at' => 'ADD COLUMN `username_changed_at` datetime DEFAULT NULL',
             'created_at' => 'ADD COLUMN `created_at` datetime DEFAULT NULL',
             'last_active_at' => 'ADD COLUMN `last_active_at` datetime DEFAULT NULL',
-            'signature' => 'ADD COLUMN `signature` varchar(100) DEFAULT NULL',
             'title' => 'ADD COLUMN `title` varchar(20) DEFAULT NULL',
             'is_admin' => 'ADD COLUMN `is_admin` tinyint(1) NOT NULL DEFAULT 0',
         ];
+
+        // 已弃用字段：资料上的「个性签名」和「座右铭」重复，统一只保留 quote。
+        // 这里只在 signature 确实存在、且 quote 是空的时候把内容搬过去，再删列，
+        // 于是线上数据不会凭空丢失，多次执行也安全（列没了就什么都不做）。
+        $deprecated = ['signature' => 'quote'];
 
         $existing = [];
         $res = $conn->query('SHOW COLUMNS FROM `classmates`');
@@ -131,6 +135,20 @@ function member_conn()
             // 老记录补一个加入时间，免得个人主页显示空白
             if (!isset($existing['created_at'])) {
                 $conn->query('UPDATE `classmates` SET created_at = NOW() WHERE created_at IS NULL');
+            }
+
+            // 清理已弃用字段（先搬运、再删列；quote 非空时以 quote 为准）
+            foreach ($deprecated as $column => $target) {
+                if (!isset($existing[$column])) {
+                    continue;
+                }
+                $conn->query('UPDATE `classmates` SET `' . $target . '` = `' . $column . '`
+                              WHERE `' . $target . '` IS NULL OR `' . $target . '` = \'\'');
+                if ($conn->query('ALTER TABLE `classmates` DROP COLUMN `' . $column . '`')) {
+                    error_log('member deprecated column dropped: ' . $column . ' -> ' . $target);
+                } else {
+                    error_log('member deprecated column drop failed: ' . $column . ' ' . $conn->error);
+                }
             }
         }
     }

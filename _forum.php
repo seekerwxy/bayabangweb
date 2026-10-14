@@ -96,8 +96,9 @@ function forum_member_profiles(array $ids)
     }
 
     // id 全部经过 intval()，直接拼进 IN() 是安全的（也就避开了 bind_param 可变参数的坑）
+    // 注意：signature 已弃用（与 quote 重复，列可能已被删掉），别再往这里加
     $idList = implode(',', $ids);
-    $result = $conn->query("SELECT id, username, nickname, avatar, signature, title, is_admin
+    $result = $conn->query("SELECT id, username, nickname, avatar, title, is_admin
                             FROM classmates WHERE id IN ($idList)");
     if (!$result) {
         error_log('forum profile query failed: ' . $conn->error);
@@ -110,7 +111,6 @@ function forum_member_profiles(array $ids)
             'username' => (string)($row['username'] ?? ''),
             'nickname' => (string)($row['nickname'] ?? ''),
             'avatar' => (string)($row['avatar'] ?? ''),
-            'signature' => (string)($row['signature'] ?? ''),
             'title' => (string)($row['title'] ?? ''),
             'is_admin' => (int)($row['is_admin'] ?? 0),
         ];

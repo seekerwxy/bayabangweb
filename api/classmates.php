@@ -130,8 +130,9 @@ function upgrade_password($conn, $id, $password) {
 }
 
 function profile_select_columns() {
+    // 注意：signature 已弃用（与 quote 重复），不要再往 SELECT 里加，否则列被删掉后查询会报错
     return 'id, name, username, nickname, gender, hometown, hobbies, skills, contact_info, birthday, quote, avatar,
-            signature, title, is_admin, created_at, last_active_at';
+            title, is_admin, created_at, last_active_at';
 }
 
 function format_birthday($row) {
@@ -162,7 +163,7 @@ if ($method === 'GET') {
         $columns = $isSelf
             ? profile_select_columns()
             : 'id, name, username, nickname, gender, hometown, hobbies, skills, birthday, quote, avatar,
-               signature, title, is_admin, created_at, last_active_at';
+               title, is_admin, created_at, last_active_at';
         $stmt = $conn->prepare('SELECT ' . $columns . ' FROM classmates WHERE id = ?');
         if (!$stmt) {
             json_response(500, ['message' => '查询失败']);
@@ -254,7 +255,12 @@ if ($method === 'POST') {
         require_classmate_login();
         require_classmate_csrf($input);
 
-        $quote = trim($input['quote'] ?? '');
+        $quote = trim((string)($input['quote'] ?? ''));
+        // 兼容旧的 signature 入参（老页面缓存里可能还在发这个字段）；两者只保留一份
+        if ($quote === '') {
+            $quote = trim((string)($input['signature'] ?? ''));
+        }
+        $quote = mb_substr($quote, 0, 200);
         $avatar = boya_normalize_photo($input['avatar'] ?? '');
         $birthday = trim($input['birthday'] ?? '');
         $nickname = trim($input['nickname'] ?? '');
@@ -263,7 +269,6 @@ if ($method === 'POST') {
         $hobbies = trim($input['hobbies'] ?? '');
         $skills = trim($input['skills'] ?? '');
         $contact_info = trim($input['contact_info'] ?? '');
-        $signature = mb_substr(trim(strip_tags((string)($input['signature'] ?? ''))), 0, 100);
 
         if (!in_array($gender, ['男', '女', '其他'], true)) {
             $gender = '其他';
@@ -293,15 +298,14 @@ if ($method === 'POST') {
             'UPDATE classmates SET
                 quote = ?, avatar = ?, birthday = ?,
                 nickname = ?, gender = ?, hometown = ?,
-                hobbies = ?, skills = ?, contact_info = ?,
-                signature = ?
+                hobbies = ?, skills = ?, contact_info = ?
              WHERE id = ?'
         );
         if (!$stmt) {
             json_response(500, ['message' => '更新失败']);
         }
         $stmt->bind_param(
-            'ssssssssssi',
+            'sssssssssi',
             $quote,
             $avatar,
             $birthday,
@@ -311,7 +315,6 @@ if ($method === 'POST') {
             $hobbies,
             $skills,
             $contact_info,
-            $signature,
             $_SESSION['classmate_id']
         );
         if ($stmt->execute()) {

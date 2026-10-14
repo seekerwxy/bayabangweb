@@ -14,7 +14,6 @@ $payload = [
     'hasUsername' => false,
     'nickname' => '',
     'avatar' => '',
-    'signature' => '',
     'title' => '',
     'isAdmin' => false,
     'csrf_token' => member_csrf_token(),
@@ -24,7 +23,7 @@ $payload = [
 if ($memberId > 0) {
     $conn = member_conn();
     if ($conn) {
-        $stmt = $conn->prepare('SELECT id, username, nickname, avatar, signature, title, is_admin FROM classmates WHERE id = ? LIMIT 1');
+        $stmt = $conn->prepare('SELECT id, username, nickname, avatar, title, is_admin FROM classmates WHERE id = ? LIMIT 1');
         if ($stmt) {
             $stmt->bind_param('i', $memberId);
             $stmt->execute();
@@ -37,7 +36,6 @@ if ($memberId > 0) {
                 $payload['hasUsername'] = $username !== '';
                 $payload['nickname'] = (string)($row['nickname'] ?? '');
                 $payload['avatar'] = (string)($row['avatar'] ?? '');
-                $payload['signature'] = (string)($row['signature'] ?? '');
                 $payload['title'] = (string)($row['title'] ?? '');
                 $payload['isAdmin'] = (int)($row['is_admin'] ?? 0) === 1;
                 // 顺带把会话里的用户名同步一下，供页面直接读

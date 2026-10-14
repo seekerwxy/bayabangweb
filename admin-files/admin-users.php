@@ -53,6 +53,7 @@ require_once __DIR__ . '/_auth.php';
             <input type="text" id="q" placeholder="按姓名 / 用户名 / 昵称搜索">
             <button class="btn ghost" id="searchBtn">搜索</button>
             <button class="btn ghost" id="assignBtn">给未设用户名的同学批量分配</button>
+            <button class="btn ghost" id="dedupeBtn" title="把旧的个性签名并入座右铭，并删掉重复的 signature 字段">清理重复的个性签名字段</button>
             <span class="muted" id="summary"></span>
         </div>
         <div id="list"><span class="muted">加载中…</span></div>
@@ -222,6 +223,12 @@ require_once __DIR__ . '/_auth.php';
     document.getElementById('assignBtn').addEventListener('click', function () {
         if (!confirm('给所有还没设用户名的同学自动分配 boya001 这种用户名？')) { return; }
         post({ action: 'assign_missing' });
+    });
+
+    // 一次性清理：座右铭与个性签名重复，只留座右铭；幂等，可以放心多点几次
+    document.getElementById('dedupeBtn').addEventListener('click', function () {
+        if (!confirm('把「个性签名」里还没搬过来的内容并入「座右铭」，然后删除 signature 字段？\n\n只会填充座右铭为空的行，不会覆盖同学自己填的座右铭。')) { return; }
+        post({ action: 'dedupe_profile_fields' });
     });
 
     document.getElementById('addBtn').addEventListener('click', function () {
