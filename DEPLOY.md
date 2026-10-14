@@ -85,19 +85,48 @@ server-dir: bayabang.top/htdocs/
 - **图片路径白名单**：`_photo.php` 只接受 `/photos/`、`/uploads/`、`/text/`、`/api/photos/`（旧头像目录）下的图片，或站点根目录下的单个图片文件，并且必须是图片扩展名、不能含 `..`。
 - **出问题怎么回滚**：`.htaccess` 写错会导致整站 500，用 FTP 把根目录的 `.htaccess` 改名或删除即可立刻恢复。
 
-### 把老头像迁到新目录（可选，不急）
+### 把头统一到新目录（可选，不急）
 
 新上传的头像已经写进 `uploads/classmates/`；老数据里存的是 `/api/photos/classmates/…`，只要服务器上那些文件还在就照旧能显示。想彻底统一：
 
 1. 用 FTP 把 `api/photos/classmates/` 下的图片移动到 `uploads/classmates/`；
-2. 在 phpMyAdmin 里执行：
+2. 在 phpMyAdmin 里执行（`REPLACE` 能同时修掉两类老数据：还是 `/api/photos/` 前缀的，
+   以及前缀已经改成 `/uploads/classmates/`、但文件其实还留在旧目录、显示成 404 的）：
 
    ```sql
-   UPDATE classmates SET avatar = REPLACE(avatar, '/api/photos/classmates/', '/uploads/classmates/')
+   UPDATE classmates
+   SET avatar = REPLACE(avatar, '/api/photos/classmates/', '/uploads/classmates/')
    WHERE avatar LIKE '/api/photos/classmates/%';
+
+   -- 只看名单（确认要改哪些人）：
+   SELECT id, name, avatar FROM classmates
+   WHERE avatar REGEXP '^/uploads/classmates/avatar_[0-9a-f]+[.](jpe?g|png|webp)$';
+
+   -- 确认后再更新：
+   UPDATE classmates
+   SET avatar = REPLACE(avatar, '/uploads/classmates/', '/api/photos/classmates/')
+   WHERE avatar REGEXP '^/uploads/classmates/avatar_[0-9a-f]+[.](jpe?g|png|webp)$';
    ```
 
+   第二条只针对旧版 `avatar_<十六进制>.<扩展名>` 命名——这类文件当初存在 `api/photos/classmates/`，
+   前缀被批量替换后新目录里并没有它们。**执行前先跑上面那条 `SELECT` 核对名单**：
 3. 前台确认头像都正常后，再删掉 `api/photos/` 目录。
+
+### 头像文件丢失了怎么办（已发生过）
+
+`uploads/classmates/` 下 8 张 `avatar_<十六进制>.jpeg` 曾经整批消失（数据库里还留着路径，前台显示成
+首字占位符），原因是 `.github/workflows/deploy.yml` 的 `exclude` 只排除了 `*.jpg/*.png/*.webp`，
+**漏了 `.jpeg`**：FTP-Deploy-Action 就按差分把这些服务器上独有的文件当成「仓库里已删除」清掉了。
+现在 `exclude` 已补齐 jpg/jpeg/JPG/JPEG/png/PNG/webp/WEBP 全部大小写组合。
+
+**文件已不可恢复**（`api/photos/classmates/` 里也没有同名备份），由同学重新上传即可：
+
+1. 打开 `https://bayabang.top/admin-files/edit-profile.php` 登录；
+2. 选一张正方形照片 → 裁剪 → 上传，页面会显示「头像上传并保存成功 ✅」，数据库同时更新；
+3. 换头像时旧文件会被自动删除（`api/classmates.php` 的 `boya_remove_old_avatar()`，
+   现在认 `avatar_<hex>` 这类旧命名，不再只认 32 位十六进制）。
+
+上传目录的文件数上限仍是 3000（`api/upload.php`），清理不会再漏掉旧命名，不会再越积越多。
 
 ## 不会被动的东西
 

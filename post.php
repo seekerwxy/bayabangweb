@@ -1,6 +1,6 @@
 <?php $currentPage = 'messages'; ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-user-link-base="<?= htmlspecialchars(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), ENT_QUOTES, 'UTF-8') ?>/">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
         <div class="forum-bar">
             <div class="forum-who" id="forumWho">正在读取登录状态…</div>
             <div class="forum-bar-actions">
-                <a class="forum-login-btn" href="messages.php">← 返回列表</a>
+                <a class="forum-login-btn" href="/messages.php">← 返回列表</a>
                 <button class="forum-login-btn" id="loginBtn" type="button" style="display:none;">登录后回复</button>
                 <button class="forum-cancel-btn" id="logoutBtn" type="button" style="display:none;">退出</button>
             </div>
@@ -78,7 +78,7 @@
         var byId = function (id) { return document.getElementById(id); };
 
         if (!state.id) {
-            byId('postWrap').innerHTML = '<div class="empty-message">缺少帖子 id，<a href="messages.php">回到列表</a></div>';
+            byId('postWrap').innerHTML = '<div class="empty-message">缺少帖子 id，<a href="/messages.php">回到列表</a></div>';
             return;
         }
 
@@ -138,7 +138,7 @@
                       + '<button class="mod-btn danger" data-mod="delete" data-id="' + data.post.id + '" type="button">删除帖子</button>'
                     : '')
                 + '</div>'
-                + '<div class="forum-body">' + Forum.markdown(data.post.content) + '</div>'
+                + '<div class="forum-body">' + Forum.richText(data.post.content) + '</div>'
                 + '</article>';
 
             html += '<div class="forum-replies" id="replyList">';
@@ -160,7 +160,7 @@
                         + Forum.authorLine(reply)
                         + '<span>' + Forum.formatTime(reply.created_at) + '</span>'
                         + '</div>'
-                        + '<div class="forum-body">' + Forum.markdown(reply.content) + '</div>'
+                        + '<div class="forum-body">' + Forum.richText(reply.content) + '</div>'
                         + (actions ? '<div class="forum-reply-actions">' + actions + '</div>' : '')
                         + '</div>';
                 }).join('');
@@ -193,7 +193,7 @@
                     if (!confirm('确定删除这个帖子吗？')) { return; }
                     deleteOwn('post', Number(delPost.dataset.deletePost), function () {
                         Forum.toast('帖子已删除');
-                        window.location.href = 'messages.php';
+                        window.location.href = '/messages.php';
                     });
                 });
             }
@@ -239,11 +239,11 @@
             if (!keepScroll) {
                 wrap.innerHTML = '<div class="empty-message">正在加载帖子…</div>';
             }
-            Forum.fetchJson('api/forum.php?action=post&id=' + state.id + '&page=' + state.page).then(function (res) {
+            Forum.fetchJson('/api/forum.php?action=post&id=' + state.id + '&page=' + state.page).then(function (res) {
                 if (!res.ok) {
                     wrap.innerHTML = '<div class="empty-message">'
                         + Forum.escapeHtml(res.data.message || '加载失败')
-                        + ' <a href="messages.php">回到列表</a></div>';
+                        + ' <a href="/messages.php">回到列表</a></div>';
                     byId('replyPager').innerHTML = '';
                     byId('replyBox').style.display = 'none';
                     return;

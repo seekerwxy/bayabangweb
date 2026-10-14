@@ -53,17 +53,33 @@ jobs:
           port: 21
           # standard 会打印真实的部署路径和每个上传/删除动作，便于排查“部署了却没生效”
           log-level: standard
+          # 排除规则用 gitignore 语法；下面这段是纯 glob，不放注释（注释写在 YAML 里，
+          # 免得被当成匹配式）。同学上传的头像只存在服务器上，必须把所有可能的后缀
+          # （jpeg/JPG 等大小写组合）都排掉：少写一个后缀，FTP-Deploy-Action 就会把
+          # 服务器上这类文件当成「仓库里已删除」清掉——线上 8 张 avatar_<hex>.jpeg
+          # 头像就是这么消失的，数据库里至今还留着路径（详见 DEPLOY.md）。
+          # 想确认规则是否生效，可以看部署日志里的 exclude 列表，或用 dry-run 跑一次。
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/.github/**
             uploads/classmates/*.jpg
+            uploads/classmates/*.jpeg
+            uploads/classmates/*.JPG
+            uploads/classmates/*.JPEG
             uploads/classmates/*.png
+            uploads/classmates/*.PNG
             uploads/classmates/*.webp
+            uploads/classmates/*.WEBP
             api/photos/classmates/*.jpg
+            api/photos/classmates/*.jpeg
+            api/photos/classmates/*.JPG
+            api/photos/classmates/*.JPEG
             api/photos/classmates/*.png
+            api/photos/classmates/*.PNG
             api/photos/classmates/*.webp
+            api/photos/classmates/*.WEBP
             data/*.log
             data/*.json
 

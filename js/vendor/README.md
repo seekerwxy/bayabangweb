@@ -10,12 +10,27 @@
 
 许可：marked 为 MIT，DOMPurify 为 Apache-2.0 / MPL-2.0（文件头已保留原始许可声明）。
 
+> **注意 DOMPurify 的构建形态（踩过坑）**：3.x 这份构建是**工厂式**的，`window.DOMPurify`
+> 本身没有 `.sanitize()`，必须先调用一次拿到实例：
+>
+> ```js
+> var purifier = window.DOMPurify.sanitize ? window.DOMPurify : window.DOMPurify(window);
+> purifier.sanitize(html, { USE_PROFILES: { html: true } });
+> ```
+>
+> 2.x 的独立构建则是直接可用的 `window.DOMPurify.sanitize(...)`。
+> `js/forum.js` 的 `Forum.purifier()` 已兼容两种形态；**升级时别删掉这层判断**——一旦
+> `DOMPurify.sanitize` 抛错，会被 `Forum.markdown()` 的 try/catch 吞掉，表现成
+> 「整站 Markdown 全变纯文本、彩字标记原样显示」，非常难排查。
+
 ## 升级步骤
 
 1. 从上面的上游地址下载新版本（marked 用 `lib/marked.umd.js`，它会挂到 `window.marked`）；
 2. 覆盖这里的同名文件；
 3. 用 `sha384` 重新算一遍校验值并更新上表；
-4. 前台打开留言板确认 Markdown 渲染与 XSS 过滤仍正常（`marked.parse()` + `DOMPurify.sanitize()`）。
+4. 前台打开留言板确认 Markdown 渲染与 XSS 过滤仍正常：控制台里
+   `window.BoyaForum.purifier()` 应返回一个带 `sanitize()` 的对象，
+   `window.BoyaForum.richText('**粗体**')` 应输出 `<strong>粗体</strong>`。
 
 ## 还在用 CDN 的资源
 

@@ -1,5 +1,10 @@
 <?php
 $currentPage = $currentPage ?? '';
+
+// 导航里的链接必须是「站点根绝对路径」：个人主页有 /user/2 这种重写网址，
+// 用相对路径会变成 /user/messages.php（404）。这里按当前脚本所在目录算出前缀。
+$siteBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+$sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
 ?>
 <div class="tech-statusbar" aria-hidden="true">
     <span class="sys-name">BOYA.CLASS / MEMORY SYSTEM</span>
@@ -8,18 +13,18 @@ $currentPage = $currentPage ?? '';
 </div>
 <nav class="nav" id="navbar">
     <div class="nav-inner">
-        <a href="index.php" class="nav-badge" title="班级首页" aria-label="班级首页">
-            <img src="photos/banhui.jpg" alt="班徽" width="38" height="38"
+        <a href="<?= $sitePrefix ?>index.php" class="nav-badge" title="班级首页" aria-label="班级首页">
+            <img src="<?= $sitePrefix ?>photos/banhui.jpg" alt="班徽" width="38" height="38"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <span class="nav-badge-placeholder" style="display:none;">班徽</span>
         </a>
 
         <ul class="nav-links" id="navLinksDesktop">
-            <li><a href="index.php" <?= $currentPage === 'home' ? 'class="active"' : '' ?>>首页</a></li>
-            <li><a href="teacher.php" <?= $currentPage === 'teacher' ? 'class="active"' : '' ?>>班主任</a></li>
-            <li><a href="classmates.php" <?= $currentPage === 'classmates' ? 'class="active"' : '' ?>>同学录</a></li>
-            <li><a href="memories.php" <?= $currentPage === 'memories' ? 'class="active"' : '' ?>>时光回忆馆</a></li>
-            <li><a href="messages.php" <?= $currentPage === 'messages' ? 'class="active"' : '' ?>>留言板</a></li>
+            <li><a href="<?= $sitePrefix ?>index.php" <?= $currentPage === 'home' ? 'class="active"' : '' ?>>首页</a></li>
+            <li><a href="<?= $sitePrefix ?>teacher.php" <?= $currentPage === 'teacher' ? 'class="active"' : '' ?>>班主任</a></li>
+            <li><a href="<?= $sitePrefix ?>classmates.php" <?= $currentPage === 'classmates' ? 'class="active"' : '' ?>>同学录</a></li>
+            <li><a href="<?= $sitePrefix ?>memories.php" <?= $currentPage === 'memories' ? 'class="active"' : '' ?>>时光回忆馆</a></li>
+            <li><a href="<?= $sitePrefix ?>messages.php" <?= $currentPage === 'messages' ? 'class="active"' : '' ?>>留言板</a></li>
         </ul>
 
         <div class="nav-actions">
@@ -81,11 +86,11 @@ $currentPage = $currentPage ?? '';
     </div>
 
     <div class="nav-mobile-dropdown" id="mobileDropdown">
-        <a href="index.php" <?= $currentPage === 'home' ? 'class="active"' : '' ?>>首页</a>
-        <a href="teacher.php" <?= $currentPage === 'teacher' ? 'class="active"' : '' ?>>班主任</a>
-        <a href="classmates.php" <?= $currentPage === 'classmates' ? 'class="active"' : '' ?>>同学录</a>
-        <a href="memories.php" <?= $currentPage === 'memories' ? 'class="active"' : '' ?>>时光回忆馆</a>
-        <a href="messages.php" <?= $currentPage === 'messages' ? 'class="active"' : '' ?>>留言板</a>
+        <a href="<?= $sitePrefix ?>index.php" <?= $currentPage === 'home' ? 'class="active"' : '' ?>>首页</a>
+        <a href="<?= $sitePrefix ?>teacher.php" <?= $currentPage === 'teacher' ? 'class="active"' : '' ?>>班主任</a>
+        <a href="<?= $sitePrefix ?>classmates.php" <?= $currentPage === 'classmates' ? 'class="active"' : '' ?>>同学录</a>
+        <a href="<?= $sitePrefix ?>memories.php" <?= $currentPage === 'memories' ? 'class="active"' : '' ?>>时光回忆馆</a>
+        <a href="<?= $sitePrefix ?>messages.php" <?= $currentPage === 'messages' ? 'class="active"' : '' ?>>留言板</a>
         <div class="nav-mobile-style">
             <span>外观</span>
             <button type="button" class="style-option style-option-mobile" data-style="default">
@@ -116,7 +121,7 @@ $currentPage = $currentPage ?? '';
     </div>
 </nav>
 
-<a class="download-notice" href="download.php" aria-label="前往下载博雅 APP">
+<a class="download-notice" href="<?= $sitePrefix ?>download.php" aria-label="前往下载博雅 APP">
     <span class="download-notice-icon" aria-hidden="true">
         <i class="fa-solid fa-mobile-screen-button"></i>
     </span>

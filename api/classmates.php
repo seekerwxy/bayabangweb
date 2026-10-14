@@ -37,21 +37,35 @@ function require_classmate_csrf($input) {
 
 /**
  * 删除被替换掉的头像文件，避免上传目录无限膨胀。
- * 只处理 /uploads/classmates/ 与旧的 /api/photos/classmates/ 下
- * 由本站生成的文件名（32 位十六进制 + 图片扩展名），其他路径一律不碰。
+ *
+ * 只处理两个头像目录（新目录 /uploads/classmates/ 与旧目录 /api/photos/classmates/）
+ * 下的「本站生成的文件名（十六进制 + 图片扩展名）」，其他路径、其他文件名一律不碰。
+ * 十六进制段不再限制为 32 位：早期版本用 uniqid() 生成 avatar_<13位hex>.jpeg，
+ * 老规则匹配不到，导致这些旧头像永远删不掉、越积越多。
  */
+function boya_avatar_file_name($name)
+{
+    // avatar_ 前缀（旧版）或有 / 无前缀的十六进制名（新版 32 位），扩展名与上传白名单一致
+    return preg_match('/^(?:avatar_)?[0-9a-f]{8,64}\.(?:jpg|jpeg|png|webp)$/i', (string)$name) === 1;
+}
+
 function boya_remove_old_avatar($oldAvatar, $newAvatar)
 {
     $old = (string)$oldAvatar;
     if ($old === '' || $old === (string)$newAvatar) {
         return;
     }
-    if (!preg_match('#^/(uploads|api/photos)/classmates/[0-9a-f]{32}\.(jpg|png|webp)$#', $old)) {
+    // 只认这两个目录，并且只按「文件名」判断，不做任何路径层面的猜测
+    if (!preg_match('#^/(uploads|api/photos)/classmates/([^/]+)$#', $old, $matches)) {
         return;
     }
-    $path = dirname(__DIR__) . $old;
-    if (is_file($path)) {
-        @unlink($path);
+    if (!boya_avatar_file_name($matches[2])) {
+        return;
+    }
+
+    $path = dirname(__DIR__) . '/' . $matches[1] . '/classmates/' . $matches[2];
+    if (is_file($path) && !@unlink($path)) {
+        error_log('old avatar delete failed: ' . $path);
     }
 }
 

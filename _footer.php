@@ -1,3 +1,8 @@
+<?php
+// 同 _header.php：页脚里的站内链接要用站点根绝对路径，/user/2 这类重写网址下才不会 404。
+$siteBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+$sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
+?>
 <footer class="footer">
     <div class="footer-container">
         <div class="footer-links">
@@ -14,7 +19,7 @@
                 <i class="fa-solid fa-cat fa-lg"></i>
             </a>
             <!-- 管理员 -->
-            <a href="admin-files/admin-list.php" aria-label="管理员入口" title="管理员入口">
+            <a href="<?= $sitePrefix ?>admin-files/admin-list.php" aria-label="管理员入口" title="管理员入口">
                 <i class="fa-solid fa-user-shield fa-lg"></i>
             </a>
         </div>

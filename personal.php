@@ -1,6 +1,13 @@
-<?php $currentPage = 'classmates'; ?>
+<?php
+$currentPage = 'classmates';
+// 个人主页有两个网址：/personal.php?id=2 和 /user/2（.htaccess 重写）。
+// 后者在浏览器里位于 /user/ 这一层，所以所有链接、脚本、接口都必须用站点根绝对路径，
+// 否则会变成 /user/css/beauty.css、/user/api/user.php 这种 404。
+$siteBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+$sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
+?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-user-link-base="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +15,7 @@
     <meta name="description" content="博雅班同学的个人主页：资料、发帖与回复动态。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php include __DIR__ . '/_head.php'; ?>
-    <link rel="stylesheet" href="css/forum.css?v=<?= filemtime(__DIR__ . '/css/forum.css') ?>">
+    <link rel="stylesheet" href="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>css/forum.css?v=<?= filemtime(__DIR__ . '/css/forum.css') ?>">
 </head>
 <body>
 
@@ -21,26 +28,39 @@
         <div class="forum-pager" id="feedPager"></div>
 
         <div class="uspace-tip">
-            <a href="classmates.php">← 返回同学录</a>
+            <a href="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>classmates.php">← 返回同学录</a>
             <span>·</span>
-            <a href="messages.php">去留言板 →</a>
+            <a href="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>messages.php">去留言板 →</a>
         </div>
     </main>
 
     <?php include '_footer.php'; ?>
 
-    <script src="js/forum.js?v=<?= filemtime(__DIR__ . '/js/forum.js') ?>"></script>
+    <script src="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>js/forum.js?v=<?= filemtime(__DIR__ . '/js/forum.js') ?>"></script>
     <script>
     (function () {
         "use strict";
 
         var Forum = window.BoyaForum;
-        var state = { id: Number(Forum.qs('id') || 0), tab: 'timeline', page: 1, user: null, stats: null };
+        var profileBase = <?= json_encode($sitePrefix, JSON_UNESCAPED_SLASHES) ?>;
         var byId = function (id) { return document.getElementById(id); };
         var esc = Forum.escapeHtml;
 
+        // id 优先读查询串（/personal.php?id=2）；/user/2 这类重写网址没有查询串，
+        // 只能从路径末段取（以前只读查询串，所以 /user/2 永远显示「缺少用户 id」）。
+        function resolveUserId() {
+            var fromQuery = Number(Forum.qs('id') || 0);
+            if (fromQuery > 0) {
+                return fromQuery;
+            }
+            var match = (window.location.pathname || '').match(/\/user\/(\d+)\/?$/);
+            return match ? Number(match[1]) : 0;
+        }
+
+        var state = { id: resolveUserId(), tab: 'timeline', page: 1, user: null, stats: null };
+
         if (!state.id) {
-            byId('userWrap').innerHTML = '<div class="empty-message">缺少用户 id，<a href="classmates.php">回到同学录</a></div>';
+            byId('userWrap').innerHTML = '<div class="empty-message">缺少用户 id，<a href="' + esc(profileBase) + 'classmates.php">回到同学录</a></div>';
             return;
         }
 
@@ -87,8 +107,8 @@
                 + '<p class="uspace-stats">帖子 <b>' + (stats.post_count || 0) + '</b> · 回复 <b>' + (stats.reply_count || 0) + '</b></p>'
                 + (user.signature ? '<p class="uspace-sign">' + esc(user.signature) + '</p>' : '')
                 + '<div class="uspace-actions">'
-                + (user.is_self ? '<a class="forum-login-btn" href="admin-files/edit-profile.php">编辑我的资料</a>' : '')
-                + '<a class="forum-login-btn" href="classmates.php">同学录</a>'
+                + (user.is_self ? '<a class="forum-login-btn" href="' + esc(profileBase) + 'admin-files/edit-profile.php">编辑我的资料</a>' : '')
+                + '<a class="forum-login-btn" href="' + esc(profileBase) + 'classmates.php">同学录</a>'
                 + '</div>'
                 + '</div></div>';
         }
@@ -148,7 +168,7 @@
                 ? '<span>回复 ' + (item.reply_count || 0) + '</span><span>浏览 ' + (item.view_count || 0) + '</span>'
                 : '<span>来自《' + esc(item.post_title || '') + '》</span>';
 
-            return '<a class="feed-item" href="post.php?id=' + item.post_id + '">'
+            return '<a class="feed-item" href="' + esc(profileBase) + 'post.php?id=' + item.post_id + '">'
                 + kind
                 + (isPost ? '<div class="feed-title">' + esc(item.post_title || '') + '</div>' : '')
                 + '<div class="feed-body">' + esc(item.excerpt || '') + '</div>'
@@ -186,7 +206,7 @@
             }
 
             panel.innerHTML = '<div class="empty-message">正在加载…</div>';
-            Forum.fetchJson('api/user.php?id=' + state.id + '&tab=' + state.tab + '&page=' + state.page).then(function (res) {
+            Forum.fetchJson('/api/user.php?id=' + state.id + '&tab=' + state.tab + '&page=' + state.page).then(function (res) {
                 if (!res.ok) {
                     panel.innerHTML = '<div class="empty-message">' + esc(res.data.message || '加载失败') + '</div>';
                     pager.innerHTML = '';
@@ -219,7 +239,7 @@
             });
         }
 
-        Forum.fetchJson('api/user.php?id=' + state.id).then(function (res) {
+        Forum.fetchJson('/api/user.php?id=' + state.id).then(function (res) {
             if (!res.ok) {
                 byId('userWrap').innerHTML = '<div class="empty-message">' + esc(res.data.message || '加载失败') + '</div>';
                 return;

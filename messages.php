@@ -1,6 +1,6 @@
 <?php $currentPage = 'messages'; ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-user-link-base="<?= htmlspecialchars(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), ENT_QUOTES, 'UTF-8') ?>/">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -182,7 +182,7 @@
 
         function loadPosts() {
             byId('postList').innerHTML = '<div class="empty-message">正在加载帖子…</div>';
-            Forum.fetchJson('api/forum.php?action=list&page=' + state.page).then(function (res) {
+            Forum.fetchJson('/api/forum.php?action=list&page=' + state.page).then(function (res) {
                 if (!res.ok) {
                     byId('postList').innerHTML = '<div class="empty-message">'
                         + Forum.escapeHtml(res.data.message || '加载失败，请刷新重试') + '</div>';
