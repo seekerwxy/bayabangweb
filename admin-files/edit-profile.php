@@ -28,6 +28,15 @@
 
     <!-- 编辑区域（登录后显示） -->
     <div id="editSection" class="edit-edit-section edit-hidden">
+        <!-- 论坛用户名（留言板显示名，与真实姓名分开） -->
+        <div class="edit-form-group" style="border-bottom: 1px solid var(--border-light); padding-bottom: 15px; margin-bottom: 15px;">
+            <label class="edit-label">论坛用户名</label>
+            <p class="edit-form-hint">留言板上显示的名字（<b>不会显示真实姓名</b>）。3-20 位字母、数字、下划线或短横线，不能和其他同学的真实姓名重复，7 天内只能改一次。</p>
+            <input type="text" id="editUsername" class="edit-input" maxlength="20" placeholder="例如 xiaoming_25">
+            <button type="button" class="edit-button" onclick="saveUsername()" style="margin-top:8px;">保存用户名</button>
+            <p id="usernameMessage" class="edit-edit-message"></p>
+        </div>
+
         <!-- 基础信息 -->
         <div class="edit-form-group">
             <label class="edit-label">座右铭</label>
@@ -112,6 +121,7 @@
         const UPLOAD_URL = '../api/upload.php';
         let currentName = '', csrfToken = '';
         let currentAvatarPath = '';
+        let currentUsername = '';
         let cropper = null;
 
         const savedName = localStorage.getItem('profile_name');
@@ -167,6 +177,8 @@
                 document.getElementById('editHobbies').value = d.hobbies || '';
                 document.getElementById('editSkills').value = d.skills || '';
                 document.getElementById('editContact').value = d.contact_info || '';
+                document.getElementById('editUsername').value = d.username || '';
+                currentUsername = d.username || '';
 
                 const avatarImg = document.getElementById('currentAvatar');
                 if (d.avatar) {
@@ -295,6 +307,56 @@
             document.getElementById('cropContainer').classList.add('edit-hidden');
             if (cropper) { cropper.destroy(); cropper = null; }
             document.getElementById('avatarFile').value = '';
+        }
+
+        // 保存论坛用户名（留言板显示名）
+        async function saveUsername() {
+            const msg = document.getElementById('usernameMessage');
+            const username = document.getElementById('editUsername').value.trim();
+            msg.textContent = '';
+            msg.className = 'edit-edit-message';
+
+            if (!username) {
+                msg.textContent = '请先填一个用户名';
+                msg.className = 'edit-edit-message edit-error';
+                return;
+            }
+            if (username === currentUsername) {
+                msg.textContent = '用户名没有变化';
+                return;
+            }
+
+            try {
+                const resp = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'set_username',
+                        username: username,
+                        csrf_token: csrfToken
+                    })
+                });
+                if (!resp.ok) {
+                    let message = `服务器错误 (${resp.status})`;
+                    try {
+                        const errData = await resp.json();
+                        if (errData && errData.message) message = errData.message;
+                    } catch (e) {}
+                    throw new Error(message);
+                }
+                const data = await resp.json();
+                if (data.message === '用户名已保存') {
+                    currentUsername = data.username || username;
+                    msg.textContent = '用户名已保存：' + currentUsername;
+                    msg.className = 'edit-edit-message edit-success';
+                } else {
+                    msg.textContent = data.message || '保存失败';
+                    msg.className = 'edit-edit-message edit-error';
+                }
+            } catch (err) {
+                msg.textContent = '保存失败：' + (err.message || '网络错误');
+                msg.className = 'edit-edit-message edit-error';
+            }
         }
 
         // 保存全部信息

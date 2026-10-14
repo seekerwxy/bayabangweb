@@ -1,19 +1,10 @@
 <?php
 // api/upload.php
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../_member.php';   // 会话 / CSRF
 require_once __DIR__ . '/../_audit.php';
 
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'httponly' => true,
-        'samesite' => 'Lax',
-        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
-    ]);
-    session_start();
-}
 
 function upload_response($status, $payload) {
     http_response_code($status);
@@ -35,14 +26,11 @@ if (!is_array($input)) {
     $input = [];
 }
 
-if (empty($_SESSION['classmate_id'])) {
+if (member_id() <= 0) {
     upload_response(401, ['message' => '请先登录后再上传']);
 }
 
-$csrfToken = $input['csrf_token'] ?? '';
-if (!is_string($csrfToken)
-    || empty($_SESSION['classmate_csrf_token'])
-    || !hash_equals($_SESSION['classmate_csrf_token'], $csrfToken)) {
+if (!member_verify_csrf($input['csrf_token'] ?? '')) {
     upload_response(403, ['message' => 'CSRF验证失败']);
 }
 

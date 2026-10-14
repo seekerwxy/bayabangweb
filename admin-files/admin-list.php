@@ -54,6 +54,10 @@ require_once __DIR__ . '/_auth.php';
         <div><strong>安全设置</strong><span>生成管理员口令 hash、批量升级学生明文口令、查看操作日志。</span></div>
         <a class="btn" href="admin-security.php">进入</a>
     </div>
+    <div class="card">
+        <div><strong>旧留言导入</strong><span>把旧留言板的内容一次性导入成论坛帖子（可重复点，已导入的不会重复）。</span></div>
+        <a class="btn" href="admin-migrate.php">进入</a>
+    </div>
 </div>
 </body>
 </html>

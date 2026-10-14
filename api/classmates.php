@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../_member.php';   // 会话 / CSRF / 同学录库连接（含 username 字段自动补齐）
 require_once __DIR__ . '/../_photo.php';
 require_once __DIR__ . '/../_login_guard.php';
 require_once __DIR__ . '/../_audit.php';
@@ -8,42 +8,29 @@ require_once __DIR__ . '/../_audit.php';
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Asia/Shanghai');
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'httponly' => true,
-        'samesite' => 'Lax',
-        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
-    ]);
-    session_start();
-}
-
 function json_response($status, $payload) {
     http_response_code($status);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
+// 会话与 CSRF 统一实现在 _member.php，这里保留同名薄封装，调用处不用改。
 function classmate_csrf_token() {
-    if (empty($_SESSION['classmate_csrf_token'])) {
-        $_SESSION['classmate_csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['classmate_csrf_token'];
+    return member_csrf_token();
 }
 
 function verify_classmate_csrf($token) {
-    return is_string($token)
-        && isset($_SESSION['classmate_csrf_token'])
-        && hash_equals($_SESSION['classmate_csrf_token'], $token);
+    return member_verify_csrf($token);
 }
 
 function require_classmate_login() {
-    if (empty($_SESSION['classmate_id'])) {
+    if (member_id() <= 0) {
         json_response(401, ['message' => '请先登录']);
     }
 }
 
 function require_classmate_csrf($input) {
-    if (!verify_classmate_csrf($input['csrf_token'] ?? '')) {
+    if (!member_verify_csrf($input['csrf_token'] ?? '')) {
         json_response(403, ['message' => 'CSRF验证失败']);
     }
 }
@@ -68,32 +55,52 @@ function boya_remove_old_avatar($oldAvatar, $newAvatar)
     }
 }
 
-function authenticate($conn, $name, $password) {
-    $stmt = $conn->prepare('SELECT id, password FROM classmates WHERE name = ?');
-    if (!$stmt) {
+/**
+ * 校验账号口令。$login 可以是论坛用户名，也可以是真实姓名（老同学继续用真名登录）。
+ * 返回 ['id' => int, 'name' => 真实姓名, 'username' => 论坛用户名, 'upgrade' => bool]
+ */
+function authenticate($conn, $login, $password) {
+    $login = trim((string)$login);
+    if ($login === '') {
         return false;
     }
-    $stmt->bind_param('s', $name);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $stmt->close();
+
+    $row = null;
+    foreach (['username', 'name'] as $column) {
+        $stmt = $conn->prepare('SELECT id, name, username, password FROM classmates WHERE ' . $column . ' = ? LIMIT 1');
+        if (!$stmt) {
+            continue;
+        }
+        $stmt->bind_param('s', $login);
+        $stmt->execute();
+        $found = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($found) {
+            $row = $found;
+            break;
+        }
+    }
     if (!$row) {
         return false;
     }
 
-    $stored = $row['password'] ?? '';
+    $stored = (string)($row['password'] ?? '');
     $isHashed = preg_match('/^\$2[aby]\$/', $stored) === 1 || strncmp($stored, '$argon2', 7) === 0;
 
-    if (password_verify($password, $stored)) {
-        return ['id' => (int)$row['id'], 'upgrade' => !$isHashed];
+    $ok = password_verify($password, $stored);
+    if (!$ok && !$isHashed) {
+        $ok = hash_equals($stored, $password);
+    }
+    if (!$ok) {
+        return false;
     }
 
-    if (!$isHashed && hash_equals($stored, $password)) {
-        return ['id' => (int)$row['id'], 'upgrade' => true];
-    }
-
-    return false;
+    return [
+        'id' => (int)$row['id'],
+        'name' => (string)($row['name'] ?? ''),
+        'username' => (string)($row['username'] ?? ''),
+        'upgrade' => !$isHashed,
+    ];
 }
 
 function upgrade_password($conn, $id, $password) {
@@ -109,7 +116,7 @@ function upgrade_password($conn, $id, $password) {
 }
 
 function profile_select_columns() {
-    return 'id, name, nickname, gender, hometown, hobbies, skills, contact_info, birthday, quote, avatar';
+    return 'id, name, username, nickname, gender, hometown, hobbies, skills, contact_info, birthday, quote, avatar';
 }
 
 function format_birthday($row) {
@@ -122,18 +129,10 @@ function format_birthday($row) {
     return $row;
 }
 
-$conn = new mysqli(
-    $config['classmates_db']['host'],
-    $config['classmates_db']['username'],
-    $config['classmates_db']['password'],
-    $config['classmates_db']['database']
-);
-
-if ($conn->connect_error) {
-    error_log('classmates DB connect failed: ' . $conn->connect_error);
+$conn = member_conn();
+if (!$conn) {
     json_response(500, ['message' => '数据库连接失败']);
 }
-$conn->set_charset('utf8mb4');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
@@ -211,8 +210,9 @@ if ($method === 'POST') {
 
         session_regenerate_id(true);
         $_SESSION['classmate_id'] = $auth['id'];
-        $_SESSION['classmate_name'] = $name;
-        boya_audit('classmate-login-ok', 'name=' . $name);
+        $_SESSION['classmate_name'] = $auth['name'];          // 真实姓名：只用于会话标识与审计
+        $_SESSION['classmate_username'] = $auth['username'];  // 论坛显示名（可能还没设置）
+        boya_audit('classmate-login-ok', 'id=' . $auth['id']);
 
         $stmt = $conn->prepare('SELECT ' . profile_select_columns() . ' FROM classmates WHERE id = ?');
         if (!$stmt) {
@@ -226,6 +226,8 @@ if ($method === 'POST') {
         json_response(200, [
             'message' => 'success',
             'data' => $data ? format_birthday($data) : null,
+            'username' => $auth['username'],
+            'hasUsername' => trim($auth['username']) !== '',
             'csrf_token' => classmate_csrf_token()
         ]);
     }
@@ -332,8 +334,87 @@ if ($method === 'POST') {
         json_response(500, ['message' => '密码更新失败']);
     }
 
+    // 设置 / 修改论坛用户名（登录名 + 论坛显示名，与真实姓名分开）
+    if ($action === 'set_username') {
+        require_classmate_login();
+        require_classmate_csrf($input);
+
+        $username = trim((string)($input['username'] ?? ''));
+
+        if (!member_username_valid($username)) {
+            json_response(400, ['message' => '用户名只能是 3-20 位的字母、数字、下划线或短横线']);
+        }
+        if (member_username_reserved($username)) {
+            json_response(400, ['message' => '这个用户名是保留词，换一个吧']);
+        }
+
+        $memberId = member_id();
+
+        // 不能和任何同学的真实姓名重复（防止拿别人真名当马甲）
+        $stmt = $conn->prepare('SELECT COUNT(*) AS c FROM classmates WHERE name = ? AND id <> ?');
+        if (!$stmt) {
+            json_response(500, ['message' => '保存失败，请稍后重试']);
+        }
+        $stmt->bind_param('si', $username, $memberId);
+        $stmt->execute();
+        $nameTaken = (int)($stmt->get_result()->fetch_assoc()['c'] ?? 0) > 0;
+        $stmt->close();
+        if ($nameTaken) {
+            json_response(400, ['message' => '这个用户名和同学的真实姓名重复，换一个吧']);
+        }
+
+        // 唯一性
+        $stmt = $conn->prepare('SELECT COUNT(*) AS c FROM classmates WHERE username = ? AND id <> ?');
+        if (!$stmt) {
+            json_response(500, ['message' => '保存失败，请稍后重试']);
+        }
+        $stmt->bind_param('si', $username, $memberId);
+        $stmt->execute();
+        $taken = (int)($stmt->get_result()->fetch_assoc()['c'] ?? 0) > 0;
+        $stmt->close();
+        if ($taken) {
+            json_response(400, ['message' => '这个用户名已经被占用了']);
+        }
+
+        // 改名频率：首次设置不限，之后 7 天一次
+        $stmt = $conn->prepare('SELECT username, username_changed_at FROM classmates WHERE id = ? LIMIT 1');
+        if (!$stmt) {
+            json_response(500, ['message' => '保存失败，请稍后重试']);
+        }
+        $stmt->bind_param('i', $memberId);
+        $stmt->execute();
+        $current = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        $oldUsername = (string)($current['username'] ?? '');
+        $changedAt = (string)($current['username_changed_at'] ?? '');
+        if ($oldUsername !== '' && $oldUsername !== $username && $changedAt !== '') {
+            $nextAllowed = strtotime($changedAt) + 7 * 86400;
+            if ($nextAllowed > time()) {
+                json_response(400, ['message' => '用户名 7 天内只能改一次，下次可改时间：' . date('Y-m-d H:i', $nextAllowed)]);
+            }
+        }
+
+        $stmt = $conn->prepare('UPDATE classmates SET username = ?, username_changed_at = ? WHERE id = ?');
+        if (!$stmt) {
+            json_response(500, ['message' => '保存失败，请稍后重试']);
+        }
+        $now = date('Y-m-d H:i:s');
+        $stmt->bind_param('ssi', $username, $now, $memberId);
+        $saved = $stmt->execute();
+        $stmt->close();
+
+        if (!$saved) {
+            json_response(500, ['message' => '保存失败，请稍后重试']);
+        }
+
+        $_SESSION['classmate_username'] = $username;
+        boya_audit('classmate-username-set', 'username=' . $username);
+        json_response(200, ['message' => '用户名已保存', 'username' => $username]);
+    }
+
     if ($action === 'logout') {
-        unset($_SESSION['classmate_id'], $_SESSION['classmate_name']);
+        unset($_SESSION['classmate_id'], $_SESSION['classmate_name'], $_SESSION['classmate_username']);
         json_response(200, ['message' => '已退出']);
     }
 
