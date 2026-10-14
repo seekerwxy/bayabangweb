@@ -121,6 +121,48 @@
         });
     };
 
+    /** 发帖/回复列表里的作者行：可点击进个人主页，显示 UID / 昵称 / 称号 / 管理徽章 */
+    Forum.authorLine = function (item) {
+        var uid = Number(item.author_id || 0);
+        var name = Forum.escapeHtml(item.author_username || '');
+        var html = '<span class="author-line">';
+        if (uid > 0) {
+            html += '<a href="user/' + uid + '" title="前往个人主页">' + name + '</a>';
+        } else {
+            html += '<span>' + name + '</span>';
+        }
+        html += '<span class="author-uid">UID ' + uid + '</span>';
+        if (item.author_nickname) {
+            html += '<span class="author-nick">“' + Forum.escapeHtml(item.author_nickname) + '”</span>';
+        }
+        if (item.author_title) {
+            html += '<span class="uspace-badge">' + Forum.escapeHtml(item.author_title) + '</span>';
+        }
+        if (Number(item.author_is_admin) === 1) {
+            html += '<span class="uspace-badge admin">管理</span>';
+        }
+        if (item.is_history) {
+            html += '<span class="badge-forum history">历史留言</span>';
+        }
+        html += '</span>';
+        return html;
+    };
+
+    /** 论坛管理动作：置顶 / 锁定 / 删除 / 恢复（需要管理权限） */
+    Forum.moderate = function (action, type, id, csrfToken) {
+        return fetch('api/admin-forum.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action, type: type, id: id, csrf_token: csrfToken || '' })
+        }).then(function (res) {
+            return res.json().then(function (data) {
+                return { ok: res.ok, status: res.status, data: data || {} };
+            }).catch(function () {
+                return { ok: false, status: res.status, data: { message: '服务器返回异常（' + res.status + '）' } };
+            });
+        });
+    };
+
     /** 顶部胶囊提示（复用 _footer.php 里的 showToast，没有就自己造一个） */
     Forum.toast = function (message) {
         if (typeof window.showToast === 'function') {

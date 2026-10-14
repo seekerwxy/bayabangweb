@@ -248,3 +248,134 @@
     .forum-post h1 { font-size: 19px; }
     .forum-bar { flex-direction: column; align-items: flex-start; }
 }
+
+/* ==================== 用户空间（个人主页） ==================== */
+.uspace {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.uspace-head { display: flex; gap: 20px; padding: 24px 24px 18px; align-items: flex-start; }
+.uspace-avatar {
+    width: 92px;
+    height: 92px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--surface-muted);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.uspace-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.uspace-avatar-fallback { font-size: 32px; color: var(--placeholder-color); }
+.uspace-main { flex: 1; min-width: 0; }
+.uspace-name {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: break-word;
+    margin-bottom: 6px;
+}
+.uspace-nick { font-size: 15px; font-weight: 400; color: var(--text-muted); }
+.uspace-badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border-light);
+    background: var(--surface-muted);
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+.uspace-badge.admin { border-color: var(--accent-border); color: var(--text); }
+.uspace-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
+.uspace-stats { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 6px; }
+.uspace-stats b { color: var(--text); }
+.uspace-sign {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 10px;
+    word-break: break-word;
+}
+.uspace-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.uspace-tabs { display: flex; gap: 4px; padding: 0 18px; border-bottom: 1px solid var(--border-light); }
+.uspace-tab {
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-muted);
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.uspace-tab:hover { color: var(--text); }
+.uspace-tab.active { color: var(--text); font-weight: 600; border-bottom-color: var(--accent-border); }
+.uspace-panel { padding: 18px; }
+.uspace-tip { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 32px; }
+.uspace-tip a { color: var(--text-secondary); text-decoration: none; }
+.uspace-tip a:hover { text-decoration: underline; }
+
+/* 作者信息小行（帖子/回复里显示 UID、称号） */
+.author-line { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.author-line a { color: inherit; text-decoration: none; }
+.author-line a:hover { text-decoration: underline; }
+.author-uid { font-size: 11.5px; color: var(--text-muted); }
+.author-nick { font-size: 11.5px; color: var(--text-muted); }
+
+/* 管理按钮行 */
+.mod-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.mod-btn {
+    border: 1px solid var(--border-light);
+    background: var(--surface-muted);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.mod-btn:hover { border-color: var(--accent-border); color: var(--text); }
+.mod-btn.danger { color: #b91c1c; }
+
+/* 动态时间线（推特式） */
+.feed-item {
+    display: block;
+    padding: 14px 16px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 10px;
+    transition: border-color .2s, box-shadow .2s;
+}
+.feed-item:hover { border-color: var(--accent-border); box-shadow: var(--shadow-md); }
+.feed-kind { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.feed-kind b { color: var(--text-secondary); font-weight: 600; }
+.feed-title { font-family: var(--font-serif); font-size: 16px; font-weight: 650; margin-bottom: 4px; word-break: break-word; }
+.feed-body { font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; word-break: break-word; }
+.feed-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+    .uspace-head { flex-direction: column; align-items: center; text-align: center; padding: 20px 16px 14px; }
+    .uspace-actions { justify-content: center; }
+    .uspace-name { font-size: 20px; }
+    .uspace-tabs { padding: 0 10px; }
+    .uspace-tab { padding: 10px 10px; }
+}

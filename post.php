@@ -127,11 +127,16 @@
                 + '<h1>' + Forum.escapeHtml(data.post.title) + '</h1>'
                 + '<div class="forum-post-meta">'
                 + badges.join(' ')
-                + '<span>' + Forum.escapeHtml(data.post.author_username) + '</span>'
+                + Forum.authorLine(data.post)
                 + '<span>' + Forum.formatTime(data.post.created_at) + '</span>'
                 + '<span>回复 ' + data.post.reply_count + '</span>'
                 + '<span>浏览 ' + data.post.view_count + '</span>'
                 + (canDeletePost ? '<button class="forum-del-btn" data-delete-post="' + data.post.id + '" type="button">删除我的帖子</button>' : '')
+                + (data.post.can_moderate
+                    ? '<button class="mod-btn" data-mod="' + (data.post.is_pinned ? 'unpin' : 'pin') + '" data-id="' + data.post.id + '" type="button">' + (data.post.is_pinned ? '取消置顶' : '置顶') + '</button>'
+                      + '<button class="mod-btn" data-mod="' + (data.post.is_locked ? 'unlock' : 'lock') + '" data-id="' + data.post.id + '" type="button">' + (data.post.is_locked ? '解锁' : '锁定') + '</button>'
+                      + '<button class="mod-btn danger" data-mod="delete" data-id="' + data.post.id + '" type="button">删除帖子</button>'
+                    : '')
                 + '</div>'
                 + '<div class="forum-body">' + Forum.markdown(data.post.content) + '</div>'
                 + '</article>';
@@ -142,15 +147,21 @@
             } else {
                 html += data.replies.map(function (reply) {
                     var canDelete = state.myId && state.myId === Number(reply.author_id);
-                    var history = reply.is_history ? ' <span class="badge-forum history">历史留言</span>' : '';
+                    var actions = '';
+                    if (canDelete) {
+                        actions += '<button class="forum-del-btn" data-delete-reply="' + reply.id + '" type="button">删除我的回复</button>';
+                    }
+                    if (data.post.can_moderate) {
+                        actions += '<button class="mod-btn danger" data-mod="delete" data-type="reply" data-id="' + reply.id + '" type="button">管理删除</button>';
+                    }
                     return '<div class="forum-reply">'
                         + '<div class="forum-reply-meta">'
                         + '<span class="forum-floor">' + reply.floor + ' 楼</span>'
-                        + '<span>' + Forum.escapeHtml(reply.author_username) + history + '</span>'
+                        + Forum.authorLine(reply)
                         + '<span>' + Forum.formatTime(reply.created_at) + '</span>'
                         + '</div>'
                         + '<div class="forum-body">' + Forum.markdown(reply.content) + '</div>'
-                        + (canDelete ? '<div class="forum-reply-actions"><button class="forum-del-btn" data-delete-reply="' + reply.id + '" type="button">删除我的回复</button></div>' : '')
+                        + (actions ? '<div class="forum-reply-actions">' + actions + '</div>' : '')
                         + '</div>';
                 }).join('');
             }
@@ -196,7 +207,30 @@
                 });
             });
 
+            // 管理按钮（置顶 / 锁定 / 删除，需要管理权限）
+            byId('postWrap').querySelectorAll('button[data-mod]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var action = btn.dataset.mod;
+                    var type = btn.dataset.type || 'post';
+                    var targetId = Number(btn.dataset.id);
+                    if (action === 'delete' && !confirm('确定删除？管理员删除后可在后台恢复。')) { return; }
+                    moderate(action, type, targetId);
+                });
+            });
+
             renderBar();
+        }
+
+        function moderate(action, type, id) {
+            var s = state.session || {};
+            Forum.moderate(action, type, id, s.admin_csrf_token || s.csrf_token || '').then(function (res) {
+                Forum.toast(res.data.message || (res.ok ? '操作完成' : '操作失败'));
+                if (res.ok) {
+                    loadPost(true);
+                }
+            }).catch(function () {
+                Forum.toast('网络错误，操作失败');
+            });
         }
 
         function loadPost(keepScroll) {

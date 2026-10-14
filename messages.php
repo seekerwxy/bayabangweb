@@ -146,7 +146,6 @@
                 var badges = [];
                 if (post.is_pinned) { badges.push('<span class="badge-forum pin">置顶</span>'); }
                 if (post.is_locked) { badges.push('<span class="badge-forum lock">已锁定</span>'); }
-                if (post.is_history) { badges.push('<span class="badge-forum history">历史留言</span>'); }
                 var time = post.last_reply_at
                     ? '最后回复 ' + Forum.formatTime(post.last_reply_at)
                     : '发表于 ' + Forum.formatTime(post.created_at);
@@ -158,7 +157,7 @@
                     + '</div>'
                     + '<div class="forum-item-excerpt">' + Forum.escapeHtml(post.excerpt || '') + '</div>'
                     + '<div class="forum-item-meta">'
-                    + '<span>' + Forum.escapeHtml(post.author_username) + '</span>'
+                    + Forum.authorLine(post)
                     + '<span>回复 ' + post.reply_count + '</span>'
                     + '<span>浏览 ' + post.view_count + '</span>'
                     + '<span>' + time + '</span>'

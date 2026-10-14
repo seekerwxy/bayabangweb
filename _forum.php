@@ -97,7 +97,8 @@ function forum_member_profiles(array $ids)
 
     // id 全部经过 intval()，直接拼进 IN() 是安全的（也就避开了 bind_param 可变参数的坑）
     $idList = implode(',', $ids);
-    $result = $conn->query("SELECT id, username, avatar FROM classmates WHERE id IN ($idList)");
+    $result = $conn->query("SELECT id, username, nickname, avatar, signature, title, is_admin
+                            FROM classmates WHERE id IN ($idList)");
     if (!$result) {
         error_log('forum profile query failed: ' . $conn->error);
         return [];
@@ -107,10 +108,44 @@ function forum_member_profiles(array $ids)
     while ($row = $result->fetch_assoc()) {
         $profiles[(int)$row['id']] = [
             'username' => (string)($row['username'] ?? ''),
+            'nickname' => (string)($row['nickname'] ?? ''),
             'avatar' => (string)($row['avatar'] ?? ''),
+            'signature' => (string)($row['signature'] ?? ''),
+            'title' => (string)($row['title'] ?? ''),
+            'is_admin' => (int)($row['is_admin'] ?? 0),
         ];
     }
     return $profiles;
+}
+
+/** 当前访问者有没有论坛管理权限：config 管理员，或被标为 is_admin 的同学。 */
+function forum_can_moderate()
+{
+    if (!empty($_SESSION['admin_logged_in'])) {
+        return true;
+    }
+    $memberId = member_id();
+    if ($memberId <= 0) {
+        return false;
+    }
+    $profiles = forum_member_profiles([$memberId]);
+    return !empty($profiles[$memberId]['is_admin']);
+}
+
+/**
+ * 校验 CSRF：同学会话或管理员会话，任一通过即可（两套登录共用同一个 PHP session）。
+ */
+function forum_csrf_ok($token)
+{
+    if (!is_string($token) || $token === '') {
+        return false;
+    }
+    if (member_id() > 0 && member_verify_csrf($token)) {
+        return true;
+    }
+    return !empty($_SESSION['admin_logged_in'])
+        && !empty($_SESSION['admin_csrf_token'])
+        && hash_equals((string)$_SESSION['admin_csrf_token'], $token);
 }
 
 /**

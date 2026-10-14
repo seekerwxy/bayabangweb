@@ -58,6 +58,14 @@ require_once __DIR__ . '/_auth.php';
         <div><strong>旧留言导入</strong><span>把旧留言板的内容一次性导入成论坛帖子（可重复点，已导入的不会重复）。</span></div>
         <a class="btn" href="admin-migrate.php">进入</a>
     </div>
+    <div class="card">
+        <div><strong>论坛管理</strong><span>帖子列表、置顶 / 锁定 / 删除 / 恢复。</span></div>
+        <a class="btn" href="admin-forum.php">进入</a>
+    </div>
+    <div class="card">
+        <div><strong>账号管理</strong><span>同学名单、设称号、设论坛管理员、重置口令、分配用户名、新增同学。</span></div>
+        <a class="btn" href="admin-users.php">进入</a>
+    </div>
 </div>
 </body>
 </html>

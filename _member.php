@@ -99,17 +99,51 @@ function member_conn()
     }
     $conn->set_charset('utf8mb4');
 
-    // 自动补齐字段（每个请求只查一次）
+    // 自动补齐账号字段（每个请求只查一次表结构）
     if (!$checked) {
         $checked = true;
-        $res = $conn->query("SHOW COLUMNS FROM `classmates` LIKE 'username'");
-        if ($res && (int)$res->num_rows === 0) {
-            $conn->query("ALTER TABLE `classmates`
-                ADD COLUMN `username` varchar(30) DEFAULT NULL,
-                ADD COLUMN `username_changed_at` datetime DEFAULT NULL,
-                ADD UNIQUE KEY `uk_username` (`username`)");
+        $wanted = [
+            'username' => 'ADD COLUMN `username` varchar(30) DEFAULT NULL, ADD UNIQUE KEY `uk_username` (`username`)',
+            'username_changed_at' => 'ADD COLUMN `username_changed_at` datetime DEFAULT NULL',
+            'created_at' => 'ADD COLUMN `created_at` datetime DEFAULT NULL',
+            'last_active_at' => 'ADD COLUMN `last_active_at` datetime DEFAULT NULL',
+            'signature' => 'ADD COLUMN `signature` varchar(100) DEFAULT NULL',
+            'title' => 'ADD COLUMN `title` varchar(20) DEFAULT NULL',
+            'is_admin' => 'ADD COLUMN `is_admin` tinyint(1) NOT NULL DEFAULT 0',
+        ];
+
+        $existing = [];
+        $res = $conn->query('SHOW COLUMNS FROM `classmates`');
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $existing[(string)$row['Field']] = true;
+            }
+        }
+
+        if ($existing) {
+            foreach ($wanted as $column => $clause) {
+                if (!isset($existing[$column])) {
+                    if (!$conn->query('ALTER TABLE `classmates` ' . $clause)) {
+                        error_log('member column ' . $column . ' add failed: ' . $conn->error);
+                    }
+                }
+            }
+            // 老记录补一个加入时间，免得个人主页显示空白
+            if (!isset($existing['created_at'])) {
+                $conn->query('UPDATE `classmates` SET created_at = NOW() WHERE created_at IS NULL');
+            }
         }
     }
 
     return $conn;
+}
+
+/** 更新"最后活跃"时间：只在登录 / 发帖 / 回复时调用，不每次浏览都写库。 */
+function member_touch_active($memberId)
+{
+    $conn = member_conn();
+    if (!$conn || (int)$memberId <= 0) {
+        return;
+    }
+    $conn->query('UPDATE `classmates` SET last_active_at = NOW() WHERE id = ' . (int)$memberId);
 }

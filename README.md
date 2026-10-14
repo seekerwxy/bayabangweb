@@ -26,13 +26,17 @@ post.php                    帖子详情 + 回复
 api/                        接口脚本，只放 .php
   classmates.php messages.php memories.php upload.php
   session.php               当前登录状态 + CSRF token
+  user.php                  用户空间：资料 / 动态时间线 / 回复
   forum.php                 帖子列表 / 帖子详情（只读）
   forum-write.php           发帖 / 回复 / 删除自己的内容（需登录）
+  admin-forum.php           置顶 / 锁定 / 删除 / 恢复（管理员或 is_admin 同学）
+  admin-users.php           账号管理：称号 / 管理员 / 重置口令 / 分配用户名 / 新增同学
   admin-memories.php admin-messages.php admin-migrate-messages.php   ← 后台接口（仅管理员）
 
 admin-files/                后台页面，只放 HTML/JS（接口都去 api/ 调）
   login.php admin-list.php admin-memories.php admin-messages.php
-  admin-security.php admin-migrate.php edit-profile.php _auth.php
+  admin-security.php admin-migrate.php admin-forum.php admin-users.php
+  edit-profile.php _auth.php
 
 css/ js/                    样式与脚本
   css/forum.css             留言板样式（用 beauty.css 的变量，六种外观自适应）
@@ -44,7 +48,10 @@ data/                       运行期数据：登录限速、发帖限速、审�
 text/                       站内文本与 APP 安装包
 ```
 
-留言板的账号模型：登录用**真实姓名或论坛用户名**都可以；论坛上只显示**论坛用户名**（在
-`admin-files/edit-profile.php` 里设置，3-20 位、唯一、不能与同学真实姓名重复），真实姓名不出现在论坛上。
+账号模型（洛谷那种正式账号）：`classmates.id` 就是 **UID**，`username` 是登录名与论坛显示名（唯一，3-20 位、
+不能与同学真实姓名重复，7 天只能改一次），`name` 是真实姓名，另有昵称、头像、个性签名、称号、论坛管理员标记、
+加入时间、最后活跃。登录用**用户名或真实姓名**都可以；论坛帖子旁显示「用户名 + UID + 昵称 + 称号」，
+点进去是他的**个人主页**（`/user/123`）：动态（帖子 + 回复时间线）/ 资料 / 回复三个页签，
+真实姓名只在主页的「资料」页签里出现（联系方式仅本人可见）。
 
 部署方式、目录约定、安全设置和常见问题见 [DEPLOY.md](DEPLOY.md)。

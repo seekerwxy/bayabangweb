@@ -116,7 +116,8 @@ function upgrade_password($conn, $id, $password) {
 }
 
 function profile_select_columns() {
-    return 'id, name, username, nickname, gender, hometown, hobbies, skills, contact_info, birthday, quote, avatar';
+    return 'id, name, username, nickname, gender, hometown, hobbies, skills, contact_info, birthday, quote, avatar,
+            signature, title, is_admin, created_at, last_active_at';
 }
 
 function format_birthday($row) {
@@ -146,7 +147,8 @@ if ($method === 'GET') {
         $isSelf = !empty($_SESSION['classmate_id']) && (int)$_SESSION['classmate_id'] === $id;
         $columns = $isSelf
             ? profile_select_columns()
-            : 'id, name, nickname, gender, hometown, hobbies, skills, birthday, quote, avatar';
+            : 'id, name, username, nickname, gender, hometown, hobbies, skills, birthday, quote, avatar,
+               signature, title, is_admin, created_at, last_active_at';
         $stmt = $conn->prepare('SELECT ' . $columns . ' FROM classmates WHERE id = ?');
         if (!$stmt) {
             json_response(500, ['message' => '查询失败']);
@@ -213,6 +215,7 @@ if ($method === 'POST') {
         $_SESSION['classmate_name'] = $auth['name'];          // 真实姓名：只用于会话标识与审计
         $_SESSION['classmate_username'] = $auth['username'];  // 论坛显示名（可能还没设置）
         boya_audit('classmate-login-ok', 'id=' . $auth['id']);
+        member_touch_active($auth['id']);                     // 记录"最后活跃"
 
         $stmt = $conn->prepare('SELECT ' . profile_select_columns() . ' FROM classmates WHERE id = ?');
         if (!$stmt) {
@@ -226,6 +229,7 @@ if ($method === 'POST') {
         json_response(200, [
             'message' => 'success',
             'data' => $data ? format_birthday($data) : null,
+            'uid' => $auth['id'],
             'username' => $auth['username'],
             'hasUsername' => trim($auth['username']) !== '',
             'csrf_token' => classmate_csrf_token()
@@ -245,6 +249,7 @@ if ($method === 'POST') {
         $hobbies = trim($input['hobbies'] ?? '');
         $skills = trim($input['skills'] ?? '');
         $contact_info = trim($input['contact_info'] ?? '');
+        $signature = mb_substr(trim(strip_tags((string)($input['signature'] ?? ''))), 0, 100);
 
         if (!in_array($gender, ['男', '女', '其他'], true)) {
             $gender = '其他';
@@ -274,14 +279,15 @@ if ($method === 'POST') {
             'UPDATE classmates SET
                 quote = ?, avatar = ?, birthday = ?,
                 nickname = ?, gender = ?, hometown = ?,
-                hobbies = ?, skills = ?, contact_info = ?
+                hobbies = ?, skills = ?, contact_info = ?,
+                signature = ?
              WHERE id = ?'
         );
         if (!$stmt) {
             json_response(500, ['message' => '更新失败']);
         }
         $stmt->bind_param(
-            'sssssssssi',
+            'ssssssssssi',
             $quote,
             $avatar,
             $birthday,
@@ -291,6 +297,7 @@ if ($method === 'POST') {
             $hobbies,
             $skills,
             $contact_info,
+            $signature,
             $_SESSION['classmate_id']
         );
         if ($stmt->execute()) {

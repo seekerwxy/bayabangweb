@@ -13,9 +13,13 @@ function forum_attach_author(array &$row, array $profiles)
     $liveUsername = $profile ? trim((string)$profile['username']) : '';
 
     $row['author_id'] = $authorId;
+    $row['author_uid'] = $authorId;
     $row['author_username'] = $liveUsername !== ''
         ? $liveUsername
         : member_display_name($row['author_name'] ?? '', $authorId);
+    $row['author_nickname'] = $profile ? (string)$profile['nickname'] : '';
+    $row['author_title'] = $profile ? (string)$profile['title'] : '';
+    $row['author_is_admin'] = $profile ? (int)$profile['is_admin'] : 0;
     $row['author_avatar'] = $profile ? (string)$profile['avatar'] : '';
     $row['is_history'] = $authorId === 0;
 }
@@ -72,6 +76,7 @@ if ($action === 'list') {
         'total' => $total,
         'totalPages' => max(1, (int)ceil($total / $pageSize)),
         'loggedIn' => member_id() > 0,
+        'canModerate' => forum_can_moderate(),
         'posts' => $posts,
     ]);
 }
@@ -155,8 +160,12 @@ if ($action === 'post') {
         'title' => (string)$post['title'],
         'content' => (string)$post['content'],
         'author_id' => (int)$post['author_id'],
+        'author_uid' => (int)$post['author_id'],
         'author_name' => (string)$post['author_name'],
         'author_username' => $post['author_username'],
+        'author_nickname' => $post['author_nickname'],
+        'author_title' => $post['author_title'],
+        'author_is_admin' => $post['author_is_admin'],
         'author_avatar' => $post['author_avatar'],
         'is_history' => $post['is_history'],
         'created_at' => (string)$post['created_at'],
@@ -165,6 +174,7 @@ if ($action === 'post') {
         'view_count' => (int)$post['view_count'],
         'is_pinned' => (int)$post['is_pinned'],
         'is_locked' => (int)$post['is_locked'],
+        'can_moderate' => forum_can_moderate(),
     ];
 
     forum_json([

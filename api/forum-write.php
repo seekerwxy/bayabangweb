@@ -85,6 +85,7 @@ if ($action === 'create-post') {
     }
 
     boya_audit('forum-post-add', 'post=' . $postId . ' title=' . $title);
+    member_touch_active($memberId);
     forum_json(['ok' => true, 'id' => $postId, 'message' => '发布成功']);
 }
 
@@ -159,6 +160,7 @@ if ($action === 'create-reply') {
     }
 
     boya_audit('forum-reply-add', 'post=' . $postId . ' reply=' . $replyId);
+    member_touch_active($memberId);
     forum_json(['ok' => true, 'id' => $replyId, 'message' => '回复成功']);
 }
 
