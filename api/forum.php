@@ -105,24 +105,17 @@ if ($action === 'post') {
         forum_json(['message' => '这个帖子已经被删除'], 404);
     }
 
-    // 浏览量 +1：同一个浏览器（PHP session）对同一篇帖子只算一次。
-    // 以前是「每次请求详情都 +1」，而分页、发回复、删除、管理操作都会重新拉一次详情，
-    // 于是自己刷新几下就能把数字刷上去，作者本人反而不计数。
+    // 浏览量 +1：同一个访客（按访问 IP 归并，与 cookie / session 无关）对同一篇帖子
+    // 默认 6 小时内只算一次。以前是「每次请求详情都 +1」，而翻页、发回复、删除、管理
+    // 都会重新拉详情，自己刷新几下就能把数字刷上去；作者本人始终不计数。
     $viewerId = member_id();
     $isAuthor = $viewerId > 0 && $viewerId === (int)$post['author_id'];
+    $viewCounted = false;
     if (!$isAuthor) {
-        if (!isset($_SESSION['forum_viewed']) || !is_array($_SESSION['forum_viewed'])) {
-            $_SESSION['forum_viewed'] = [];
-        }
-        $viewedKey = (string)(int)$post['id'];
-        if (!isset($_SESSION['forum_viewed'][$viewedKey])) {
-            $_SESSION['forum_viewed'][$viewedKey] = time();
+        $viewCounted = forum_view_hit((int)$post['id']);
+        if ($viewCounted) {
             $conn->query('UPDATE forum_posts SET view_count = view_count + 1 WHERE id = ' . (int)$post['id']);
             $post['view_count'] = (int)$post['view_count'] + 1;
-        }
-        // 只保留最近 200 篇，避免 session 无限变大
-        if (count($_SESSION['forum_viewed']) > 200) {
-            $_SESSION['forum_viewed'] = array_slice($_SESSION['forum_viewed'], -200, null, true);
         }
     }
 
@@ -187,8 +180,8 @@ if ($action === 'post') {
         'last_reply_at' => $post['last_reply_at'],
         'reply_count' => (int)$post['reply_count'],
         'view_count' => (int)$post['view_count'],
-        // 方便前端/排查判断这次请求有没有计入浏览（作者本人永远是 false）
-        'view_counted' => isset($_SESSION['forum_viewed'][(string)(int)$post['id']]),
+        // 这次请求有没有把浏览量 +1（作者本人和同一访客的重复访问都是 false）
+        'view_counted' => $viewCounted,
         'is_pinned' => (int)$post['is_pinned'],
         'is_locked' => (int)$post['is_locked'],
         'can_moderate' => forum_can_moderate(),

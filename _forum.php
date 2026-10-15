@@ -188,3 +188,74 @@ function forum_pager($pageSize = 20)
     $pageSize = max(1, (int)$pageSize);
     return [$page, $pageSize, ($page - 1) * $pageSize];
 }
+
+/**
+ * 浏览量去重用的访客标识。
+ *
+ * 为什么不用 $_SESSION：线上实测这台主机的 PHP session 数据不稳定
+ * （带着固定 PHPSESSID 再请求时服务端不再下发 Set-Cookie，说明 session 是认的，
+ *  但写进 $_SESSION 的数组下一次请求就消失了），所以改用登录限速、发帖限速
+ * 同一套「服务器文件」思路：与 cookie 无关，清 cookie、换浏览器都绕不过。
+ */
+function forum_viewer_key()
+{
+    $ip = '';
+    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'] as $key) {
+        if (!empty($_SERVER[$key])) {
+            $ip = trim(explode(',', (string)$_SERVER[$key])[0]);
+            break;
+        }
+    }
+    if ($ip === '') {
+        $ip = 'unknown';
+    }
+    return substr(hash('sha256', 'boya-view|' . $ip), 0, 32);
+}
+
+/** 同一访客对同一篇帖子只算一次浏览（默认 6 小时窗口），返回这次是否计入。 */
+function forum_view_hit($postId, $windowSeconds = 21600)
+{
+    $postId = (int)$postId;
+    if ($postId <= 0) {
+        return false;
+    }
+    // 窗口至少 1 分钟，避免把窗口配成 0 时变成「每次请求都算一次」
+    $windowSeconds = max(60, (int)$windowSeconds);
+    $dir = __DIR__ . '/data';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+    $file = $dir . '/view-seen.json';
+
+    $data = [];
+    if (is_file($file)) {
+        $raw = @file_get_contents($file);
+        if ($raw !== false && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $data = $decoded;
+            }
+        }
+    }
+
+    $now = time();
+    // 顺手清掉过期记录，文件不会无限增长
+    foreach ($data as $key => $seenAt) {
+        if (($now - (int)$seenAt) > $windowSeconds) {
+            unset($data[$key]);
+        }
+    }
+
+    $entryKey = $postId . '|' . forum_viewer_key();
+    $counted = !isset($data[$entryKey]);
+    if ($counted) {
+        $data[$entryKey] = $now;
+    }
+    if (count($data) > 5000) {
+        $data = array_slice($data, -5000, null, true);
+    }
+    if (!@file_put_contents($file, json_encode($data), LOCK_EX)) {
+        error_log('forum view-seen write failed: ' . $file);
+    }
+    return $counted;
+}
