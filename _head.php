@@ -37,10 +37,41 @@ if ($styleRelative === '') {
 
 // 资源链接必须是「站点根绝对路径」：个人主页有 /user/2 这种重写网址，
 // 用相对路径 css/beauty.css 会变成 /user/css/beauty.css（线上实测 404，页面完全没样式）。
-// $baseUrl 不能拿来当 URL 前缀（后台页面它是 '../'），所以统一用 boya_site_prefix()。
 require_once __DIR__ . '/_site.php';
-$assetPrefix = boya_site_prefix();
-$styleHref = $assetPrefix . $styleRelative;
+
+if (!function_exists('boya_asset_url')) {
+    /**
+     * 由「磁盘上的真实路径」反推这个资源该怎么用 URL 引用。
+     *
+     * 为什么不直接拼 $baseUrl：后台页面 $baseUrl 是 '../'，拼出来是相对的，
+     * 而个人主页那种重写网址下相对路径会解析到错误目录。
+     * 这里用脚本目录与目标文件目录的公共前缀来还原 URL：两者都在站点根之下时，
+     * 多出来的那一段就是 URL 前缀；后台页面（/admin-files/ 对 /）公共前缀为空 → 站点根。
+     */
+    function boya_asset_url($rootDir, $relative, $filePath)
+    {
+        $scriptDir = rtrim(str_replace('\\', '/', dirname((string)($_SERVER['SCRIPT_NAME'] ?? '/'))), '/');
+        // '..' 去掉、目录结尾补斜杠，保证 $rootDir 与 $targetDir 都有站点根这一层
+        $rootDir = rtrim(str_replace('\\', '/', str_replace('..', '', (string)$rootDir)), '/');
+        $targetDir = rtrim(str_replace('\\', '/', str_replace('..', '', dirname((string)$filePath))), '/');
+        $rootDir = preg_replace('#[^A-Za-z0-9/_\-.]#', '', $rootDir);
+        $targetDir = preg_replace('#[^A-Za-z0-9/_\-.]#', '', $targetDir);
+
+        $shared = 0;
+        if ($rootDir !== '' && strpos($targetDir, $rootDir) === 0) {
+            $shared = substr_count($rootDir, '/');     // /xxx/htdocs → 2 段
+        }
+        $segments = $scriptDir === '' ? [] : explode('/', ltrim($scriptDir, '/'));
+        if ($shared > 0) {
+            $segments = array_slice($segments, $shared);
+        }
+        $prefix = $segments ? '/' . implode('/', $segments) . '/' : '/';
+
+        return $prefix . ltrim(str_replace('\\', '/', (string)$relative), '/');
+    }
+}
+
+$styleHref = boya_asset_url($rootDir, $styleRelative, boya_asset_path($rootDir, $baseUrl, $styleRelative));
 
 $beautyCss = boya_asset_path($rootDir, $baseUrl, 'css/beauty.css');
 $gothicCss = boya_asset_path($rootDir, $baseUrl, 'css/gothic.css');
@@ -77,10 +108,10 @@ $techBgJs = boya_asset_path($rootDir, $baseUrl, 'js/tech-bg.js');
     }
 })();
 </script>
-<link rel="stylesheet" href="<?= $assetPrefix ?>css/beauty.css?v=<?= boya_asset_version($beautyCss) ?>">
+<link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/beauty.css', $beautyCss) ?>?v=<?= boya_asset_version($beautyCss) ?>">
 <link rel="stylesheet" href="<?= $styleHref ?>?v=<?= boya_asset_version($styleCss) ?>">
-<link rel="stylesheet" href="<?= $assetPrefix ?>css/tech.css?v=<?= boya_asset_version($techCss) ?>">
-<link rel="stylesheet" href="<?= $assetPrefix ?>css/classical.css?v=<?= boya_asset_version($classicalCss) ?>">
-<link rel="stylesheet" href="<?= $assetPrefix ?>css/editorial.css?v=<?= boya_asset_version($editorialCss) ?>">
-<link rel="stylesheet" href="<?= $assetPrefix ?>css/western.css?v=<?= boya_asset_version($westernCss) ?>">
-<script src="<?= $assetPrefix ?>js/tech-bg.js?v=<?= boya_asset_version($techBgJs) ?>" defer></script>
+<link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/tech.css', $techCss) ?>?v=<?= boya_asset_version($techCss) ?>">
+<link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/classical.css', $classicalCss) ?>?v=<?= boya_asset_version($classicalCss) ?>">
+<link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/editorial.css', $editorialCss) ?>?v=<?= boya_asset_version($editorialCss) ?>">
+<link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/western.css', $westernCss) ?>?v=<?= boya_asset_version($westernCss) ?>">
+<script src="<?= boya_asset_url($rootDir, 'js/tech-bg.js', $techBgJs) ?>?v=<?= boya_asset_version($techBgJs) ?>" defer></script>
