@@ -94,8 +94,9 @@ $sitePrefix = boya_site_prefix();
                 ? '<img src="' + esc(avatar) + '" alt="头像" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><span class="uspace-avatar-fallback" style="display:none;">' + initial + '</span>'
                 : '<span class="uspace-avatar-fallback">' + initial + '</span>';
 
+            // 不显示「加入时间」，只留 UID 与最后活跃（加入时间对同学没意义，
+            // 而且老数据是补写进去的，看着容易误会）
             var sub = 'UID ' + user.id;
-            if (user.created_at) { sub += ' · 加入于 ' + Forum.formatTime(user.created_at); }
             if (user.last_active_at) { sub += ' · 最后活跃 ' + Forum.formatTime(user.last_active_at); }
 
             return '<div class="uspace-head">'
@@ -135,7 +136,7 @@ $sitePrefix = boya_site_prefix();
                 ['论坛用户名', user.username],
                 ['称号', user.title],
                 ['联系方式', user.contact_info],
-                ['加入时间', user.created_at],
+                // 同样不显示「加入时间」（见 headHtml 的说明）
                 ['最后活跃', user.last_active_at]
             ];
 

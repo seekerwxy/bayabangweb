@@ -1,10 +1,8 @@
 <?php
-// 公共头部：主题与外观样式初始化。$baseUrl 用于子目录页面（如 admin/）。
+// 公共头部：主题与外观样式初始化。$baseUrl 只用于「在磁盘上找文件」（admin/ 下是 '../'）。
 $baseUrl = $baseUrl ?? '';
 $rootDir = __DIR__;
 
-// 解析静态资源真实路径：优先按 $baseUrl 找（admin-files 下 $baseUrl 为 '../'），
-// 并对 filemtime() 做存在性保护，避免文件缺失时产生 PHP 警告、版本号变成空值。
 if (!function_exists('boya_asset_path')) {
     function boya_asset_path($rootDir, $baseUrl, $relative)
     {
@@ -31,11 +29,18 @@ if (!function_exists('boya_asset_version')) {
     }
 }
 
-$styleUrl = isset($styleUrl) && $styleUrl !== '' ? $styleUrl : $baseUrl . 'css/gothic.css';
+$styleUrl = isset($styleUrl) && $styleUrl !== '' ? $styleUrl : 'css/gothic.css';
 $styleRelative = ltrim(preg_replace('#^[./]+#', '', explode('?', $styleUrl, 2)[0]), '/');
 if ($styleRelative === '') {
     $styleRelative = 'css/gothic.css';
 }
+
+// 资源链接必须是「站点根绝对路径」：个人主页有 /user/2 这种重写网址，
+// 用相对路径 css/beauty.css 会变成 /user/css/beauty.css（线上实测 404，页面完全没样式）。
+// $baseUrl 不能拿来当 URL 前缀（后台页面它是 '../'），所以统一用 boya_site_prefix()。
+require_once __DIR__ . '/_site.php';
+$assetPrefix = boya_site_prefix();
+$styleHref = $assetPrefix . $styleRelative;
 
 $beautyCss = boya_asset_path($rootDir, $baseUrl, 'css/beauty.css');
 $gothicCss = boya_asset_path($rootDir, $baseUrl, 'css/gothic.css');
@@ -72,10 +77,10 @@ $techBgJs = boya_asset_path($rootDir, $baseUrl, 'js/tech-bg.js');
     }
 })();
 </script>
-<link rel="stylesheet" href="<?= $baseUrl ?>css/beauty.css?v=<?= boya_asset_version($beautyCss) ?>">
-<link rel="stylesheet" href="<?= $styleUrl ?>?v=<?= boya_asset_version($styleCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/tech.css?v=<?= boya_asset_version($techCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/classical.css?v=<?= boya_asset_version($classicalCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/editorial.css?v=<?= boya_asset_version($editorialCss) ?>">
-<link rel="stylesheet" href="<?= $baseUrl ?>css/western.css?v=<?= boya_asset_version($westernCss) ?>">
-<script src="<?= $baseUrl ?>js/tech-bg.js?v=<?= boya_asset_version($techBgJs) ?>" defer></script>
+<link rel="stylesheet" href="<?= $assetPrefix ?>css/beauty.css?v=<?= boya_asset_version($beautyCss) ?>">
+<link rel="stylesheet" href="<?= $styleHref ?>?v=<?= boya_asset_version($styleCss) ?>">
+<link rel="stylesheet" href="<?= $assetPrefix ?>css/tech.css?v=<?= boya_asset_version($techCss) ?>">
+<link rel="stylesheet" href="<?= $assetPrefix ?>css/classical.css?v=<?= boya_asset_version($classicalCss) ?>">
+<link rel="stylesheet" href="<?= $assetPrefix ?>css/editorial.css?v=<?= boya_asset_version($editorialCss) ?>">
+<link rel="stylesheet" href="<?= $assetPrefix ?>css/western.css?v=<?= boya_asset_version($westernCss) ?>">
+<script src="<?= $assetPrefix ?>js/tech-bg.js?v=<?= boya_asset_version($techBgJs) ?>" defer></script>
