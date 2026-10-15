@@ -1074,3 +1074,97 @@ html[data-style="classical"] .toast-capsule {
         height: 30px;
     }
 }
+
+/* ========== 新增：用户头像菜单 + 设置弹窗（古典主题适配） ========== */
+html[data-style="classical"] .user-menu-btn {
+    border: 1px solid var(--classical-line-strong);
+    color: var(--classical-red);
+    background: transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+html[data-style="classical"] .user-menu-btn:hover {
+    border-color: var(--classical-red);
+    color: var(--classical-red);
+    background: rgba(154, 43, 37, 0.08);
+    box-shadow: 0 0 0 1px rgba(154, 43, 37, 0.22);
+}
+html[data-style="classical"] .nav-user-avatar {
+    background: rgba(154, 43, 37, 0.10);
+    color: var(--classical-red);
+}
+html[data-style="classical"] .nav-user-avatar-fallback {
+    color: var(--classical-red);
+}
+html[data-style="classical"] .user-menu-dropdown {
+    background: var(--classical-paper-soft);
+    border: 1px solid var(--classical-line-strong);
+    border-radius: 6px;
+    box-shadow: 0 16px 34px rgba(54, 42, 24, 0.28);
+}
+html[data-style="classical"] .user-menu-item {
+    color: var(--classical-ink-soft);
+    font-family: var(--classical-serif);
+    letter-spacing: 0.08em;
+}
+html[data-style="classical"] .user-menu-item:hover {
+    color: var(--classical-red);
+    background: rgba(154, 43, 37, 0.08);
+}
+html[data-style="classical"] .settings-modal-card {
+    background: var(--classical-paper-soft);
+    color: var(--classical-ink);
+    border: 1px solid var(--classical-line-strong);
+    border-radius: 6px;
+    box-shadow: 0 18px 40px rgba(54, 42, 24, 0.32);
+}
+html[data-style="classical"] .settings-modal-head h3 {
+    color: var(--classical-ink);
+    font-family: var(--classical-serif);
+    letter-spacing: 0.1em;
+}
+html[data-style="classical"] .settings-modal-close {
+    color: var(--classical-muted);
+}
+html[data-style="classical"] .settings-modal-close:hover {
+    color: var(--classical-red);
+    background: rgba(154, 43, 37, 0.08);
+}
+html[data-style="classical"] .settings-label {
+    color: var(--classical-muted);
+}
+html[data-style="classical"] .settings-theme-btn {
+    border: 1px solid var(--classical-line);
+    background: var(--classical-paper);
+    color: var(--classical-ink-soft);
+}
+html[data-style="classical"] .settings-theme-btn:hover {
+    border-color: var(--classical-red);
+    color: var(--classical-red);
+    background: rgba(154, 43, 37, 0.06);
+}
+html[data-style="classical"] .settings-style-options .style-option {
+    border: 1px solid var(--classical-line);
+    background: var(--classical-paper);
+    color: var(--classical-ink-soft);
+}
+html[data-style="classical"] .settings-style-options .style-option:hover {
+    color: var(--classical-red);
+    border-color: var(--classical-line-strong);
+    background: rgba(154, 43, 37, 0.06);
+}
+html[data-style="classical"] .settings-style-options .style-option.active {
+    color: var(--classical-red);
+    background: rgba(154, 43, 37, 0.12);
+    border-color: var(--classical-red);
+    box-shadow: none;
+}
+html[data-style="classical"] .settings-done {
+    background: var(--classical-red);
+    color: #fdf8ec;
+    border-radius: 6px;
+    font-family: var(--classical-serif);
+    letter-spacing: 0.2em;
+}
+html[data-style="classical"] .settings-done:hover {
+    background: var(--classical-red-deep);
+}

@@ -916,3 +916,93 @@ html[data-style="gothic"] .toast-capsule {
         left: -27px;
     }
 }
+
+/* ========== 新增：用户头像菜单 + 设置弹窗（哥特主题适配） ========== */
+html[data-style="gothic"] .user-menu-btn {
+    border: 1px solid var(--gothic-line);
+    color: var(--gothic-blood);
+    background: transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+html[data-style="gothic"] .user-menu-btn:hover {
+    border-color: var(--gothic-blood);
+    color: var(--gothic-blood);
+    background: transparent;
+    box-shadow: 0 0 14px rgba(179, 39, 48, 0.35);
+}
+html[data-style="gothic"] .nav-user-avatar {
+    background: rgba(140, 29, 36, 0.14);
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .nav-user-avatar-fallback {
+    color: var(--gothic-blood);
+}
+html[data-style="gothic"] .user-menu-dropdown {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 16px 34px rgba(23, 12, 10, 0.32);
+}
+html[data-style="gothic"] .user-menu-item {
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .user-menu-item:hover {
+    color: var(--gothic-blood);
+    background: rgba(140, 29, 36, 0.08);
+}
+html[data-style="gothic"] .settings-modal-card {
+    background: var(--parchment-soft);
+    color: var(--gothic-ink);
+    border: 1px solid var(--gothic-line-strong);
+    border-radius: 0;
+    box-shadow: 0 18px 40px rgba(23, 12, 10, 0.34);
+}
+html[data-style="gothic"] .settings-modal-head h3 {
+    color: var(--gothic-ink);
+    letter-spacing: 0.08em;
+}
+html[data-style="gothic"] .settings-modal-close {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .settings-modal-close:hover {
+    color: var(--gothic-blood);
+    background: rgba(140, 29, 36, 0.08);
+}
+html[data-style="gothic"] .settings-label {
+    color: var(--gothic-muted);
+}
+html[data-style="gothic"] .settings-theme-btn {
+    border: 1px solid var(--gothic-line);
+    background: var(--parchment);
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .settings-theme-btn:hover {
+    border-color: var(--gothic-blood);
+    color: var(--gothic-blood);
+    background: rgba(140, 29, 36, 0.06);
+}
+html[data-style="gothic"] .settings-style-options .style-option {
+    border: 1px solid var(--gothic-line);
+    background: var(--parchment);
+    color: var(--gothic-ink-soft);
+}
+html[data-style="gothic"] .settings-style-options .style-option:hover {
+    color: var(--gothic-blood);
+    border-color: var(--gothic-line-strong);
+    background: rgba(140, 29, 36, 0.06);
+}
+html[data-style="gothic"] .settings-style-options .style-option.active {
+    color: var(--gothic-blood);
+    background: rgba(140, 29, 36, 0.12);
+    border-color: var(--gothic-blood);
+    box-shadow: none;
+}
+html[data-style="gothic"] .settings-done {
+    background: var(--gothic-blood);
+    color: #f5ead8;
+    border-radius: 0;
+    letter-spacing: 0.2em;
+}
+html[data-style="gothic"] .settings-done:hover {
+    background: var(--gothic-blood-deep);
+}

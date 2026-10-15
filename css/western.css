@@ -1021,3 +1021,93 @@ html[data-style="western"] .toast-capsule {
         height: 30px;
     }
 }
+
+/* ========== 新增：用户头像菜单 + 设置弹窗（西方风主题适配） ========== */
+html[data-style="western"] .user-menu-btn {
+    border: 1px solid var(--western-line);
+    color: var(--western-gold);
+    background: transparent;
+    transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+html[data-style="western"] .user-menu-btn:hover {
+    border-color: var(--western-gold);
+    color: var(--western-gold);
+    background: rgba(169, 134, 63, 0.1);
+    box-shadow: 0 0 12px rgba(169, 134, 63, 0.3);
+}
+html[data-style="western"] .nav-user-avatar {
+    background: rgba(169, 134, 63, 0.14);
+    color: var(--western-gold);
+}
+html[data-style="western"] .nav-user-avatar-fallback {
+    color: var(--western-gold);
+}
+html[data-style="western"] .user-menu-dropdown {
+    background: var(--western-ivory-soft);
+    border: 1px solid var(--western-line-strong);
+    border-radius: 2px;
+    box-shadow: 0 16px 34px rgba(45, 34, 22, 0.24);
+}
+html[data-style="western"] .user-menu-item {
+    color: var(--western-ink-soft);
+}
+html[data-style="western"] .user-menu-item:hover {
+    color: var(--western-gold);
+    background: rgba(169, 134, 63, 0.1);
+}
+html[data-style="western"] .settings-modal-card {
+    background: var(--western-ivory-soft);
+    color: var(--western-ink);
+    border: 1px solid var(--western-line-strong);
+    border-radius: 2px;
+    box-shadow: 0 18px 40px rgba(45, 34, 22, 0.3);
+}
+html[data-style="western"] .settings-modal-head h3 {
+    color: var(--western-ink);
+    letter-spacing: 0.06em;
+}
+html[data-style="western"] .settings-modal-close {
+    color: var(--western-muted);
+}
+html[data-style="western"] .settings-modal-close:hover {
+    color: var(--western-gold);
+    background: rgba(169, 134, 63, 0.1);
+}
+html[data-style="western"] .settings-label {
+    color: var(--western-muted);
+}
+html[data-style="western"] .settings-theme-btn {
+    border: 1px solid var(--western-line);
+    background: var(--western-ivory);
+    color: var(--western-ink-soft);
+}
+html[data-style="western"] .settings-theme-btn:hover {
+    border-color: var(--western-gold);
+    color: var(--western-gold);
+    background: rgba(169, 134, 63, 0.08);
+}
+html[data-style="western"] .settings-style-options .style-option {
+    border: 1px solid var(--western-line);
+    background: var(--western-ivory);
+    color: var(--western-ink-soft);
+}
+html[data-style="western"] .settings-style-options .style-option:hover {
+    color: var(--western-gold);
+    border-color: var(--western-line-strong);
+    background: rgba(169, 134, 63, 0.08);
+}
+html[data-style="western"] .settings-style-options .style-option.active {
+    color: var(--western-gold);
+    background: rgba(169, 134, 63, 0.14);
+    border-color: var(--western-gold);
+    box-shadow: none;
+}
+html[data-style="western"] .settings-done {
+    background: var(--western-navy);
+    color: #f5f0e4;
+    border-radius: 2px;
+    letter-spacing: 0.18em;
+}
+html[data-style="western"] .settings-done:hover {
+    background: var(--western-burgundy);
+}

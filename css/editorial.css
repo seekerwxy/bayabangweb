@@ -975,3 +975,93 @@ html[data-style="editorial"] .toast-capsule {
         height: 30px;
     }
 }
+
+/* ========== 新增：用户头像菜单 + 设置弹窗（编辑社主题适配） ========== */
+html[data-style="editorial"] .user-menu-btn {
+    border: 1px solid var(--editorial-rule);
+    color: var(--editorial-accent);
+    background: transparent;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+html[data-style="editorial"] .user-menu-btn:hover {
+    border-color: var(--editorial-accent);
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+    box-shadow: 0 0 0 1px rgba(177, 58, 46, 0.2);
+}
+html[data-style="editorial"] .nav-user-avatar {
+    background: var(--editorial-accent-soft);
+    color: var(--editorial-accent);
+}
+html[data-style="editorial"] .nav-user-avatar-fallback {
+    color: var(--editorial-accent-deep);
+}
+html[data-style="editorial"] .user-menu-dropdown {
+    background: var(--editorial-paper-soft);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 16px 34px rgba(43, 37, 28, 0.24);
+}
+html[data-style="editorial"] .user-menu-item {
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .user-menu-item:hover {
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+}
+html[data-style="editorial"] .settings-modal-card {
+    background: var(--editorial-paper-soft);
+    color: var(--editorial-ink);
+    border: 1px solid var(--editorial-rule-strong);
+    border-radius: 0;
+    box-shadow: 0 18px 40px rgba(43, 37, 28, 0.3);
+}
+html[data-style="editorial"] .settings-modal-head h3 {
+    color: var(--editorial-ink);
+    letter-spacing: 0.06em;
+}
+html[data-style="editorial"] .settings-modal-close {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .settings-modal-close:hover {
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+}
+html[data-style="editorial"] .settings-label {
+    color: var(--editorial-muted);
+}
+html[data-style="editorial"] .settings-theme-btn {
+    border: 1px solid var(--editorial-rule);
+    background: var(--editorial-paper);
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .settings-theme-btn:hover {
+    border-color: var(--editorial-accent);
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+}
+html[data-style="editorial"] .settings-style-options .style-option {
+    border: 1px solid var(--editorial-rule);
+    background: var(--editorial-paper);
+    color: var(--editorial-ink-soft);
+}
+html[data-style="editorial"] .settings-style-options .style-option:hover {
+    color: var(--editorial-accent-deep);
+    border-color: var(--editorial-rule-strong);
+    background: var(--editorial-accent-soft);
+}
+html[data-style="editorial"] .settings-style-options .style-option.active {
+    color: var(--editorial-accent-deep);
+    background: var(--editorial-accent-soft);
+    border-color: var(--editorial-accent);
+    box-shadow: none;
+}
+html[data-style="editorial"] .settings-done {
+    background: var(--editorial-accent);
+    color: #fff7f2;
+    border-radius: 0;
+    letter-spacing: 0.18em;
+}
+html[data-style="editorial"] .settings-done:hover {
+    background: var(--editorial-accent-deep);
+}

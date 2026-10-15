@@ -1175,3 +1175,99 @@ html[data-style="tech"] .toast-capsule {
         left: -27px;
     }
 }
+
+/* ========== 新增：用户头像菜单 + 设置弹窗（科技主题适配） ========== */
+html[data-style="tech"] .user-menu-btn {
+    border: 1px solid var(--tech-line-strong);
+    color: var(--tech-cyan);
+    background: rgba(13, 28, 46, 0.24);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+html[data-style="tech"] .user-menu-btn:hover {
+    color: var(--tech-accent-strong);
+    background: var(--tech-surface);
+    border-color: var(--tech-accent);
+    box-shadow: 0 0 14px var(--tech-glow);
+}
+html[data-style="tech"] .nav-user-avatar {
+    background: rgba(13, 28, 46, 0.24);
+    color: var(--tech-cyan);
+}
+html[data-style="tech"] .nav-user-avatar-fallback {
+    color: var(--tech-cyan);
+}
+html[data-style="tech"] .user-menu-dropdown {
+    background:
+        linear-gradient(var(--tech-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--tech-grid) 1px, transparent 1px),
+        var(--tech-nav-soft);
+    background-size: 44px 44px, 44px 44px, auto;
+    border: 1px solid var(--tech-line-strong);
+    border-radius: 8px;
+    box-shadow: 0 16px 34px rgba(4, 10, 19, 0.35), 0 0 0 1px rgba(20, 200, 216, 0.08);
+}
+html[data-style="tech"] .user-menu-item {
+    color: var(--tech-ink-soft);
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    letter-spacing: 0.04em;
+}
+html[data-style="tech"] .user-menu-item:hover {
+    color: var(--tech-accent);
+    background: rgba(13, 143, 196, 0.10);
+}
+html[data-style="tech"] .settings-modal-card {
+    background: var(--tech-surface-solid);
+    color: var(--tech-ink);
+    border: 1px solid var(--tech-line-strong);
+    border-radius: 8px;
+    box-shadow: 0 18px 40px rgba(4, 10, 19, 0.4), 0 0 0 1px rgba(20, 200, 216, 0.08);
+}
+html[data-style="tech"] .settings-modal-head h3 {
+    color: var(--tech-ink);
+    letter-spacing: 0.05em;
+}
+html[data-style="tech"] .settings-modal-close {
+    color: var(--tech-muted);
+}
+html[data-style="tech"] .settings-modal-close:hover {
+    color: var(--tech-accent);
+    background: rgba(13, 143, 196, 0.10);
+}
+html[data-style="tech"] .settings-label {
+    color: var(--tech-muted);
+}
+html[data-style="tech"] .settings-theme-btn {
+    border: 1px solid var(--tech-line);
+    background: var(--tech-surface);
+    color: var(--tech-ink-soft);
+}
+html[data-style="tech"] .settings-theme-btn:hover {
+    border-color: var(--tech-accent);
+    color: var(--tech-accent-strong);
+    background: var(--tech-surface-solid);
+}
+html[data-style="tech"] .settings-style-options .style-option {
+    border: 1px solid var(--tech-line);
+    background: var(--tech-surface);
+    color: var(--tech-ink-soft);
+}
+html[data-style="tech"] .settings-style-options .style-option:hover {
+    color: var(--tech-accent);
+    border-color: var(--tech-line-strong);
+    background: var(--tech-surface-solid);
+}
+html[data-style="tech"] .settings-style-options .style-option.active {
+    color: var(--tech-accent);
+    background: rgba(13, 143, 196, 0.12);
+    border-color: var(--tech-accent);
+    box-shadow: 0 0 10px var(--tech-glow);
+}
+html[data-style="tech"] .settings-done {
+    background: var(--tech-accent);
+    color: #03202e;
+    border-radius: 8px;
+    letter-spacing: 0.12em;
+}
+html[data-style="tech"] .settings-done:hover {
+    background: var(--tech-accent-strong);
+}
