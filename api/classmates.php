@@ -159,11 +159,8 @@ if (!is_array($input)) {
 if ($method === 'GET') {
     if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $id = intval($_GET['id']);
-        $isSelf = !empty($_SESSION['classmate_id']) && (int)$_SESSION['classmate_id'] === $id;
-        $columns = $isSelf
-            ? profile_select_columns()
-            : 'id, name, username, nickname, gender, hometown, hobbies, skills, birthday, quote, avatar,
-               title, is_admin, created_at, last_active_at';
+        // 联系方式对游客可见（需求变更），本人和访客用同一组字段
+        $columns = profile_select_columns();
         $stmt = $conn->prepare('SELECT ' . $columns . ' FROM classmates WHERE id = ?');
         if (!$stmt) {
             json_response(500, ['message' => '查询失败']);

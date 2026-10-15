@@ -144,9 +144,7 @@ $sitePrefix = boya_site_prefix();
             rows.forEach(function (row) {
                 var label = row[0];
                 var value = row[1];
-                if (label === '联系方式' && !user.is_self) {
-                    return;   // 本人之外不显示联系方式
-                }
+                // 联系方式现在对游客也可见（需求变更），不再跳过
                 var text = (value === null || value === undefined || String(value).trim() === '')
                     ? '<span class="personal-empty">未填写</span>'
                     : esc(String(value));
@@ -156,9 +154,6 @@ $sitePrefix = boya_site_prefix();
                     + '</div>';
             });
             html += '</div>';
-            if (!user.is_self) {
-                html += '<p class="forum-hint" style="margin-top:12px;">联系方式只有本人登录后可见。</p>';
-            }
             return html;
         }
 

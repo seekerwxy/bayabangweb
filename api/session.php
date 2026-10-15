@@ -1,5 +1,6 @@
 <?php
-// 当前登录状态：给留言板顶部状态条、发帖/回复框提供用户名与 CSRF token。
+// 当前登录状态：给留言板顶部状态条、发帖/回复框提供用户名与 CSRF token，
+// 也给右上角导航头像提供头像与姓氏（name 的第一个字做无头像占位）。
 require_once __DIR__ . '/../_member.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -12,6 +13,7 @@ $payload = [
     'uid' => 0,
     'username' => '',
     'hasUsername' => false,
+    'name' => '',            // 真实姓名：只用于头像占位字，页面只取首字符展示
     'nickname' => '',
     'avatar' => '',
     'title' => '',
@@ -23,7 +25,7 @@ $payload = [
 if ($memberId > 0) {
     $conn = member_conn();
     if ($conn) {
-        $stmt = $conn->prepare('SELECT id, username, nickname, avatar, title, is_admin FROM classmates WHERE id = ? LIMIT 1');
+        $stmt = $conn->prepare('SELECT id, name, username, nickname, avatar, title, is_admin FROM classmates WHERE id = ? LIMIT 1');
         if ($stmt) {
             $stmt->bind_param('i', $memberId);
             $stmt->execute();
@@ -34,6 +36,7 @@ if ($memberId > 0) {
                 $payload['uid'] = (int)$row['id'];
                 $payload['username'] = $username;
                 $payload['hasUsername'] = $username !== '';
+                $payload['name'] = (string)($row['name'] ?? '');
                 $payload['nickname'] = (string)($row['nickname'] ?? '');
                 $payload['avatar'] = (string)($row['avatar'] ?? '');
                 $payload['title'] = (string)($row['title'] ?? '');

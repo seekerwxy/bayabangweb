@@ -30,18 +30,70 @@ $sitePrefix = boya_site_prefix();
     </div>
 </footer>
 
+<!-- 外观设置弹窗：右上角头像菜单 → 设置 打开 -->
+<div class="settings-modal" id="settingsModal" aria-hidden="true">
+    <div class="settings-modal-backdrop" id="settingsModalBackdrop"></div>
+    <div class="settings-modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="settings-modal-head">
+            <h3 id="settingsTitle">外观设置</h3>
+            <button class="settings-modal-close" id="settingsModalClose" type="button" aria-label="关闭设置">×</button>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">明暗</span>
+            <button class="settings-theme-btn" id="settingsThemeToggle" type="button" aria-pressed="false" title="切换深浅色">
+                <i class="fa-solid fa-moon" id="settingsThemeIcon" aria-hidden="true"></i>
+                <span id="settingsThemeText">浅色</span>
+            </button>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">主题</span>
+            <div class="settings-style-options" id="settingsStyleOptions">
+                <button type="button" class="style-option" data-style="default" role="menuitemradio" aria-checked="true">
+                    <span class="style-dot style-dot-default" aria-hidden="true"></span>原版
+                </button>
+                <button type="button" class="style-option" data-style="gothic" role="menuitemradio" aria-checked="false">
+                    <span class="style-dot style-dot-gothic" aria-hidden="true"></span>哥特
+                </button>
+                <button type="button" class="style-option" data-style="tech" role="menuitemradio" aria-checked="false">
+                    <span class="style-dot style-dot-tech" aria-hidden="true"></span>科技
+                </button>
+                <button type="button" class="style-option" data-style="classical" role="menuitemradio" aria-checked="false">
+                    <span class="style-dot style-dot-classical" aria-hidden="true"></span>古风
+                </button>
+                <button type="button" class="style-option" data-style="editorial" role="menuitemradio" aria-checked="false">
+                    <span class="style-dot style-dot-editorial" aria-hidden="true"></span>编辑社
+                </button>
+                <button type="button" class="style-option" data-style="western" role="menuitemradio" aria-checked="false">
+                    <span class="style-dot style-dot-western" aria-hidden="true"></span>西方风
+                </button>
+            </div>
+        </div>
+        <button class="settings-done" id="settingsDone" type="button">完成</button>
+    </div>
+</div>
+
 <script>
 
-    // ---------- 明暗主题切换（全站共享） ----------
+    // ---------- 明暗主题切换（放进「设置」弹窗，全站共享） ----------
     (function() {
         const htmlEl = document.documentElement;
-        const themeToggle = document.getElementById('themeToggle');
+        const themeToggle = document.getElementById('settingsThemeToggle');
+        const themeText = document.getElementById('settingsThemeText');
+        const themeIcon = document.getElementById('settingsThemeIcon');
 
         function setTheme(theme) {
             htmlEl.setAttribute('data-theme', theme);
             if (themeToggle) {
-                themeToggle.setAttribute('aria-label', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
-                themeToggle.setAttribute('title', theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+                const isDark = theme === 'dark';
+                themeToggle.setAttribute('aria-label', isDark ? '切换到浅色模式' : '切换到深色模式');
+                themeToggle.setAttribute('title', isDark ? '切换到浅色模式' : '切换到深色模式');
+                themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                if (themeIcon) {
+                    themeIcon.className = 'fa-solid ' + (isDark ? 'fa-sun' : 'fa-moon');
+                }
+                if (themeText) {
+                    themeText.textContent = isDark ? '深色' : '浅色';
+                }
             }
         }
 
@@ -55,26 +107,25 @@ $sitePrefix = boya_site_prefix();
                 } catch (err) {}
             });
         }
+
+        // 加载时按当前状态同步一次按钮文案（_head.php 已设好 data-theme）
+        setTheme(htmlEl.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
     })();
 
-    // ---------- 网站外观切换（原版 / 哥特 / 科技 / 古风 / 编辑社 / 西方风） ----------
+    // ---------- 网站外观切换（设置弹窗里选 + 移动端菜单保留） ----------
     (function() {
         const htmlEl = document.documentElement;
-        const switchRoot = document.getElementById('styleSwitch');
-        const switchBtn = document.getElementById('styleSwitchBtn');
-        const switchMenu = document.getElementById('styleSwitchMenu');
         const options = Array.prototype.slice.call(document.querySelectorAll('.style-option[data-style]'));
 
+        function currentStyle() {
+            const s = htmlEl.getAttribute('data-style');
+            return ['gothic', 'tech', 'classical', 'editorial', 'western', 'default'].indexOf(s) >= 0
+                ? s
+                : 'default';
+        }
+
         function syncOptions() {
-            const current = htmlEl.getAttribute('data-style') === 'western'
-                ? 'western'
-                : (htmlEl.getAttribute('data-style') === 'editorial'
-                    ? 'editorial'
-                    : (htmlEl.getAttribute('data-style') === 'classical'
-                        ? 'classical'
-                        : (htmlEl.getAttribute('data-style') === 'tech'
-                            ? 'tech'
-                            : (htmlEl.getAttribute('data-style') === 'gothic' ? 'gothic' : 'default'))));
+            const current = currentStyle();
             options.forEach(function(opt) {
                 const active = opt.getAttribute('data-style') === current;
                 opt.classList.toggle('active', active);
@@ -90,35 +141,15 @@ $sitePrefix = boya_site_prefix();
             syncOptions();
         }
 
-        function closeMenu() {
-            if (switchMenu) switchMenu.classList.remove('open');
-            if (switchBtn) switchBtn.setAttribute('aria-expanded', 'false');
-        }
-
-        if (switchBtn && switchMenu) {
-            switchBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const isOpen = switchMenu.classList.toggle('open');
-                switchBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            });
-            switchMenu.addEventListener('click', function(e) {
-                const opt = e.target.closest('.style-option');
-                if (!opt) return;
+        // 设置弹窗里的主题选项
+        document.querySelectorAll('#settingsStyleOptions .style-option[data-style]').forEach(function(opt) {
+            opt.addEventListener('click', function() {
                 const style = opt.getAttribute('data-style');
                 if (style) setStyle(style);
-                closeMenu();
             });
-            document.addEventListener('click', function(e) {
-                if (switchRoot && !switchRoot.contains(e.target)) closeMenu();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && switchMenu.classList.contains('open')) {
-                    closeMenu();
-                    switchBtn.focus();
-                }
-            });
-        }
+        });
 
+        // 移动端汉堡菜单里保留的外观按钮
         document.addEventListener('click', function(e) {
             const opt = e.target.closest('.nav-mobile-style .style-option');
             if (!opt) return;
@@ -127,6 +158,120 @@ $sitePrefix = boya_site_prefix();
         });
 
         syncOptions();
+    })();
+
+    // ---------- 设置弹窗开/关 ----------
+    (function() {
+        const modal = document.getElementById('settingsModal');
+        if (!modal) return;
+        const backdrop = document.getElementById('settingsModalBackdrop');
+        const closeBtn = document.getElementById('settingsModalClose');
+        const doneBtn = document.getElementById('settingsDone');
+
+        function openSettings() {
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+        function closeSettings() {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        window.openSettings = openSettings;
+        window.closeSettings = closeSettings;
+
+        if (backdrop) backdrop.addEventListener('click', closeSettings);
+        if (closeBtn) closeBtn.addEventListener('click', closeSettings);
+        if (doneBtn) doneBtn.addEventListener('click', closeSettings);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('open')) closeSettings();
+        });
+    })();
+
+    // ---------- 右上角用户头像菜单 ----------
+    (function() {
+        const SITE_ROOT = <?= json_encode($sitePrefix, JSON_UNESCAPED_SLASHES) ?>;
+        const menu = document.getElementById('userMenu');
+        const btn = document.getElementById('userMenuBtn');
+        const dropdown = document.getElementById('userMenuDropdown');
+        const avatarBox = document.getElementById('navUserAvatar');
+        const profileLink = document.getElementById('userMenuProfile');
+        const settingsItem = document.getElementById('userMenuSettings');
+        if (!menu || !btn || !dropdown || !avatarBox || !profileLink || !settingsItem) return;
+
+        function esc(text) {
+            return String(text === null || text === undefined ? '' : text)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function avatarInitial(session) {
+            const name = (session && session.name) || (session && session.username) || '';
+            return name ? name.charAt(0) : '';
+        }
+
+        function renderAvatar(session) {
+            const avatar = ((session && session.avatar) || '').trim();
+            const first = avatarInitial(session) || '客';
+            if (session && session.loggedIn && avatar) {
+                // 头像加载失败时显示姓氏占位
+                avatarBox.innerHTML =
+                    '<img class="nav-user-avatar-img" src="' + esc(avatar) + '" alt="头像" ' +
+                    'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+                    '<span class="nav-user-avatar-fallback" style="display:none;">' + esc(first) + '</span>';
+            } else if (session && session.loggedIn) {
+                avatarBox.innerHTML = '<span class="nav-user-avatar-fallback">' + esc(first) + '</span>';
+            } else {
+                avatarBox.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i>';
+            }
+        }
+
+        function renderMenu(session) {
+            const icon = profileLink.querySelector('.user-menu-icon');
+            const text = profileLink.querySelector('.user-menu-text');
+            if (session && session.loggedIn && session.uid > 0) {
+                profileLink.href = SITE_ROOT + 'user/' + session.uid;
+                if (icon) icon.className = 'fa-solid fa-id-card user-menu-icon';
+                if (text) text.textContent = '个人主页';
+            } else {
+                // 游客没有个人主页，第一项变成登录入口
+                profileLink.href = SITE_ROOT + 'admin-files/edit-profile.php';
+                if (icon) icon.className = 'fa-solid fa-right-to-bracket user-menu-icon';
+                if (text) text.textContent = '登录';
+            }
+        }
+
+        function setOpen(open) {
+            dropdown.classList.toggle('open', !!open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            setOpen(!dropdown.classList.contains('open'));
+        });
+        document.addEventListener('click', function(e) {
+            if (!menu.contains(e.target)) setOpen(false);
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') setOpen(false);
+        });
+
+        settingsItem.addEventListener('click', function() {
+            setOpen(false);
+            if (typeof window.openSettings === 'function') window.openSettings();
+        });
+
+        fetch(SITE_ROOT + 'api/session.php', { credentials: 'same-origin', cache: 'no-store' })
+            .then(function(res) { return res.json(); })
+            .then(function(session) {
+                renderAvatar(session || {});
+                renderMenu(session || {});
+            })
+            .catch(function() {
+                renderAvatar({});
+                renderMenu({});
+            });
     })();
 
 // ---------- 移动端汉堡菜单（所有页面共用） ----------

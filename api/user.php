@@ -35,9 +35,7 @@ $user['id'] = (int)$user['id'];
 $user['is_admin'] = (int)$user['is_admin'];
 $user['is_self'] = $isSelf;
 $user['username'] = (string)($user['username'] ?? '');
-if (!$isSelf) {
-    unset($user['contact_info']);   // 联系方式只有本人可见
-}
+// 联系方式对游客也可见（需求变更），不再按本人过滤 contact_info
 
 $forum = forum_conn();
 

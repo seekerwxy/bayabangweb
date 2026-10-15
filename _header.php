@@ -30,49 +30,27 @@ $sitePrefix = boya_site_prefix();
         </ul>
 
         <div class="nav-actions">
-            <div class="style-switch" id="styleSwitch">
-                <button class="style-switch-toggle" id="styleSwitchBtn" type="button" aria-label="切换网站外观" aria-haspopup="true" aria-expanded="false" title="切换网站外观">
-                    <i class="fa-solid fa-palette" aria-hidden="true"></i>
+            <!-- 右上角用户头像菜单：替换掉原来的「风格」和「明暗」两个按钮。
+                 头像/姓氏占位由 _footer.php 里的脚本按登录状态渲染；
+                 点开是「个人主页（游客为登录）」和「设置」（设置里放主题 + 明暗）。 -->
+            <div class="user-menu" id="userMenu">
+                <button class="user-menu-btn" id="userMenuBtn" type="button"
+                        aria-label="用户菜单" aria-haspopup="true" aria-expanded="false" title="用户菜单">
+                    <span class="nav-user-avatar" id="navUserAvatar" aria-hidden="true">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
                 </button>
-                <div class="style-switch-menu" id="styleSwitchMenu" role="menu" aria-label="选择外观">
-                    <button type="button" class="style-option" data-style="default" role="menuitemradio" aria-checked="true">
-                        <span class="style-dot style-dot-default" aria-hidden="true"></span>
-                        原版
-                    </button>
-                    <button type="button" class="style-option" data-style="gothic" role="menuitemradio" aria-checked="false">
-                        <span class="style-dot style-dot-gothic" aria-hidden="true"></span>
-                        哥特
-                    </button>
-                    <button type="button" class="style-option" data-style="tech" role="menuitemradio" aria-checked="false">
-                        <span class="style-dot style-dot-tech" aria-hidden="true"></span>
-                        科技
-                    </button>
-                    <button type="button" class="style-option" data-style="classical" role="menuitemradio" aria-checked="false">
-                        <span class="style-dot style-dot-classical" aria-hidden="true"></span>
-                        古风
-                    </button>
-                    <button type="button" class="style-option" data-style="editorial" role="menuitemradio" aria-checked="false">
-                        <span class="style-dot style-dot-editorial" aria-hidden="true"></span>
-                        编辑社
-                    </button>
-                    <button type="button" class="style-option" data-style="western" role="menuitemradio" aria-checked="false">
-                        <span class="style-dot style-dot-western" aria-hidden="true"></span>
-                        西方风
+                <div class="user-menu-dropdown" id="userMenuDropdown" role="menu" aria-label="用户菜单">
+                    <a class="user-menu-item" id="userMenuProfile" href="<?= $sitePrefix ?>personal.php" role="menuitem">
+                        <i class="fa-solid fa-id-card user-menu-icon" aria-hidden="true"></i>
+                        <span class="user-menu-text">个人主页</span>
+                    </a>
+                    <button class="user-menu-item" id="userMenuSettings" type="button" role="menuitem">
+                        <i class="fa-solid fa-gear user-menu-icon" aria-hidden="true"></i>
+                        <span class="user-menu-text">设置</span>
                     </button>
                 </div>
             </div>
-            <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换到深色模式" title="切换到深色模式">
-                  <i class="fa-solid fa-moon" aria-hidden="true"></i>
-                  <i class="fa-solid fa-sun" aria-hidden="true"></i>
-                  <svg class="gothic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                      <circle cx="12" cy="12" r="4.2"></circle>
-                      <path d="M12 2.8v2.2M12 19v2.2M2.8 12H5M19 12h2.2M5.5 5.5l1.6 1.6M16.9 16.9l1.6 1.6M18.5 5.5l-1.6 1.6M7.1 16.9l-1.6 1.6"></path>
-                  </svg>
-                  <svg class="tech-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                      <circle cx="12" cy="12" r="4.4"></circle>
-                      <path d="M12 2.6v2.4M12 19v2.4M2.6 12H5M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"></path>
-                  </svg>
-              </button>
             <button class="hamburger" id="hamburgerBtn" aria-label="菜单" aria-expanded="false">
                 <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
                     <line x1="4" y1="6" x2="20" y2="6"/>
