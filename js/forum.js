@@ -85,25 +85,31 @@
     };
 
     /**
-     * 站点根路径，用来拼「个人主页」链接。
+     * 站点根路径，用来拼「个人主页」「帖子详情」这类链接。
      *
-     * 个人主页同时有两个网址：/personal.php?id=2 和 /user/2（.htaccess 重写）。
-     * 后者在浏览器里位于 /user/ 这一层，之前用相对链接 "user/2" 会变成 /post/user/2（404）。
-     * 这里由服务端在 <html data-user-link-base="..."> 上给出前缀，缺失时按「当前目录」兜底。
+     * 返回值一定是「以单个 / 开头、以单个 / 结尾」的前缀（站点根就是 "/"）。
+     * 这条规则很关键：前缀一旦是 "//"，'//' + 'post.php?id=1' 就成了协议相对地址，
+     * 浏览器会把 post.php 当成主机名，跳到 https://post.php/?id=1（线上确实踩过）。
+     * 值优先取服务端写在 <html data-user-link-base="..."> 上的前缀，缺失时按当前目录兜底。
      */
     Forum.siteBase = function () {
+        var raw = '';
         var el = document.documentElement;
         if (el) {
-            var explicit = el.getAttribute('data-user-link-base');
-            if (explicit) {
-                return explicit.charAt(explicit.length - 1) === '/'
-                    ? explicit
-                    : explicit + '/';
-            }
+            raw = el.getAttribute('data-user-link-base') || '';
         }
-        var path = window.location.pathname || '/';
-        var base = path.replace(/[^/]*$/, '');
-        return base.charAt(base.length - 1) === '/' ? base : base + '/';
+        if (!raw) {
+            var path = window.location.pathname || '/';
+            raw = path.replace(/[^/]*$/, '');   // 去掉最后一段（文件名，或 /user/123 里的 123）
+        }
+        raw = String(raw).replace(/\\/g, '/');
+        if (raw === '') {
+            return '/';
+        }
+        if (raw.charAt(0) !== '/') {
+            raw = '/' + raw;                    // 相对前缀统一成站点根绝对
+        }
+        return raw.replace(/\/+$/, '') + '/';   // 结尾只留一个斜杠：'//' → '/'，'/' → '/'
     };
 
     /** 当前登录状态：{loggedIn, username, hasUsername, avatar, csrf_token} */

@@ -1,13 +1,14 @@
 <?php
+require_once __DIR__ . '/_site.php';   // boya_site_prefix()：本文件在 include _head.php 之前就要用
 $currentPage = 'classmates';
 // 个人主页有两个网址：/personal.php?id=2 和 /user/2（.htaccess 重写）。
-// 后者在浏览器里位于 /user/ 这一层，所以所有链接、脚本、接口都必须用站点根绝对路径，
-// 否则会变成 /user/css/beauty.css、/user/api/user.php 这种 404。
-$siteBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
-$sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
+// 前缀统一由 boya_site_prefix() 计算：它保证以单个 / 开头、单个 / 结尾
+// （直接用 htmlspecialchars(dirname(...)) 在线上会得到空串，前缀变成 "//"，
+//  而 '//' + 'post.php?id=1' 是协议相对地址，浏览器会跳到 https://post.php/?id=1）。
+$sitePrefix = boya_site_prefix();
 ?>
 <!DOCTYPE html>
-<html lang="zh-CN" data-user-link-base="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>">
+<html lang="zh-CN" data-user-link-base="<?= $sitePrefix ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@ $sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
     <meta name="description" content="博雅班同学的个人主页：资料、发帖与回复动态。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php include __DIR__ . '/_head.php'; ?>
-    <link rel="stylesheet" href="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>css/forum.css?v=<?= filemtime(__DIR__ . '/css/forum.css') ?>">
+    <link rel="stylesheet" href="<?= $sitePrefix ?>css/forum.css?v=<?= filemtime(__DIR__ . '/css/forum.css') ?>">
 </head>
 <body>
 
@@ -28,15 +29,15 @@ $sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
         <div class="forum-pager" id="feedPager"></div>
 
         <div class="uspace-tip">
-            <a href="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>classmates.php">← 返回同学录</a>
+            <a href="<?= $sitePrefix ?>classmates.php">← 返回同学录</a>
             <span>·</span>
-            <a href="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>messages.php">去留言板 →</a>
+            <a href="<?= $sitePrefix ?>messages.php">去留言板 →</a>
         </div>
     </main>
 
     <?php include '_footer.php'; ?>
 
-    <script src="<?= htmlspecialchars($sitePrefix, ENT_QUOTES, 'UTF-8') ?>js/forum.js?v=<?= filemtime(__DIR__ . '/js/forum.js') ?>"></script>
+    <script src="<?= $sitePrefix ?>js/forum.js?v=<?= filemtime(__DIR__ . '/js/forum.js') ?>"></script>
     <script>
     (function () {
         "use strict";

@@ -1,7 +1,8 @@
 <?php
+require_once __DIR__ . '/_site.php';   // boya_site_prefix()
+
 // 同 _header.php：页脚里的站内链接要用站点根绝对路径，/user/2 这类重写网址下才不会 404。
-$siteBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
-$sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
+$sitePrefix = boya_site_prefix();
 ?>
 <footer class="footer">
     <div class="footer-container">

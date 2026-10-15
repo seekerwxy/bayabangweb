@@ -1,6 +1,9 @@
-<?php $currentPage = 'messages'; ?>
+<?php
+require_once __DIR__ . '/_site.php';   // boya_site_prefix()：<html> 那一行就要用
+$currentPage = 'messages';
+?>
 <!DOCTYPE html>
-<html lang="zh-CN" data-user-link-base="<?= htmlspecialchars(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), ENT_QUOTES, 'UTF-8') ?>/">
+<html lang="zh-CN" data-user-link-base="<?= boya_site_prefix() ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/_site.php';   // boya_site_prefix()：先加载，后面拼链接要用
+
 $currentPage = $currentPage ?? '';
 
 // 导航里的链接必须是「站点根绝对路径」：个人主页有 /user/2 这种重写网址，
-// 用相对路径会变成 /user/messages.php（404）。这里按当前脚本所在目录算出前缀。
-$siteBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
-$sitePrefix = ($siteBase === '' ? '' : $siteBase) . '/';
+// 用相对路径会变成 /user/messages.php（404）。前缀统一由 boya_site_prefix() 计算，
+// 它保证结果是以单个 / 开头、单个 / 结尾（绝不会出现 "//"）。
+$sitePrefix = boya_site_prefix();
 ?>
 <div class="tech-statusbar" aria-hidden="true">
     <span class="sys-name">BOYA.CLASS / MEMORY SYSTEM</span>
