@@ -11,9 +11,9 @@ $currentPage = 'messages';
     <meta name="description" content="博雅班留言板：登录后可以发帖和回复，游客也能浏览。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php include __DIR__ . '/_head.php'; ?>
-    <link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/forum.css', __DIR__ . '/css/forum.css') ?>?v=<?= filemtime(__DIR__ . '/css/forum.css') ?>">
-    <script src="<?= boya_asset_url($rootDir, 'js/vendor/marked.min.js', __DIR__ . '/js/vendor/marked.min.js') ?>?v=<?= filemtime(__DIR__ . '/js/vendor/marked.min.js') ?>"></script>
-    <script src="<?= boya_asset_url($rootDir, 'js/vendor/purify.min.js', __DIR__ . '/js/vendor/purify.min.js') ?>?v=<?= filemtime(__DIR__ . '/js/vendor/purify.min.js') ?>"></script>
+    <link rel="stylesheet" href="<?= boya_asset_url($rootDir, 'css/forum.css', __DIR__ . '/css/forum.css') ?>?v=<?= boya_asset_version(__DIR__ . '/css/forum.css') ?>">
+    <script src="<?= boya_asset_url($rootDir, 'js/vendor/marked.min.js', __DIR__ . '/js/vendor/marked.min.js') ?>?v=<?= boya_asset_version(__DIR__ . '/js/vendor/marked.min.js') ?>"></script>
+    <script src="<?= boya_asset_url($rootDir, 'js/vendor/purify.min.js', __DIR__ . '/js/vendor/purify.min.js') ?>?v=<?= boya_asset_version(__DIR__ . '/js/vendor/purify.min.js') ?>"></script>
 </head>
 <body>
 
@@ -93,7 +93,7 @@ $currentPage = 'messages';
 
     <?php include '_footer.php'; ?>
 
-    <script src="<?= boya_asset_url($rootDir, 'js/forum.js', __DIR__ . '/js/forum.js') ?>?v=<?= filemtime(__DIR__ . '/js/forum.js') ?>"></script>
+    <script src="<?= boya_asset_url($rootDir, 'js/forum.js', __DIR__ . '/js/forum.js') ?>?v=<?= boya_asset_version(__DIR__ . '/js/forum.js') ?>"></script>
     <script>
     (function () {
         "use strict";

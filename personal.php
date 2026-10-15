@@ -16,7 +16,7 @@ $sitePrefix = boya_site_prefix();
     <meta name="description" content="博雅班同学的个人主页：资料、发帖与回复动态。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php include __DIR__ . '/_head.php'; ?>
-    <link rel="stylesheet" href="<?= $sitePrefix ?>css/forum.css?v=<?= filemtime(__DIR__ . '/css/forum.css') ?>">
+    <link rel="stylesheet" href="<?= $sitePrefix ?>css/forum.css?v=<?= boya_asset_version(__DIR__ . '/css/forum.css') ?>">
 </head>
 <body>
 
@@ -37,7 +37,7 @@ $sitePrefix = boya_site_prefix();
 
     <?php include '_footer.php'; ?>
 
-    <script src="<?= $sitePrefix ?>js/forum.js?v=<?= filemtime(__DIR__ . '/js/forum.js') ?>"></script>
+    <script src="<?= $sitePrefix ?>js/forum.js?v=<?= boya_asset_version(__DIR__ . '/js/forum.js') ?>"></script>
     <script>
     (function () {
         "use strict";

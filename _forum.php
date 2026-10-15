@@ -190,7 +190,7 @@ function forum_pager($pageSize = 20)
 }
 
 /**
- * 浏览量去重用的访客标识。
+ * 浏览量去重用的访客标识（未登录时按 IP 归并）。
  *
  * 为什么不用 $_SESSION：线上实测这台主机的 PHP session 数据不稳定
  * （带着固定 PHPSESSID 再请求时服务端不再下发 Set-Cookie，说明 session 是认的，
@@ -212,15 +212,20 @@ function forum_viewer_key()
     return substr(hash('sha256', 'boya-view|' . $ip), 0, 32);
 }
 
-/** 同一访客对同一篇帖子只算一次浏览（默认 6 小时窗口），返回这次是否计入。 */
-function forum_view_hit($postId, $windowSeconds = 21600)
+/**
+ * 浏览量去重：登录用户按账号算（每人每帖 30 天内一次），游客按 IP 算（6 小时窗口）。
+ * 返回这次是否计入。
+ */
+function forum_view_hit($postId, $viewerId = 0)
 {
     $postId = (int)$postId;
+    $viewerId = (int)$viewerId;
     if ($postId <= 0) {
         return false;
     }
-    // 窗口至少 1 分钟，避免把窗口配成 0 时变成「每次请求都算一次」
-    $windowSeconds = max(60, (int)$windowSeconds);
+    // 登录用户窗口 30 天（同一账号对同一篇帖子一个月内只算一次浏览）；
+    // 游客沿用 6 小时 IP 窗口。
+    $windowSeconds = $viewerId > 0 ? 30 * 86400 : 6 * 3600;
     $dir = __DIR__ . '/data';
     if (!is_dir($dir)) {
         @mkdir($dir, 0755, true);
@@ -239,14 +244,15 @@ function forum_view_hit($postId, $windowSeconds = 21600)
     }
 
     $now = time();
-    // 顺手清掉过期记录，文件不会无限增长
+    // 顺手清掉过期记录：登录用户按 30 天、游客按 6 小时，文件不会无限增长
     foreach ($data as $key => $seenAt) {
-        if (($now - (int)$seenAt) > $windowSeconds) {
+        $window = strpos($key, '|ip:') !== false ? 6 * 3600 : 30 * 86400;
+        if (($now - (int)$seenAt) > $window) {
             unset($data[$key]);
         }
     }
 
-    $entryKey = $postId . '|' . forum_viewer_key();
+    $entryKey = $postId . '|' . ($viewerId > 0 ? 'member:' . $viewerId : 'ip:' . forum_viewer_key());
     $counted = !isset($data[$entryKey]);
     if ($counted) {
         $data[$entryKey] = $now;

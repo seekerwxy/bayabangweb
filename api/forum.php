@@ -105,14 +105,14 @@ if ($action === 'post') {
         forum_json(['message' => '这个帖子已经被删除'], 404);
     }
 
-    // 浏览量 +1：同一个访客（按访问 IP 归并，与 cookie / session 无关）对同一篇帖子
-    // 默认 6 小时内只算一次。以前是「每次请求详情都 +1」，而翻页、发回复、删除、管理
-    // 都会重新拉详情，自己刷新几下就能把数字刷上去；作者本人始终不计数。
+    // 浏览量 +1：登录用户按账号去重（同一账号对同一篇帖子 30 天内只算一次），
+    // 游客按 IP 6 小时窗口去重。以前是「每次请求详情都 +1」，而翻页、发回复、
+    // 删除、管理都会重新拉详情，自己刷新几下就能把数字刷上去；作者本人始终不计数。
     $viewerId = member_id();
     $isAuthor = $viewerId > 0 && $viewerId === (int)$post['author_id'];
     $viewCounted = false;
     if (!$isAuthor) {
-        $viewCounted = forum_view_hit((int)$post['id']);
+        $viewCounted = forum_view_hit((int)$post['id'], $viewerId);
         if ($viewCounted) {
             $conn->query('UPDATE forum_posts SET view_count = view_count + 1 WHERE id = ' . (int)$post['id']);
             $post['view_count'] = (int)$post['view_count'] + 1;

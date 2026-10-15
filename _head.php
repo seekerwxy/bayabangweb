@@ -24,6 +24,15 @@ if (!function_exists('boya_asset_path')) {
 if (!function_exists('boya_asset_version')) {
     function boya_asset_version($path)
     {
+        // 用内容哈希而不是 filemtime：FTP 上传可能保留旧 mtime，改了内容但 mtime 没变时
+        // 浏览器会一直用缓存的旧 CSS（之前就因此出现过「样式没跟上主题」的现象）。
+        // 内容一变哈希就变，链接里的 ?v= 必然变化，缓存永不失效。
+        if (is_file($path) && function_exists('md5_file')) {
+            $hash = @md5_file($path);
+            if ($hash !== false && $hash !== '') {
+                return substr($hash, 0, 10);
+            }
+        }
         $time = @filemtime($path);
         return $time === false ? '0' : (string)$time;
     }
