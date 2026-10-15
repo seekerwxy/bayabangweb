@@ -1065,3 +1065,28 @@ html[data-style="editorial"] .settings-done {
 html[data-style="editorial"] .settings-done:hover {
     background: var(--editorial-accent-deep);
 }
+
+/* ========== 新增：把 beauty.css 的通用变量映射到编辑社配色 ========== */
+html[data-style="editorial"] {
+    --bg: var(--editorial-paper);
+    --surface: var(--editorial-paper-soft);
+    --surface-muted: var(--editorial-paper-deep);
+    --surface-hover: var(--editorial-paper-deep);
+    --text: var(--editorial-ink);
+    --text-secondary: var(--editorial-ink-soft);
+    --text-muted: var(--editorial-muted);
+    --border: var(--editorial-rule);
+    --border-light: var(--editorial-rule);
+    --input-bg: var(--editorial-paper-soft);
+    --placeholder-color: var(--editorial-muted);
+    --decorative: var(--editorial-rule);
+    --btn-bg: var(--editorial-accent);
+    --btn-hover: var(--editorial-accent-deep);
+    --btn-disabled: var(--editorial-muted);
+    --accent-border: var(--editorial-accent);
+    --color-swatch-ring: var(--editorial-ink);
+    --caption-overlay: var(--editorial-wash);
+    --nav-bg: var(--editorial-paper-soft);
+    --nav-text: var(--editorial-ink);
+    --nav-hover: var(--editorial-accent);
+}

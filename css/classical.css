@@ -1168,3 +1168,32 @@ html[data-style="classical"] .settings-done {
 html[data-style="classical"] .settings-done:hover {
     background: var(--classical-red-deep);
 }
+
+/* ========== 新增：把 beauty.css 的通用变量映射到古典配色 ==========
+   留言板 / 个人主页 / 设置弹窗等组件都只用这些通用变量（例如 .uspace 的
+   background: var(--surface)），主题不映射它们的话，这些组件在古典主题下
+   就会一直是原版的灰白色，和宣纸底色对不上。映射后深浅色自动跟随
+   （主题变量本身在 data-theme="dark" 下会翻转）。 */
+html[data-style="classical"] {
+    --bg: var(--classical-paper);
+    --surface: var(--classical-paper-soft);
+    --surface-muted: var(--classical-paper-deep);
+    --surface-hover: var(--classical-paper-deep);
+    --text: var(--classical-ink);
+    --text-secondary: var(--classical-ink-soft);
+    --text-muted: var(--classical-muted);
+    --border: var(--classical-line);
+    --border-light: var(--classical-line);
+    --input-bg: var(--classical-paper-soft);
+    --placeholder-color: var(--classical-muted);
+    --decorative: var(--classical-line);
+    --btn-bg: var(--classical-red);
+    --btn-hover: var(--classical-red-deep);
+    --btn-disabled: var(--classical-muted);
+    --accent-border: var(--classical-red);
+    --color-swatch-ring: var(--classical-ink);
+    --caption-overlay: var(--classical-wash);
+    --nav-bg: var(--classical-paper-soft);
+    --nav-text: var(--classical-ink);
+    --nav-hover: var(--classical-red);
+}

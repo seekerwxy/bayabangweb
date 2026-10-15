@@ -1006,3 +1006,28 @@ html[data-style="gothic"] .settings-done {
 html[data-style="gothic"] .settings-done:hover {
     background: var(--gothic-blood-deep);
 }
+
+/* ========== 新增：把 beauty.css 的通用变量映射到哥特配色 ========== */
+html[data-style="gothic"] {
+    --bg: var(--parchment);
+    --surface: var(--parchment-soft);
+    --surface-muted: var(--parchment-deep);
+    --surface-hover: var(--parchment-deep);
+    --text: var(--gothic-ink);
+    --text-secondary: var(--gothic-ink-soft);
+    --text-muted: var(--gothic-muted);
+    --border: var(--gothic-line);
+    --border-light: var(--gothic-line);
+    --input-bg: var(--parchment-soft);
+    --placeholder-color: var(--gothic-muted);
+    --decorative: var(--gothic-line);
+    --btn-bg: var(--gothic-blood);
+    --btn-hover: var(--gothic-blood-deep);
+    --btn-disabled: var(--gothic-muted);
+    --accent-border: var(--gothic-blood);
+    --color-swatch-ring: var(--gothic-ink);
+    --caption-overlay: var(--gothic-wash);
+    --nav-bg: var(--parchment-soft);
+    --nav-text: var(--gothic-ink);
+    --nav-hover: var(--gothic-blood);
+}

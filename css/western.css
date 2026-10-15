@@ -1111,3 +1111,28 @@ html[data-style="western"] .settings-done {
 html[data-style="western"] .settings-done:hover {
     background: var(--western-burgundy);
 }
+
+/* ========== 新增：把 beauty.css 的通用变量映射到西方风配色 ========== */
+html[data-style="western"] {
+    --bg: var(--western-ivory);
+    --surface: var(--western-ivory-soft);
+    --surface-muted: var(--western-ivory-deep);
+    --surface-hover: var(--western-ivory-deep);
+    --text: var(--western-ink);
+    --text-secondary: var(--western-ink-soft);
+    --text-muted: var(--western-muted);
+    --border: var(--western-line);
+    --border-light: var(--western-line);
+    --input-bg: var(--western-ivory-soft);
+    --placeholder-color: var(--western-muted);
+    --decorative: var(--western-line);
+    --btn-bg: var(--western-navy);
+    --btn-hover: var(--western-burgundy);
+    --btn-disabled: var(--western-muted);
+    --accent-border: var(--western-gold);
+    --color-swatch-ring: var(--western-ink);
+    --caption-overlay: var(--western-wash);
+    --nav-bg: var(--western-ivory-soft);
+    --nav-text: var(--western-ink);
+    --nav-hover: var(--western-gold);
+}

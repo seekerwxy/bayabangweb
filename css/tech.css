@@ -1271,3 +1271,28 @@ html[data-style="tech"] .settings-done {
 html[data-style="tech"] .settings-done:hover {
     background: var(--tech-accent-strong);
 }
+
+/* ========== 新增：把 beauty.css 的通用变量映射到科技配色 ========== */
+html[data-style="tech"] {
+    --bg: var(--tech-bg);
+    --surface: var(--tech-surface-solid);
+    --surface-muted: var(--tech-bg-deep);
+    --surface-hover: var(--tech-surface);
+    --text: var(--tech-ink);
+    --text-secondary: var(--tech-ink-soft);
+    --text-muted: var(--tech-muted);
+    --border: var(--tech-line);
+    --border-light: var(--tech-line);
+    --input-bg: var(--tech-surface-solid);
+    --placeholder-color: var(--tech-muted);
+    --decorative: var(--tech-line);
+    --btn-bg: var(--tech-accent);
+    --btn-hover: var(--tech-accent-strong);
+    --btn-disabled: var(--tech-muted);
+    --accent-border: var(--tech-accent);
+    --color-swatch-ring: var(--tech-ink);
+    --caption-overlay: rgba(4, 10, 19, 0.86);
+    --nav-bg: var(--tech-nav-soft);
+    --nav-text: var(--tech-ink);
+    --nav-hover: var(--tech-cyan);
+}
