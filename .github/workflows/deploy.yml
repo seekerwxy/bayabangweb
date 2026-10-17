@@ -34,6 +34,15 @@ jobs:
               f.write(content)
           PY
 
+      # 先做语法检查再部署：任何一个 PHP 文件有语法错误就直接失败，
+      # 免得把整站 500 的版本推上线（`.htaccess` 出问题还能 FTP 改回去，
+      # PHP 语法错误会让所有页面白屏）。
+      - name: Lint PHP files
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq php-cli >/dev/null
+          find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l
+
       - name: Deploy to InfinityFree via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -64,6 +73,7 @@ jobs:
             **/.git*/**
             **/node_modules/**
             **/.github/**
+            **/.dsh-tmp/**
             uploads/classmates/*.jpg
             uploads/classmates/*.jpeg
             uploads/classmates/*.JPG

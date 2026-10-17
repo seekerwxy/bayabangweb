@@ -1,29 +1,20 @@
 <?php
 // 关键操作审计：JSON Lines 追加写入 data/admin-audit.log（data/ 由 .htaccess 拒绝外部访问）。
 // 记录谁、什么时候、从哪个 IP、做了什么、对哪条数据做的。
+//
+// 由根目录 _audit.php 搬进 inc/，data 目录与 IP 提取改用统一实现。
+
+require_once __DIR__ . '/bootstrap.php';
 
 function boya_audit_file()
 {
-    $dir = __DIR__ . '/data';
-    if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
-    }
-    return $dir . '/admin-audit.log';
+    return boya_data_file('admin-audit.log');
 }
 
+/** 记录用的 IP（取值口径见 inc/http.php 的 boya_client_ip）。 */
 function boya_audit_client_ip()
 {
-    // 站点在 Cloudflare 后面，优先取真实访客 IP。
-    // 这个头可以被伪造，所以只用于记录，不作为任何安全判断依据。
-    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'] as $key) {
-        if (!empty($_SERVER[$key])) {
-            $value = trim(explode(',', (string)$_SERVER[$key])[0]);
-            if ($value !== '') {
-                return substr($value, 0, 45);
-            }
-        }
-    }
-    return 'unknown';
+    return boya_client_ip();
 }
 
 function boya_audit_actor()

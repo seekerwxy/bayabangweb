@@ -1,53 +1,45 @@
 <?php
-// api/upload.php
-require_once __DIR__ . '/../_member.php';   // 会话 / CSRF
-require_once __DIR__ . '/../_audit.php';
+// 头像上传接口：前端把裁剪后的图片转成 dataURL 提交，这里落盘成一个随机文件名，
+// 返回「站点根绝对路径」，由前端再带进 update 接口写库。
+//
+// 返回字段保持 success / path 不变（admin-files/edit-profile.php 直接读这两个键）。
 
-header('Content-Type: application/json; charset=utf-8');
-date_default_timezone_set('Asia/Shanghai');
-
-function upload_response($status, $payload) {
-    http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-    exit;
-}
+require_once __DIR__ . '/../inc/bootstrap.php';
+require_once __DIR__ . '/../inc/member.php';    // 会话 / CSRF
+require_once __DIR__ . '/../inc/avatars.php';   // 头像目录、文件名、配额
+require_once __DIR__ . '/../inc/audit.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    upload_response(405, ['message' => '仅支持POST']);
-}
+boya_require_method('POST');
 
-$input = json_decode(file_get_contents('php://input'), true);
-if (!is_array($input)) {
-    $input = [];
-}
+$input = boya_json_input();
 
 if (member_id() <= 0) {
-    upload_response(401, ['message' => '请先登录后再上传']);
+    boya_json_error('请先登录后再上传', 401);
 }
 
 if (!member_verify_csrf($input['csrf_token'] ?? '')) {
-    upload_response(403, ['message' => 'CSRF验证失败']);
+    boya_json_error('CSRF验证失败', 403);
 }
 
 $imageData = $input['image'] ?? '';
 if (!is_string($imageData) || $imageData === '') {
-    upload_response(400, ['message' => '缺少图片数据']);
+    boya_json_error('缺少图片数据', 400);
 }
 
 $allowedMimeMap = [
     'image/jpeg' => 'jpg',
     'image/jpg' => 'jpg',
     'image/png' => 'png',
-    'image/webp' => 'webp'
+    'image/webp' => 'webp',
 ];
 
 if (!preg_match('/^data:(image\/[a-zA-Z0-9.+-]+);base64,/', $imageData, $matches)) {
-    upload_response(400, ['message' => '无效的图片数据格式']);
+    boya_json_error('无效的图片数据格式', 400);
 }
 
 $declaredMime = strtolower($matches[1]);
@@ -55,60 +47,56 @@ if ($declaredMime === 'image/jpg') {
     $declaredMime = 'image/jpeg';
 }
 if (!isset($allowedMimeMap[$declaredMime])) {
-    upload_response(400, ['message' => '仅支持 JPEG、PNG、WebP 图片']);
+    boya_json_error('仅支持 JPEG、PNG、WebP 图片', 400);
 }
 
 $imageData = substr($imageData, strpos($imageData, ',') + 1);
 $imageData = base64_decode($imageData, true);
 if ($imageData === false || $imageData === '') {
-    upload_response(400, ['message' => 'base64解码失败']);
+    boya_json_error('base64解码失败', 400);
 }
 
 if (strlen($imageData) > 500 * 1024) {
-    upload_response(400, ['message' => '图片太大，最大500KB']);
+    boya_json_error('图片太大，最大500KB', 400);
 }
 
 $imageInfo = @getimagesizefromstring($imageData);
 $allowedImageTypes = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP];
 if ($imageInfo === false || !in_array($imageInfo[2] ?? 0, $allowedImageTypes, true)) {
-    upload_response(400, ['message' => '文件不是有效图片']);
+    boya_json_error('文件不是有效图片', 400);
 }
 
 if (class_exists('finfo')) {
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $detectedMime = $finfo->buffer($imageData);
     if (!isset($allowedMimeMap[$detectedMime]) || $detectedMime !== $declaredMime) {
-        upload_response(400, ['message' => '图片内容与声明格式不一致']);
+        boya_json_error('图片内容与声明格式不一致', 400);
     }
 }
 
-// 用户上传的图片放在站点根的 uploads/ 下，api/ 只留接口脚本
-$relativeDir = 'uploads/classmates/';
-$absoluteDir = dirname(__DIR__) . '/' . $relativeDir;
-
-if (!is_dir($absoluteDir) && !@mkdir($absoluteDir, 0755, true)) {
+// 用户上传的图片放在站点根的 uploads/classmates/ 下，api/ 只留接口脚本
+$absoluteDir = boya_avatar_abs_dir();
+if (!is_dir($absoluteDir)) {
     error_log('upload directory create failed: ' . $absoluteDir);
-    upload_response(500, ['message' => '无法创建上传目录']);
+    boya_json_error('无法创建上传目录', 500);
 }
 
 // 空间保护：目录文件数上限。免费主机只有 30000 inode / 5GB，
 // 没有上限的话任何一个有账号的人都能把整站配额塞满。
-$maxUploadFiles = 3000;
-$existingFiles = @glob($absoluteDir . '*');
-if (is_array($existingFiles) && count($existingFiles) >= $maxUploadFiles) {
-    error_log('upload rejected: directory full (' . count($existingFiles) . ' files)');
-    upload_response(507, ['message' => '头像空间已满，请联系管理员清理']);
+$existing = boya_avatar_count($absoluteDir);
+if ($existing >= boya_avatar_max_files()) {
+    error_log('upload rejected: directory full (' . $existing . ' files)');
+    boya_json_error('头像空间已满，请联系管理员清理', 507);
 }
 
-$extension = $allowedMimeMap[$declaredMime];
-$filename = bin2hex(random_bytes(16)) . '.' . $extension;
+$filename = boya_avatar_new_name($allowedMimeMap[$declaredMime]);
 $absolutePath = $absoluteDir . $filename;
-$webPath = '/' . $relativeDir . $filename;
+$webPath = boya_avatar_dir() . $filename;
 
 if (file_put_contents($absolutePath, $imageData)) {
     boya_audit('avatar-upload', 'path=' . $webPath . ' bytes=' . strlen($imageData));
-    upload_response(200, ['success' => true, 'path' => $webPath]);
+    boya_json(['success' => true, 'path' => $webPath]);
 }
 
 error_log('upload file save failed: ' . $absolutePath);
-upload_response(500, ['message' => '文件保存失败']);
+boya_json_error('文件保存失败', 500);

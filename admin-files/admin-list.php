@@ -1,71 +1,26 @@
 <?php
-require_once __DIR__ . '/_auth.php';
+// 管理面板首页：各功能入口。仅管理员可见。
+require_once __DIR__ . '/_layout.php';
+
+$entries = [
+    ['title' => '时光轴管理', 'desc' => '添加、编辑、删除班级时光事件。', 'href' => 'admin-memories.php'],
+    ['title' => '留言管理', 'desc' => '编辑或删除留言板内容。', 'href' => 'admin-messages.php'],
+    ['title' => '安全设置', 'desc' => '生成管理员口令 hash、批量升级学生明文口令、查看操作日志。', 'href' => 'admin-security.php'],
+    ['title' => '旧留言导入', 'desc' => '把旧留言板的内容一次性导入成论坛帖子（可重复点，已导入的不会重复）。', 'href' => 'admin-migrate.php'],
+    ['title' => '论坛管理', 'desc' => '帖子列表、置顶 / 锁定 / 删除 / 恢复。', 'href' => 'admin-forum.php'],
+    ['title' => '账号管理', 'desc' => '同学名单、设称号、设论坛管理员、重置口令、分配用户名、新增同学。', 'href' => 'admin-users.php'],
+];
+
+admin_page_head('管理面板', ['plain' => true, 'back' => false, 'width' => 720]);
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理页面列表 | 温二外25级博雅班</title>
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 32px 20px; }
-        .container { max-width: 720px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        h1 { font-size: 1.35rem; font-weight: 600; }
-        .logout { color: #666; font-size: .85rem; }
-        .card { background: #fff; border: 1px solid #e4e7eb; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-        .card strong { display: block; margin-bottom: 4px; }
-        .card span { color: #666; font-size: .85rem; }
-        .btn { background: #111; color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; text-decoration: none; font-size: .85rem; }
-    </style>
-    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
-</head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1>管理面板</h1>
-        <form method="post" action="?logout=1" style="display:inline;">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
-            <input type="hidden" name="logout" value="1">
-            <button class="logout" type="submit" style="border:0;background:none;cursor:pointer;padding:0;">退出登录</button>
-        </form>
+<?php foreach ($entries as $entry): ?>
+<div class="entry-card">
+    <div>
+        <strong><?= htmlspecialchars($entry['title']) ?></strong>
+        <span><?= htmlspecialchars($entry['desc']) ?></span>
     </div>
-    <div class="card">
-        <div><strong>时光轴管理</strong><span>添加、编辑、删除班级时光事件。</span></div>
-        <a class="btn" href="admin-memories.php">进入</a>
-    </div>
-    <div class="card">
-        <div><strong>留言管理</strong><span>编辑或删除留言板内容。</span></div>
-        <a class="btn" href="admin-messages.php">进入</a>
-    </div>
-    <div class="card">
-        <div><strong>安全设置</strong><span>生成管理员口令 hash、批量升级学生明文口令、查看操作日志。</span></div>
-        <a class="btn" href="admin-security.php">进入</a>
-    </div>
-    <div class="card">
-        <div><strong>旧留言导入</strong><span>把旧留言板的内容一次性导入成论坛帖子（可重复点，已导入的不会重复）。</span></div>
-        <a class="btn" href="admin-migrate.php">进入</a>
-    </div>
-    <div class="card">
-        <div><strong>论坛管理</strong><span>帖子列表、置顶 / 锁定 / 删除 / 恢复。</span></div>
-        <a class="btn" href="admin-forum.php">进入</a>
-    </div>
-    <div class="card">
-        <div><strong>账号管理</strong><span>同学名单、设称号、设论坛管理员、重置口令、分配用户名、新增同学。</span></div>
-        <a class="btn" href="admin-users.php">进入</a>
-    </div>
+    <a class="btn" href="<?= htmlspecialchars($entry['href']) ?>">进入</a>
 </div>
-</body>
-</html>
+<?php endforeach; ?>
+<?php
+admin_page_foot();

@@ -9,13 +9,11 @@
 // 说明：读-改-写没有加锁，极端并发下可能多放行一两次；对班级网站足够，
 // 真正的硬限制由每日配额兜底。
 
+require_once __DIR__ . '/bootstrap.php';
+
 function boya_rate_file()
 {
-    $dir = __DIR__ . '/data';
-    if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
-    }
-    return $dir . '/rate-limit.json';
+    return boya_data_file('rate-limit.json');
 }
 
 function boya_rate_load()

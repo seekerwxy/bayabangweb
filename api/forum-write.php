@@ -1,10 +1,11 @@
 <?php
 // 留言板写入接口：发帖、回复、删除自己 10 分钟内的内容。
 // 必须登录 + CSRF + 已设置论坛用户名；频率与每日配额写在 data/（与 Cookie/IP 无关）。
-require_once __DIR__ . '/../_member.php';
-require_once __DIR__ . '/../_rate_limit.php';
-require_once __DIR__ . '/../_audit.php';
-require_once __DIR__ . '/../_forum.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
+require_once __DIR__ . '/../inc/member.php';
+require_once __DIR__ . '/../inc/rate_limit.php';
+require_once __DIR__ . '/../inc/audit.php';
+require_once __DIR__ . '/../inc/forum.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     forum_json(['message' => '仅支持 POST'], 405);

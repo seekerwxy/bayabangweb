@@ -1,29 +1,17 @@
 <?php
 // 安全设置页（仅管理员）：生成管理员口令 hash、批量升级学生明文口令、查看操作审计。
-require_once __DIR__ . '/_auth.php';
-require_once __DIR__ . '/../_audit.php';
-
-function boya_admin_password_is_hash($value)
-{
-    return is_string($value) && preg_match('/^\$(2[aby]|argon2)/', $value) === 1;
-}
+require_once __DIR__ . '/_layout.php';
+require_once __DIR__ . '/../inc/audit.php';
 
 $error = '';
 $hashResult = '';
 $upgradeResult = null;
 
-$conn = new mysqli(
-    $config['classmates_db']['host'],
-    $config['classmates_db']['username'],
-    $config['classmates_db']['password'],
-    $config['classmates_db']['database']
-);
+$conn = boya_db('classmates');
 $dbError = null;
-if ($conn->connect_error) {
-    error_log('security page DB connect failed: ' . $conn->connect_error);
+if (!$conn) {
+    error_log('security page DB connect failed');
     $dbError = '数据库连接失败，暂时无法统计学生口令状态';
-} else {
-    $conn->set_charset('utf8mb4');
 }
 
 $adminPassword = $config['admin_db']['password'] ?? '';
@@ -122,63 +110,9 @@ if (!$dbError) {
 }
 
 $logs = boya_audit_tail(100);
+
+admin_page_head('🔐 安全设置', ['width' => 1000, 'title' => '安全设置']);
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安全设置 | 温二外25级博雅班</title>
-    <meta name="robots" content="noindex, nofollow">
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #fafafa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; padding: 24px 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; margin-bottom: 20px; border-radius: 12px; color: #856404; }
-        .alert-error { background: #f8d7da; border-left-color: #dc3545; color: #721c24; }
-        .alert-ok { background: #d4edda; border-left-color: #28a745; color: #155724; }
-        .admin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #eaeaea; }
-        h1 { font-size: 1.6rem; font-weight: 500; }
-        h2 { font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; }
-        .card { background: #fff; border-radius: 16px; padding: 20px 22px; border: 1px solid #ececec; margin-bottom: 18px; }
-        .card p { font-size: 0.85rem; color: #555; line-height: 1.7; margin-bottom: 10px; }
-        .btn { border: none; background: #111; color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
-        .btn-warn { background: #e67e22; }
-        input[type=password], input[type=text] { width: 100%; max-width: 360px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; }
-        code { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
-        th { color: #666; font-weight: 500; }
-        .muted { color: #888; font-size: 0.8rem; }
-    </style>
-    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
-</head>
-<body>
-<div class="container">
-    <div class="admin-header">
-        <div style="display: flex; gap: 12px; align-items: baseline;">
-            <h1>🔐 安全设置</h1>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <a href="admin-list.php" style="font-size:0.8rem; color:#555;">返回面板</a>
-            <form method="post" action="?logout=1" style="display:inline;">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
-                <input type="hidden" name="logout" value="1">
-                <button type="submit" style="border:0;background:none;cursor:pointer;padding:0;font-size:0.8rem;color:#555;">退出登录</button>
-            </form>
-        </div>
-    </div>
 
     <?php if ($error): ?>
         <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
@@ -255,6 +189,5 @@ $logs = boya_audit_tail(100);
             </table>
         <?php endif; ?>
     </div>
-</div>
-</body>
-</html>
+<?php
+admin_page_foot();

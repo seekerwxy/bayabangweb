@@ -3,16 +3,22 @@
 // 幂等：导过的行会在 messages.migrated_post_id 打标记，重复点击不会产生第二份。
 define('BOYA_ADMIN_API', true);
 require_once __DIR__ . '/../admin-files/_auth.php';   // 管理员会话 + CSRF 校验函数
-require_once __DIR__ . '/../_audit.php';
-require_once __DIR__ . '/../_forum.php';
+require_once __DIR__ . '/../inc/audit.php';
+require_once __DIR__ . '/../inc/forum.php';
 
 $conn = forum_conn();
 
-// 保证 messages 表有 migrated_post_id 列
-$res = $conn->query("SHOW COLUMNS FROM `messages` LIKE 'migrated_post_id'");
-if ($res && (int)$res->num_rows === 0) {
-    $conn->query("ALTER TABLE `messages` ADD COLUMN `migrated_post_id` int(11) DEFAULT NULL");
-}
+// 保证 messages 表有 migrated_post_id 列（结构同步只跑一次，见 inc/db.php）
+boya_schema_once('legacy-messages-migrated-column', '2026-10-17-1', function () use ($conn) {
+    $res = $conn->query("SHOW COLUMNS FROM `messages` LIKE 'migrated_post_id'");
+    if ($res && (int)$res->num_rows === 0) {
+        if (!$conn->query("ALTER TABLE `messages` ADD COLUMN `migrated_post_id` int(11) DEFAULT NULL")) {
+            error_log('migrate: add migrated_post_id failed: ' . $conn->error);
+            return false;
+        }
+    }
+    return true;
+});
 
 $pending = 0;
 $res = $conn->query('SELECT COUNT(*) AS c FROM messages WHERE migrated_post_id IS NULL');

@@ -2,9 +2,10 @@
 // 论坛管理接口：config 管理员（后台页面）或被标为 is_admin 的同学（论坛页面）都能调用。
 // GET：列出帖子（后台用，可选 filter=all|visible|deleted）
 // POST：pin / unpin / lock / unlock / delete / restore（JSON 或表单都支持）
-require_once __DIR__ . '/../_member.php';
-require_once __DIR__ . '/../_audit.php';
-require_once __DIR__ . '/../_forum.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
+require_once __DIR__ . '/../inc/member.php';
+require_once __DIR__ . '/../inc/audit.php';
+require_once __DIR__ . '/../inc/forum.php';
 
 // ---------------------------------------------------------------- 列表（后台用）
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -56,10 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
     $profiles = forum_member_profiles($authorIds);
     foreach ($posts as &$post) {
-        $profile = $profiles[(int)$post['author_id']] ?? null;
-        $post['author_username'] = $profile && trim((string)$profile['username']) !== ''
-            ? (string)$profile['username']
-            : (string)$post['author_name'];
+        // 作者展示信息（用户名取活的、取不到退回发帖快照）统一用 inc/forum.php 的实现
+        forum_attach_author($post, $profiles);
     }
     unset($post);
 

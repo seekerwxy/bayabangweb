@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>首页 | 温二外25级博雅班</title>
     <meta name="description" content="班级纪念册，献给班主任和同学们的回忆与祝福。">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php include __DIR__ . '/_head.php'; ?>
 </head>
 <body>
@@ -29,8 +28,7 @@
                   src="photos/hezhao.jpg"
                   alt="班级大合照"
                   loading="lazy"
-                  onload="handleHeroImageLoad()"
-                  onerror="handleHeroImageError()"
+                  data-photo-state
                 >
                 <span class="hero-photo-placeholder">📷 班级大合照</span>
             </div>
@@ -56,28 +54,28 @@
         <p class="section-label">探索纪念册</p>
         <div class="cards-grid">
 
-            <a href="teacher.php" class="card">
+            <a href="<?= boya_url('teacher.php') ?>" class="card">
                 <span class="card-number">01</span>
                 <h3 class="card-title">班主任专属空间</h3>
                 <p class="card-desc">老师的抓拍瞬间、经典语录，以及全班同学想对您说的一句句话，都在这里静静安放。</p>
                 <span class="card-arrow">进入 →</span>
             </a>
 
-            <a href="classmates.php" class="card">
+            <a href="<?= boya_url('classmates.php') ?>" class="card">
                 <span class="card-number">02</span>
                 <h3 class="card-title">同学录</h3>
                 <p class="card-desc">比较简陋，不过后续“可能”更新</p>
                 <span class="card-arrow">进入 →</span>
             </a>
 
-            <a href="memories.php" class="card">
+            <a href="<?= boya_url('memories.php') ?>" class="card">
                 <span class="card-number">03</span>
                 <h3 class="card-title">时光回忆馆</h3>
                 <p class="card-desc">我们的故事还未完结，不过目前已经有了一些碎片</p>
                 <span class="card-arrow">进入 →</span>
             </a>
 
-            <a href="messages.php" class="card">
+            <a href="<?= boya_url('messages.php') ?>" class="card">
                 <span class="card-number">04</span>
                 <h3 class="card-title">留言板</h3>
                 <p class="card-desc">写给班级的祝福，写给未来自己的话。像一面温暖的便利贴墙，每一张都值得被看见。</p>
@@ -87,36 +85,9 @@
         </div>
     </main>
 
-    <script>
-
-        // ---------- 合照显示处理（解决 onload 缓存不触发问题） ----------
-        function handleHeroImageLoad() {
-            const img = document.getElementById('heroImg');
-            if (img) {
-                img.classList.add('loaded');
-            }
-        }
-
-        function handleHeroImageError() {
-            const img = document.getElementById('heroImg');
-            if (img) {
-                img.classList.remove('loaded');
-            }
-        }
-
-        // 页面加载完成后再次检查图片状态（双保险）
-        window.addEventListener('load', function() {
-            const img = document.getElementById('heroImg');
-            if (img && img.complete && img.naturalWidth > 0) {
-                img.classList.add('loaded');
-            } else if (img && img.complete && img.naturalWidth === 0) {
-                img.classList.remove('loaded');
-            }
-        });
-
-    </script>
-
     <?php include '_footer.php'; ?>
+
+    <script src="<?= boya_asset('js/pages/media.js') ?>"></script>
 
 </body>
 </html>

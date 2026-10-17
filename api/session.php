@@ -1,10 +1,7 @@
 <?php
 // 当前登录状态：给留言板顶部状态条、发帖/回复框提供用户名与 CSRF token，
 // 也给右上角导航头像提供头像与姓氏（name 的第一个字做无头像占位）。
-require_once __DIR__ . '/../_member.php';
-
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
+require_once __DIR__ . '/../inc/member.php';
 
 $memberId = member_id();
 $payload = [
@@ -49,9 +46,10 @@ if ($memberId > 0) {
 }
 
 // config 里的管理员（后台登录过）也能在论坛页面上直接管理
-if (!empty($_SESSION['admin_logged_in'])) {
+if (boya_is_admin()) {
     $payload['isAdmin'] = true;
     $payload['admin_csrf_token'] = (string)($_SESSION['admin_csrf_token'] ?? '');
 }
 
-echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+// boya_json() 会补 Content-Type 与 no-store（以前这里手写了一遍，别的接口又是另一套）
+boya_json($payload);

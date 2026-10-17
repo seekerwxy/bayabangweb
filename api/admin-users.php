@@ -4,9 +4,9 @@
 // POST set_title / set_admin / set_username / assign_missing / reset_password / add_member
 define('BOYA_ADMIN_API', true);
 require_once __DIR__ . '/../admin-files/_auth.php';   // config.php + session + 管理员校验 + admin CSRF
-require_once __DIR__ . '/../_audit.php';
-require_once __DIR__ . '/../_member.php';             // 用户名规则
-require_once __DIR__ . '/../_forum.php';              // forum_conn / forum_json
+require_once __DIR__ . '/../inc/audit.php';
+require_once __DIR__ . '/../inc/member.php';          // 用户名规则
+require_once __DIR__ . '/../inc/forum.php';           // forum_conn / forum_json
 
 $conn = member_conn();
 if (!$conn) {

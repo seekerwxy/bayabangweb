@@ -1,28 +1,11 @@
 <?php
 // 留言板读取接口（游客可读）：帖子列表、帖子详情 + 回复。
-require_once __DIR__ . '/../_forum.php';
+require_once __DIR__ . '/../inc/forum.php';
 
 $conn = forum_conn();
 $action = (string)($_GET['action'] ?? 'list');
 
-/** 把作者信息补到一行数据上（用户名取活的，取不到用发帖时的快照）。 */
-function forum_attach_author(array &$row, array $profiles)
-{
-    $authorId = (int)$row['author_id'];
-    $profile = $profiles[$authorId] ?? null;
-    $liveUsername = $profile ? trim((string)$profile['username']) : '';
-
-    $row['author_id'] = $authorId;
-    $row['author_uid'] = $authorId;
-    $row['author_username'] = $liveUsername !== ''
-        ? $liveUsername
-        : member_display_name($row['author_name'] ?? '', $authorId);
-    $row['author_nickname'] = $profile ? (string)$profile['nickname'] : '';
-    $row['author_title'] = $profile ? (string)$profile['title'] : '';
-    $row['author_is_admin'] = $profile ? (int)$profile['is_admin'] : 0;
-    $row['author_avatar'] = $profile ? (string)$profile['avatar'] : '';
-    $row['is_history'] = $authorId === 0;
-}
+// 作者信息补全由 inc/forum.php 的 forum_attach_author() 统一提供（后台列表也用它）。
 
 // ---------------------------------------------------------------- 帖子列表
 if ($action === 'list') {

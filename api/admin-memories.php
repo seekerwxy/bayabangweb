@@ -3,42 +3,33 @@
 // 这样 api/ 只放接口脚本，后台页面只留 HTML/JS。
 define('BOYA_ADMIN_API', true);
 require_once __DIR__ . '/../admin-files/_auth.php';   // 内含 config.php、session、登录校验、CSRF 校验函数
-require_once __DIR__ . '/../_photo.php';
-require_once __DIR__ . '/../_audit.php';
+require_once __DIR__ . '/../inc/photo.php';
+require_once __DIR__ . '/../inc/audit.php';
 
-header('Content-Type: application/json; charset=utf-8');
-
-function timeline_response($payload, $status = 200)
-{
-    http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-$conn = new mysqli(
-    $config['messages_db']['host'],
-    $config['messages_db']['username'],
-    $config['messages_db']['password'],
-    $config['messages_db']['database']
-);
-if ($conn->connect_error) {
-    error_log('admin memories DB connect failed: ' . $conn->connect_error);
+$conn = boya_db('messages');
+if (!$conn) {
+    error_log('admin memories DB connect failed');
     timeline_response(['success' => false, 'error' => '数据库连接失败，请稍后重试'], 500);
 }
-$conn->set_charset('utf8mb4');
 
-// 自动创建表（如果不存在）
-$conn->query("CREATE TABLE IF NOT EXISTS `timeline_events` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `event_date` varchar(50) NOT NULL,
-    `title` varchar(100) NOT NULL,
-    `description` text,
-    `photo` varchar(255) DEFAULT NULL,
-    `display_order` int(11) DEFAULT 0,
-    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
+// 自动创建表（如果不存在）。结构同步只在结构版本变化时跑一次，见 inc/db.php。
+boya_schema_once('timeline-tables', '2026-10-17-1', function () use ($conn) {
+    $ok = (bool)$conn->query("CREATE TABLE IF NOT EXISTS `timeline_events` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `event_date` varchar(50) NOT NULL,
+        `title` varchar(100) NOT NULL,
+        `description` text,
+        `photo` varchar(255) DEFAULT NULL,
+        `display_order` int(11) DEFAULT 0,
+        `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
+    if (!$ok) {
+        error_log('admin timeline table create failed: ' . $conn->error);
+    }
+    return $ok;
+});
 
 $action = $_GET['action'] ?? $_GET['api'] ?? '';
 

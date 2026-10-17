@@ -10,6 +10,7 @@
 //   https://example.com/x.jpg    外链，原样保留
 //
 // 统一归一化成「站点根绝对路径」，这样前台、后台预览、后台编辑框里看到的都一致。
+// （原文件位置：根目录 _photo.php，重构后搬进 inc/，逻辑未改。）
 
 /**
  * 归一化图片路径。外链原样返回，空值返回空串。
@@ -64,7 +65,7 @@ function boya_photo_exists($path, $rootDir = null)
         return false;
     }
 
-    $rootDir = $rootDir === null ? __DIR__ : rtrim($rootDir, '/');
+    $rootDir = $rootDir === null ? (defined('BOYA_ROOT') ? BOYA_ROOT : dirname(__DIR__)) : rtrim($rootDir, '/');
     return is_file($rootDir . $value);
 }
 
@@ -73,7 +74,7 @@ function boya_photo_exists($path, $rootDir = null)
  */
 function boya_photo_suggestions($rootDir = null, $limit = 20)
 {
-    $rootDir = $rootDir === null ? __DIR__ : rtrim($rootDir, '/');
+    $rootDir = $rootDir === null ? (defined('BOYA_ROOT') ? BOYA_ROOT : dirname(__DIR__)) : rtrim($rootDir, '/');
     $files = glob($rootDir . '/photos/*.{jpg,jpeg,png,webp,gif,JPG,JPEG,PNG,WEBP,GIF}', GLOB_BRACE);
     if (!$files) {
         return [];

@@ -7,13 +7,11 @@
 //   * 伪造 CF-Connecting-IP / X-Forwarded-For 也绕不过去。
 // 记录写在 data/login-guard.json，data/ 由 .htaccess 拒绝外部访问。
 
+require_once __DIR__ . '/bootstrap.php';
+
 function boya_login_guard_file()
 {
-    $dir = __DIR__ . '/data';
-    if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
-    }
-    return $dir . '/login-guard.json';
+    return boya_data_file('login-guard.json');
 }
 
 function boya_login_guard_key($scope, $identifier)

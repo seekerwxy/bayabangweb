@@ -1,32 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../_login_guard.php';
-require_once __DIR__ . '/../_audit.php';
+require_once __DIR__ . '/../inc/admin.php';
+require_once __DIR__ . '/../inc/theme.php';
+require_once __DIR__ . '/../inc/login_guard.php';
+require_once __DIR__ . '/../inc/audit.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'httponly' => true,
-        'samesite' => 'Lax',
-        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
-    ]);
-    session_start();
-}
+boya_session_start();
 
-if (!empty($_SESSION['admin_logged_in'])) {
+if (boya_is_admin()) {
     header('Location: admin-list.php');
     exit;
 }
 
-if (empty($_SESSION['admin_csrf_token'])) {
-    $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
-}
-
-/** 管理员口令允许是 password_hash() 生成的 hash，也兼容旧的明文写法。 */
-function boya_admin_password_is_hash($value)
-{
-    return is_string($value) && preg_match('/^\$(2[aby]|argon2)/', $value) === 1;
-}
+// 表单里要带 CSRF token，所以进来就生成一个
+admin_csrf_token();
 
 $error = '';
 $username = '';
@@ -36,9 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = (string)($_POST['password'] ?? '');
 
-    $validToken = is_string($token)
-        && isset($_SESSION['admin_csrf_token'])
-        && hash_equals($_SESSION['admin_csrf_token'], $token);
+    $validToken = admin_verify_csrf($token);
 
     // 服务端限速：计数存在服务器文件里，换浏览器 / 清 cookie / 伪造 IP 头都绕不过
     $blockedSeconds = boya_login_guard_blocked_seconds('admin', 'account');
@@ -54,19 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $validUser = is_string($adminUsername) && $adminUsername !== ''
             && hash_equals($adminUsername, $username);
 
-        $validPassword = false;
-        if (is_string($adminPassword) && $adminPassword !== '') {
-            $validPassword = boya_admin_password_is_hash($adminPassword)
-                ? password_verify($password, $adminPassword)
-                : hash_equals($adminPassword, $password);
-        }
+        $validPassword = boya_admin_password_verify($password, $adminPassword);
 
         if ($validUser && $validPassword) {
             boya_login_guard_clear('admin', 'account');
-            session_regenerate_id(true);
-            $_SESSION['admin_logged_in'] = true;
-            $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
-            unset($_SESSION['admin_login_failures'], $_SESSION['admin_login_locked_until']);
+            boya_admin_login_success();
             boya_audit('admin-login-ok', 'username=' . $username, 'admin');
             header('Location: admin-list.php');
             exit;
@@ -91,17 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员登录 | 温二外25级博雅班</title>
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
+    <?= boya_theme_init_script() ?>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f4f5f7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -112,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         button { width: 100%; margin-top: 22px; padding: 10px; background: #111; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
         .error { margin-top: 14px; color: #b91c1c; font-size: .85rem; }
     </style>
-    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
+    <link rel="stylesheet" href="<?= boya_asset('css/admin-dark.css') ?>">
 </head>
 <body>
     <form class="login-card" method="post" action="login.php">

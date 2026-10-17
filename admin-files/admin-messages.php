@@ -1,79 +1,14 @@
 <?php
-// 这个页面只负责显示；所有接口都在 api/admin-messages.php
-require_once __DIR__ . '/_auth.php';
+// 旧留言板管理：列表 + 编辑 / 删除（管的是旧表 messages，论坛之前的留言）。接口在 api/admin-messages.php。
+require_once __DIR__ . '/_layout.php';
 
+admin_page_head('留言管理', [
+    'width' => 1000,
+    'stats' => '<span class="stats" id="totalCount">-</span>',
+]);
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理留言 | 温二外25级博雅班</title>
-    <meta name="description" content="博雅班留言管理，用于管理班级的留言。">
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #fafafa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; padding: 24px 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; margin-bottom: 20px; border-radius: 12px; color: #856404; }
-        .alert-error { background: #f8d7da; border-left-color: #dc3545; color: #721c24; }
-        .admin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #eaeaea; }
-        h1 { font-size: 1.6rem; font-weight: 500; }
-        .stats { font-size: 0.85rem; color: #666; background: #f0f0f0; padding: 4px 12px; border-radius: 30px; }
-        .info-badge { font-size: 0.7rem; background: #e9ecef; padding: 4px 10px; border-radius: 30px; }
-        .messages-list { display: flex; flex-direction: column; gap: 16px; }
-        .message-item { background: white; border-radius: 20px; padding: 18px 20px; border: 1px solid #ececec; }
-        .message-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 10px; }
-        .msg-title { font-weight: 500; }
-        .msg-author { font-size: 0.8rem; color: #5e5e5e; background: #f5f5f5; padding: 2px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; }
-        .color-dot { display: inline-block; width: 12px; height: 12px; border-radius: 12px; }
-        .msg-content-preview { font-size: 0.85rem; color: #3a3a3a; margin: 12px 0; padding-left: 4px; border-left: 2px solid #eaeaea; }
-        .msg-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
-        .msg-time { font-size: 0.7rem; color: #aaa; }
-        .edit-btn, .delete-btn { border: none; background: none; cursor: pointer; font-size: 0.75rem; padding: 4px 12px; border-radius: 40px; }
-        .edit-btn { background: #f0f0f0; color: #2c2c2c; }
-        .delete-btn { color: #b91c1c; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-card { background: white; width: 90%; max-width: 540px; border-radius: 28px; padding: 28px; }
-        .color-picker { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 18px; }
-        .color-swatch { width: 32px; height: 32px; border-radius: 32px; cursor: pointer; border: 2px solid transparent; }
-        .color-swatch.selected { border-color: #111; transform: scale(1.05); }
-        .save-btn { background: #111; color: white; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
-        .cancel-btn { background: #eaeaea; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #111; color: white; font-size: 0.8rem; padding: 8px 20px; border-radius: 40px; opacity: 0; transition: 0.15s; pointer-events: none; z-index: 1100; }
-    </style>
-    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
-</head>
-<body>
-<div class="container">
-    <div class="admin-header">
-        <div style="display: flex; gap: 12px; align-items: baseline;">
-            <h1>留言管理</h1>
-            <span class="stats" id="totalCount">-</span>
-        </div>
-        <div style="font-size: 0.7rem; color:#888;">
-            <a href="admin-list.php">返回面板</a>
-            &nbsp;|&nbsp;
-            <form method="post" action="?logout=1" style="display:inline;">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
-                <input type="hidden" name="logout" value="1">
-                <button type="submit" style="border:0;background:none;cursor:pointer;padding:0;color:#888;font-size:0.7rem;">退出登录</button>
-            </form>
-        </div>
-    </div>
-    <div class="messages-list" id="messagesContainer">
-        <div class="alert">加载中...</div>
-    </div>
+<div class="messages-list" id="messagesContainer">
+    <div class="alert">加载中...</div>
 </div>
 
 <!-- 编辑模态框 -->
@@ -81,143 +16,179 @@ require_once __DIR__ . '/_auth.php';
     <div class="modal-card">
         <h3>编辑留言</h3>
         <input type="hidden" id="editId">
-        <label>标题</label><input type="text" id="editTitle" placeholder="标题（可选）">
-        <label>署名</label><input type="text" id="editAuthor" placeholder="署名" required>
-        <label>内容</label><textarea id="editContent" placeholder="留言内容" required></textarea>
+        <label for="editTitle">标题</label><input type="text" id="editTitle" placeholder="标题（可选）">
+        <label for="editAuthor">署名</label><input type="text" id="editAuthor" placeholder="署名" required>
+        <label for="editContent">内容</label><textarea id="editContent" placeholder="留言内容" required></textarea>
         <label>文字颜色</label><div class="color-picker" id="colorPicker"></div>
-        <div class="modal-buttons"><button class="cancel-btn" id="closeModalBtn">取消</button><button class="save-btn" id="saveEditBtn">保存修改</button></div>
+        <div class="modal-buttons">
+            <button class="cancel-btn" id="closeModalBtn" type="button">取消</button>
+            <button class="save-btn" id="saveEditBtn" type="button">保存修改</button>
+        </div>
     </div>
 </div>
 <div id="toastMsg" class="toast"></div>
 
+<script src="<?= boya_asset('js/admin-common.js') ?>"></script>
 <script>
-    const CSRF_TOKEN = '<?= htmlspecialchars(admin_csrf_token()) ?>';
-    const API_URL = '../api/admin-messages.php?action=';  // 接口都在 api/ 下
-    const colorList = ["#000000","#e60000","#ff9900","#008000","#0000ff","#800080","#ff1493","#00ced1","#32cd32","#ffd700","#ff4500","#8a2be2"];
-    let currentColor = "";
+(function () {
+    'use strict';
+    var Admin = window.BoyaAdmin;
+    var API = Admin.url('api/admin-messages.php') + '?action=';
+    var COLOR_LIST = ['#000000', '#e60000', '#ff9900', '#008000', '#0000ff', '#800080',
+        '#ff1493', '#00ced1', '#32cd32', '#ffd700', '#ff4500', '#8a2be2'];
+    var currentColor = '';
 
-    function initColorPicker(selectedColor = "") {
-        const container = document.getElementById('colorPicker');
-        if (!container) return;
+    function initColorPicker(selectedColor) {
+        var container = Admin.$('colorPicker');
+        if (!container) { return; }
         container.innerHTML = '';
-        colorList.forEach(color => {
-            const swatch = document.createElement('div');
+        currentColor = '';
+
+        COLOR_LIST.forEach(function (color) {
+            var swatch = document.createElement('div');
             swatch.className = 'color-swatch';
             swatch.style.backgroundColor = color;
             swatch.dataset.color = color;
-            if (color === selectedColor) swatch.classList.add('selected');
-            swatch.addEventListener('click', () => {
-                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            if (color === selectedColor) { swatch.classList.add('selected'); }
+            swatch.addEventListener('click', function () {
+                container.querySelectorAll('.color-swatch').forEach(function (s) { s.classList.remove('selected'); });
                 swatch.classList.add('selected');
-                currentColor = swatch.dataset.color;
+                currentColor = color;
             });
             container.appendChild(swatch);
         });
-        const clearSwatch = document.createElement('div');
+
+        // 「清除颜色」色块
+        var clearSwatch = document.createElement('div');
         clearSwatch.className = 'color-swatch';
-        clearSwatch.style.background = "linear-gradient(135deg, #ccc 0%, #ccc 100%)";
-        clearSwatch.style.border = "1px solid #aaa";
-        clearSwatch.innerHTML = "✕";
-        clearSwatch.style.display = "flex";
-        clearSwatch.style.alignItems = "center";
-        clearSwatch.style.justifyContent = "center";
-        clearSwatch.addEventListener('click', () => {
-            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-            currentColor = "";
+        clearSwatch.style.background = 'linear-gradient(135deg, #ccc 0%, #ccc 100%)';
+        clearSwatch.style.border = '1px solid #aaa';
+        clearSwatch.style.display = 'flex';
+        clearSwatch.style.alignItems = 'center';
+        clearSwatch.style.justifyContent = 'center';
+        clearSwatch.textContent = '✕';
+        clearSwatch.addEventListener('click', function () {
+            container.querySelectorAll('.color-swatch').forEach(function (s) { s.classList.remove('selected'); });
+            currentColor = '';
             clearSwatch.classList.add('selected');
         });
         container.appendChild(clearSwatch);
-        if (!selectedColor) clearSwatch.classList.add('selected');
-        else currentColor = selectedColor;
+
+        if (!selectedColor) {
+            clearSwatch.classList.add('selected');
+        } else {
+            currentColor = selectedColor;
+        }
     }
 
-    async function loadMessages() {
-        const container = document.getElementById('messagesContainer');
+    function loadMessages() {
+        var container = Admin.$('messagesContainer');
         container.innerHTML = '<div class="alert">加载留言中...</div>';
-        try {
-            const res = await fetch(API_URL + 'list');
+        Admin.fetchJson(API + 'list').then(function (res) {
             if (res.status === 401) {
                 container.innerHTML = '<div class="alert">认证失败，请刷新页面重新输入密码</div>';
                 return;
             }
-            const result = await res.json();
-            if (result.success && result.data) {
-                const msgs = result.data;
-                document.getElementById('totalCount').innerText = `共 ${msgs.length} 条`;
-                if (msgs.length === 0) {
-                    container.innerHTML = '<div class="alert">暂无留言</div>';
-                    return;
-                }
-                let html = '';
-                for (let msg of msgs) {
-                    const time = new Date(msg.created_at).toLocaleString('zh-CN', {hour12: false});
-                    const titleDisplay = escapeHtml(msg.title) || '<span style="color:#aaa;">无标题</span>';
-                    const preview = escapeHtml(msg.content_preview || msg.content.substring(0, 100));
-                    const safeColor = /^#[0-9a-fA-F]{6}$/.test(msg.color || '') ? msg.color : '';
-                    const colorDot = safeColor ? `<span class="color-dot" style="background:${safeColor}"></span>` : '';
-                    html += `<div class="message-item">
-                        <div class="message-header"><div class="msg-title">${titleDisplay}</div><div class="msg-author">${colorDot}${escapeHtml(msg.author)}</div></div>
-                        <div class="msg-content-preview">${preview}${msg.content.length > 100 ? '…' : ''}</div>
-                        <div class="msg-meta"><span class="msg-time">${time}</span>
-                        <div class="actions"><button class="edit-btn" data-id="${msg.id}" data-title="${escapeHtml(msg.title)}" data-author="${escapeHtml(msg.author)}" data-content="${escapeHtml(msg.content)}" data-color="${escapeHtml(msg.color || '')}">编辑</button>
-                        <button class="delete-btn" data-id="${msg.id}">删除</button></div></div></div>`;
-                }
-                container.innerHTML = html;
-                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id, btn.dataset.title, btn.dataset.author, btn.dataset.content, btn.dataset.color)));
-                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', async () => { if (confirm('确定删除这条留言？')) await deleteMessage(btn.dataset.id); }));
-            } else {
-                container.innerHTML = '<div class="alert">' + escapeHtml(result.error || '加载失败，请刷新页面重试') + '</div>';
+            var result = res.data;
+            if (!result.success || !result.data) {
+                container.innerHTML = '<div class="alert">' + Admin.esc(result.error || '加载失败，请刷新页面重试') + '</div>';
+                return;
             }
-        } catch (err) {
-            container.innerHTML = '<div class="alert">网络错误，请检查网络或刷新页面</div>';
-        }
+            var msgs = result.data;
+            Admin.$('totalCount').textContent = '共 ' + msgs.length + ' 条';
+            if (!msgs.length) {
+                container.innerHTML = '<div class="alert">暂无留言</div>';
+                return;
+            }
+            container.innerHTML = msgs.map(function (msg) {
+                var time = new Date(msg.created_at).toLocaleString('zh-CN', { hour12: false });
+                var titleDisplay = Admin.esc(msg.title) || '<span style="color:#aaa;">无标题</span>';
+                var content = String(msg.content || '');
+                var preview = Admin.esc(msg.content_preview || content.substring(0, 100));
+                var safeColor = /^#[0-9a-fA-F]{6}$/.test(msg.color || '') ? msg.color : '';
+                var colorDot = safeColor ? '<span class="color-dot" style="background:' + safeColor + '"></span>' : '';
+                return '<div class="message-item">'
+                    + '<div class="message-header"><div class="msg-title">' + titleDisplay + '</div>'
+                    + '<div class="msg-author">' + colorDot + Admin.esc(msg.author) + '</div></div>'
+                    + '<div class="msg-content-preview">' + preview + (content.length > 100 ? '…' : '') + '</div>'
+                    + '<div class="msg-meta"><span class="msg-time">' + Admin.esc(time) + '</span>'
+                    + '<div class="actions">'
+                    + '<button class="edit-btn" type="button"'
+                    + ' data-act="edit" data-id="' + msg.id + '"'
+                    + ' data-title="' + Admin.esc(msg.title) + '"'
+                    + ' data-author="' + Admin.esc(msg.author) + '"'
+                    + ' data-content="' + Admin.esc(content) + '"'
+                    + ' data-color="' + Admin.esc(msg.color || '') + '">编辑</button>'
+                    + '<button class="delete-btn" data-act="delete" data-id="' + msg.id + '" type="button">删除</button>'
+                    + '</div></div></div>';
+            }).join('');
+        });
     }
 
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-    function openEditModal(id, title, author, content, color) {
-        document.getElementById('editId').value = id;
-        document.getElementById('editTitle').value = title === 'null' ? '' : title;
-        document.getElementById('editAuthor').value = author;
-        document.getElementById('editContent').value = content;
-        initColorPicker(color);
-        document.getElementById('editModal').style.display = 'flex';
+    function openEditModal(btn) {
+        Admin.$('editId').value = btn.dataset.id;
+        Admin.$('editTitle').value = btn.dataset.title === 'null' ? '' : btn.dataset.title;
+        Admin.$('editAuthor').value = btn.dataset.author;
+        Admin.$('editContent').value = btn.dataset.content;
+        initColorPicker(btn.dataset.color || '');
+        Admin.openModal('editModal');
     }
-    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
-    async function saveEdit() {
-        const id = document.getElementById('editId').value;
-        const title = document.getElementById('editTitle').value.trim();
-        const author = document.getElementById('editAuthor').value.trim();
-        const content = document.getElementById('editContent').value.trim();
-        if (!author || !content) { showToast('署名和内容不能为空'); return; }
-        const formData = new URLSearchParams();
-        formData.append('id', id); formData.append('title', title); formData.append('author', author);
-        formData.append('content', content); formData.append('color', currentColor);
-        formData.append('csrf_token', CSRF_TOKEN);
-        try {
-            const res = await fetch(API_URL + 'update', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData });
-            const result = await res.json();
-            if (result.success) { showToast('更新成功'); closeModal(); loadMessages(); }
-            else showToast('更新失败: ' + (result.error || '未知错误'));
-        } catch (err) { showToast('网络错误'); }
+
+    function saveEdit() {
+        var id = Admin.$('editId').value;
+        var title = Admin.$('editTitle').value.trim();
+        var author = Admin.$('editAuthor').value.trim();
+        var content = Admin.$('editContent').value.trim();
+        if (!author || !content) {
+            Admin.toast('署名和内容不能为空');
+            return;
+        }
+        Admin.postForm(API + 'update', {
+            id: id,
+            title: title,
+            author: author,
+            content: content,
+            color: currentColor
+        }).then(function (res) {
+            if (res.data.success) {
+                Admin.toast('更新成功');
+                Admin.closeModal('editModal');
+                loadMessages();
+            } else {
+                Admin.toast('更新失败: ' + (res.data.error || '未知错误'));
+            }
+        });
     }
-    async function deleteMessage(id) {
-        const formData = new URLSearchParams(); formData.append('id', id); formData.append('csrf_token', CSRF_TOKEN);
-        try {
-            const res = await fetch(API_URL + 'delete', { method: 'POST', body: formData });
-            const result = await res.json();
-            if (result.success) { showToast('已删除'); loadMessages(); }
-            else showToast('删除失败');
-        } catch (err) { showToast('请求失败'); }
+
+    function deleteMessage(id) {
+        if (!confirm('确定删除这条留言？')) { return; }
+        Admin.postForm(API + 'delete', { id: id }).then(function (res) {
+            if (res.data.success) {
+                Admin.toast('已删除');
+                loadMessages();
+            } else {
+                Admin.toast('删除失败');
+            }
+        });
     }
-    function showToast(msg) {
-        const toast = document.getElementById('toastMsg');
-        toast.textContent = msg; toast.style.opacity = '1';
-        setTimeout(() => toast.style.opacity = '0', 2000);
-    }
-    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
-    window.addEventListener('click', (e) => { if (e.target === document.getElementById('editModal')) closeModal(); });
+
+    Admin.$('closeModalBtn').addEventListener('click', function () { Admin.closeModal('editModal'); });
+    Admin.$('saveEditBtn').addEventListener('click', saveEdit);
+    Admin.$('editModal').addEventListener('click', function (event) {
+        if (event.target === Admin.$('editModal')) { Admin.closeModal('editModal'); }
+    });
+    Admin.$('messagesContainer').addEventListener('click', function (event) {
+        var btn = event.target.closest('button[data-act]');
+        if (!btn) { return; }
+        if (btn.dataset.act === 'edit') {
+            openEditModal(btn);
+        } else {
+            deleteMessage(btn.dataset.id);
+        }
+    });
+
     loadMessages();
+})();
 </script>
-</body>
-</html>
+<?php
+admin_page_foot();

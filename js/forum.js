@@ -5,6 +5,17 @@
     // /user/2 这类重写网址会让相对路径（api/…、user/2）解析到错误的目录下。
     var Forum = {};
 
+    /**
+     * 接口地址：由 _head.php 输出的 window.BOYA.api 提供前缀（默认站点根下的 /api/）。
+     * 以前这里把 '/api/…' 写死在 6 个地方，站点一旦不在域名根目录就全废。
+     */
+    function apiUrl(path) {
+        var base = (window.BOYA && window.BOYA.api) || '/api/';
+        return String(base).replace(/\/+$/, '') + '/' + String(path).replace(/^\/+/, '');
+    }
+
+    Forum.apiUrl = apiUrl;
+
     Forum.escapeHtml = function (text) {
         if (text === null || text === undefined) {
             return '';
@@ -80,6 +91,32 @@
         return text;
     };
 
+    /**
+     * 通用分页按钮：上一页 / 第 x / y 页 / 下一页。
+     * 留言板、帖子详情、个人主页原来各写一份，现在只有这里一份。
+     */
+    Forum.renderPager = function (containerId, page, totalPages, onGo) {
+        var box = document.getElementById(containerId);
+        if (!box) {
+            return;
+        }
+        page = Number(page || 1);
+        totalPages = Number(totalPages || 1);
+        if (totalPages <= 1) {
+            box.innerHTML = '';
+            return;
+        }
+        box.innerHTML = ''
+            + '<button type="button" data-page="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>上一页</button>'
+            + '<span>第 ' + page + ' / ' + totalPages + ' 页</span>'
+            + '<button type="button" data-page="' + (page + 1) + '"' + (page >= totalPages ? ' disabled' : '') + '>下一页</button>';
+        Array.prototype.forEach.call(box.querySelectorAll('button[data-page]'), function (btn) {
+            btn.addEventListener('click', function () {
+                onGo(Number(btn.dataset.page));
+            });
+        });
+    };
+
     Forum.qs = function (name) {
         return new URLSearchParams(window.location.search).get(name);
     };
@@ -94,8 +131,12 @@
      */
     Forum.siteBase = function () {
         var raw = '';
+        // 优先用服务端输出的 window.BOYA.base（_head.php），其次 <html data-user-link-base="...">
+        if (window.BOYA && window.BOYA.base) {
+            raw = window.BOYA.base;
+        }
         var el = document.documentElement;
-        if (el) {
+        if (!raw && el) {
             raw = el.getAttribute('data-user-link-base') || '';
         }
         if (!raw) {
@@ -114,13 +155,13 @@
 
     /** 当前登录状态：{loggedIn, username, hasUsername, avatar, csrf_token} */
     Forum.loadSession = function () {
-        return fetch('/api/session.php', { credentials: 'same-origin', cache: 'no-store' })
+        return fetch(apiUrl('session.php'), { credentials: 'same-origin', cache: 'no-store' })
             .then(function (res) { return res.json(); });
     };
 
     /** 同学登录（复用资料编辑页那套接口） */
     Forum.login = function (name, password) {
-        return fetch('/api/classmates.php', {
+        return fetch(apiUrl('classmates.php'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'login', name: name, password: password })
@@ -134,7 +175,7 @@
     };
 
     Forum.logout = function (csrfToken) {
-        return fetch('/api/classmates.php', {
+        return fetch(apiUrl('classmates.php'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'logout', csrf_token: csrfToken })
@@ -143,7 +184,7 @@
 
     /** 发帖 / 回复 / 删除自己的内容 */
     Forum.send = function (payload) {
-        return fetch('/api/forum-write.php', {
+        return fetch(apiUrl('forum-write.php'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -223,7 +264,7 @@
 
     /** 论坛管理动作：置顶 / 锁定 / 删除 / 恢复（需要管理权限） */
     Forum.moderate = function (action, type, id, csrfToken) {
-        return fetch('/api/admin-forum.php', {
+        return fetch(apiUrl('admin-forum.php'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: action, type: type, id: id, csrf_token: csrfToken || '' })

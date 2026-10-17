@@ -30,6 +30,9 @@
 
 推送成功后，到 GitHub 仓库的 `Actions` 页面查看部署是否成功。
 
+部署流程里现在有两步会先跑：**先生成 `config.local.php`，再对全仓 `*.php` 跑一遍 `php -l` 语法检查**。
+任何一个 PHP 文件有语法错误，这一步会失败、后面的 FTP 上传不会执行（避免把整站白屏的版本推上线）。
+
 ## 目录结构（很重要，改错会白忙）
 
 本账号用 FTP 登录后，根目录里同时能看到 `bayabang.top/` 和 `htdocs/`：`bayabang.top` 是附加域名，它的网站根目录是 `bayabang.top/htdocs/`，**不是** `htdocs/`。所以 workflow 里的 `server-dir` 固定为：
@@ -47,18 +50,31 @@ server-dir: bayabang.top/htdocs/
 
 ## 目录约定
 
+- `inc/`：被 include 的 PHP 库（引导、会话、数据库、资源地址、业务公共逻辑）。目录本身在 `.htaccess` 里被禁止外部访问。
 - `api/`：只放接口脚本（`.php`），不放用户上传的文件；后台接口也在这里（`api/admin-memories.php`、`api/admin-messages.php`）。
 - `uploads/classmates/`：同学自己上传的头像，只存在服务器上，不进仓库、不参与部署。
 - `photos/`：网站自带的照片，随仓库一起部署。
 - `text/`：站内文本与 APP 安装包。
-- `data/`：运行期数据（登录限速 `login-guard.json`、审计日志 `admin-audit.log`），只存在服务器上，`.htaccess` 禁止外部访问。
+- `data/`：运行期数据（登录限速 `login-guard.json`、发帖限速 `rate-limit.json`、审计日志 `admin-audit.log`、结构同步标记 `schema-state.json`、浏览量去重 `view-seen.json`），只存在服务器上，`.htaccess` 禁止外部访问。
 - `js/vendor/`：自托管的前端依赖（marked、DOMPurify），版本与校验值见 `js/vendor/README.md`。
-- 根目录 `.htaccess`：强制 HTTPS + 安全响应头 + 屏蔽不该被访问的文件。
+- `js/*.js` 与 `js/pages/*.js`：页面交互（以前内联在 PHP 里，现在可被浏览器缓存）。
+- 根目录 `.htaccess`：强制 HTTPS + 安全响应头 + 屏蔽不该被访问的文件（`_*.php`、`config*.php`、`inc/`、部署状态文件）+ 自定义错误页（见下一节）。
+
+## 自定义错误页（errors/）
+
+- 位置：**`errors/` 目录**，站点根目录不放错误页。目前有 `400.html`、`403.html`、`404.html`、`500.html`、`503.html`，都是黑底「流血数字」页。
+- 共享两个文件：`errors/error.css`（版式）与 `errors/error.js`（血滴动画）。5 个页面只写各自的 SVG 数字与 `data-drips`（血从哪几个点滴下来），动画逻辑只有一份 —— 改动画只改 `error.js`，五个页面一起变。
+- 依赖很轻：页面只引同目录的 `error.css` / `error.js`，不依赖站点主样式表、字体或数据库，所以站点本身出问题时它们照样显示（500 尤其需要这点）。即使这两个文件取不到，页面仍会显示静态的红色数字，只是没有动画。
+- 接线在 `.htaccess` 最后一段：`ErrorDocument 状态码 /errors/状态码.html`，由 Apache 直接处理，不经过 PHP。
+- **想加新的状态码**：把 `errors/` 里任意一页复制一份、改数字与 `data-drips`，再在 `.htaccess` 里加一行（例如 `ErrorDocument 410 /errors/410.html`）即可。
+- 部署后自查：打开不存在的地址（如 `https://bayabang.top/no-such-page`）应看到 404 页；打开 `/inc/bootstrap.php`（被 `.htaccess` 拒绝）应看到 403 页。两者都要用开发者工具确认**状态码没变成 200**，否则搜索引擎会把错误页收录进去。
+- 想临时恢复服务器默认错误页：把 `.htaccess` 里对应的 `ErrorDocument` 行注释掉再部署。
+- 注意：`ErrorDocument 500` 只覆盖「服务器级」的 500；PHP 自己跑出来的致命错误（`display_errors` 已关）一般不触发它，这是 PHP + Apache 的既有行为，排查还是要看日志。
 
 ## 留言板（帖子 + 回复）
 
 - **数据表**：`forum_posts`、`forum_replies` 建在留言那个库（`liuyan`）里，第一次访问接口时自动创建；`classmates` 表会自动补齐账号字段（`username`、`created_at`、`last_active_at`、`title`、`is_admin`），**不需要手动跑 SQL**。
-- **已弃用字段 `signature`**：资料上的「个性签名」和「座右铭」原本各存一列、个人主页上重复显示，现在**只保留 `quote`（座右铭）**。代码里已不再读写 `classmates.signature`，并且每次访问接口时都会自动把还没搬过来的签名并进空着的座右铭、然后删掉这一列（见 `_member.php` 的 `$deprecated`，删列失败只写日志、不影响站点）。想立刻手动处理，两种方式选一个：
+- **已弃用字段 `signature`**：资料上的「个性签名」和「座右铭」原本各存一列、个人主页上重复显示，现在**只保留 `quote`（座右铭）**。代码里已不再读写 `classmates.signature`，并且每次访问接口时都会自动把还没搬过来的签名并进空着的座右铭、然后删掉这一列（见 `inc/member.php` 的 `boya_schema_classmates()`，删列失败只写日志、不影响站点）。这一步由 `data/schema-state.json` 记录，成功后不再每次请求都跑。想立刻手动处理，两种方式选一个：
 
   1）后台「账号管理」页点 **「清理重复的个性签名字段」**按钮（幂等，可重复点；只填空着的座右铭，不覆盖同学自己填的）；
 
@@ -106,7 +122,7 @@ server-dir: bayabang.top/htdocs/
 - **上传配额**：`uploads/classmates/` 文件数上限 3000；同学换头像时旧文件自动删除（只删本站生成的「32 位十六进制 + 图片扩展名」文件名，不会误删别的）。
 - **前端依赖**：`marked`、`DOMPurify` 已自托管到 `js/vendor/`（不依赖 CDN，中国大陆访问更稳，也不怕 CDN 被篡改）；Font Awesome 与 Cropper.js 仍走 cdnjs，但加了 `integrity`(SRI)。
 - **口令轮换**：几个数据库口令互相独立；`memories_db` 那段已经删掉（从未被代码使用），可以从 Secret 里一并删掉。改口令顺序：InfinityFree 控制面板改 → 更新 `CONFIG_LOCAL_PHP` Secret → push。
-- **图片路径白名单**：`_photo.php` 只接受 `/photos/`、`/uploads/`、`/text/`、`/api/photos/`（旧头像目录）下的图片，或站点根目录下的单个图片文件，并且必须是图片扩展名、不能含 `..`。
+- **图片路径白名单**：`inc/photo.php` 只接受 `/photos/`、`/uploads/`、`/text/`、`/api/photos/`（旧头像目录）下的图片，或站点根目录下的单个图片文件，并且必须是图片扩展名、不能含 `..`。
 - **出问题怎么回滚**：`.htaccess` 写错会导致整站 500，用 FTP 把根目录的 `.htaccess` 改名或删除即可立刻恢复。
 
 ### 把头统一到新目录（可选，不急）

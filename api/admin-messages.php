@@ -1,45 +1,41 @@
 <?php
 // 留言管理接口（仅管理员可用）。对应页面：admin-files/admin-messages.php
 // 这样 api/ 只放接口脚本，后台页面只留 HTML/JS。
+//
+// 注意：这里管的是**旧留言板表** `messages`（论坛第一期之前的数据）。
+// 它的内容已经导入成论坛帖子（见 api/admin-migrate-messages.php），
+// 这页留着是为了还能改/删历史数据。
 define('BOYA_ADMIN_API', true);
 require_once __DIR__ . '/../admin-files/_auth.php';   // 内含 config.php、session、登录校验、CSRF 校验函数
-require_once __DIR__ . '/../_audit.php';
+require_once __DIR__ . '/../inc/audit.php';
 
-header('Content-Type: application/json; charset=utf-8');
-
-function admin_messages_response($payload, $status = 200)
-{
-    http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-$conn = new mysqli(
-    $config['messages_db']['host'],
-    $config['messages_db']['username'],
-    $config['messages_db']['password'],
-    $config['messages_db']['database']
-);
-if ($conn->connect_error) {
-    error_log('admin messages DB connect failed: ' . $conn->connect_error);
+$conn = boya_db('messages');
+if (!$conn) {
+    error_log('admin messages DB connect failed');
     admin_messages_response(['success' => false, 'error' => '数据库连接失败，请稍后重试'], 500);
 }
-$conn->set_charset('utf8mb4');
 
-// 自动创建/修复表（增加 color 字段）
-$conn->query("CREATE TABLE IF NOT EXISTS `messages` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `title` varchar(255) DEFAULT '',
-    `author` varchar(30) NOT NULL,
-    `content` text NOT NULL,
-    `color` varchar(7) DEFAULT '',
-    `created_at` datetime NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
-$res = $conn->query("SHOW COLUMNS FROM `messages` LIKE 'color'");
-if ($res && $res->num_rows == 0) {
-    $conn->query("ALTER TABLE `messages` ADD COLUMN `color` varchar(7) DEFAULT ''");
-}
+// 自动创建/修复表（增加 color 字段）：结构同步只跑一次，见 inc/db.php
+boya_schema_once('legacy-messages-table', '2026-10-17-1', function () use ($conn) {
+    $ok = (bool)$conn->query("CREATE TABLE IF NOT EXISTS `messages` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `title` varchar(255) DEFAULT '',
+        `author` varchar(30) NOT NULL,
+        `content` text NOT NULL,
+        `color` varchar(7) DEFAULT '',
+        `created_at` datetime NOT NULL,
+        PRIMARY KEY (`id`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
+    if (!$ok) {
+        error_log('admin messages table create failed: ' . $conn->error);
+        return false;
+    }
+    $res = $conn->query("SHOW COLUMNS FROM `messages` LIKE 'color'");
+    if ($res && (int)$res->num_rows === 0) {
+        $conn->query("ALTER TABLE `messages` ADD COLUMN `color` varchar(7) DEFAULT ''");
+    }
+    return true;
+});
 
 $action = $_GET['action'] ?? $_GET['api'] ?? '';
 

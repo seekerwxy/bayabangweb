@@ -1,0 +1,581 @@
+/* ==========================================================================
+   后台公共样式（admin-files/*.php 共用）
+   --------------------------------------------------------------------------
+   以前 7 个后台页面各自内联一份 <style>：同样的 reset、容器、页头、卡片、
+   按钮、表格、提示条、弹窗、toast 反复写了 7 遍（合计约 150 行重复声明）。
+   现在集中到这里，页面里只留自己专属的几行。
+
+   约定：
+     - .container 的宽度由页面通过内联 style 的 --admin-max 指定（各页原来不同）；
+     - 颜色/圆角沿用原来的取值，尽量减少视觉变化；
+     - 深色模式适配在 css/admin-dark.css 里（按 html[data-theme="dark"] 覆盖）。
+   ========================================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 24px 20px;
+    color: #111;
+}
+
+a {
+    color: #111;
+}
+
+code {
+    background: #f2f2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    word-break: break-all;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* ---------- 容器 ---------- */
+.container {
+    max-width: var(--admin-max, 1000px);
+    margin: 0 auto;
+}
+
+/* ---------- 页头：标题 + 右侧操作（返回面板 / 退出登录 / 页面按钮） ---------- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.admin-header-main {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+}
+
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* 管理面板首页用的极简页头（无下边框） */
+.admin-header--plain {
+    align-items: center;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.admin-link {
+    font-size: 0.8rem;
+    color: #555;
+    text-decoration: none;
+}
+
+.admin-link:hover {
+    text-decoration: underline;
+}
+
+.logout {
+    border: 0;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.logout:hover {
+    text-decoration: underline;
+}
+
+.admin-logout-form {
+    display: inline;
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 22px;
+    border: 1px solid #ececec;
+    margin-bottom: 18px;
+}
+
+.card p {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 10px;
+}
+
+/* 管理面板首页的入口卡片（横排：说明 + 进入按钮） */
+.entry-card {
+    background: #fff;
+    border: 1px solid #e4e7eb;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.entry-card strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.entry-card span {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* ---------- 工具条 ---------- */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.grid label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+    border: none;
+    background: #111;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn.ghost {
+    background: #eee;
+    color: #333;
+}
+
+.btn.active {
+    background: #111;
+    color: #fff;
+}
+
+.btn.danger {
+    background: #c0392b;
+}
+
+.btn-add {
+    background: #27ae60;
+}
+
+.btn-edit {
+    background: #f39c12;
+}
+
+.btn-delete {
+    background: #e74c3c;
+}
+
+.btn-cancel {
+    background: #999;
+}
+
+.btn-warn {
+    background: #e67e22;
+}
+
+.btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+}
+
+.save-btn {
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.cancel-btn {
+    background: #eaeaea;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+/* ---------- 表单 ---------- */
+input[type=text],
+input[type=password],
+input[type=number],
+textarea {
+    padding: 6px 9px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-family: inherit;
+}
+
+input.mini {
+    width: 110px;
+}
+
+/* ---------- 表格 ---------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+th {
+    color: #666;
+    font-weight: 500;
+}
+
+td.top {
+    vertical-align: top;
+}
+
+/* ---------- 提示 ---------- */
+.muted {
+    color: #888;
+    font-size: 0.78rem;
+}
+
+.stats {
+    font-size: 0.85rem;
+    color: #666;
+    background: #f0f0f0;
+    padding: 4px 12px;
+    border-radius: 30px;
+}
+
+.info-badge {
+    font-size: 0.7rem;
+    background: #e9ecef;
+    padding: 4px 10px;
+    border-radius: 30px;
+}
+
+.alert {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #856404;
+    font-size: 0.8rem;
+}
+
+.alert + .alert {
+    margin-top: 12px;
+}
+
+.alert-error {
+    background: #f8d7da;
+    border-left-color: #dc3545;
+    color: #721c24;
+}
+
+.alert-ok {
+    background: #d4edda;
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    padding: 1px 6px;
+    border-radius: 20px;
+    background: #eee;
+    color: #555;
+    margin-left: 4px;
+}
+
+.badge.warn {
+    background: #fdecea;
+    color: #b3261e;
+}
+
+/* ---------- 弹窗 ---------- */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-card {
+    background: #fff;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 28px;
+    padding: 28px;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.modal-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+
+.modal-card label {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.modal-card input,
+.modal-card textarea {
+    width: 100%;
+    margin-top: 4px;
+}
+
+.modal-card textarea {
+    height: 80px;
+}
+
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* ---------- 底部浮层提示 ---------- */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 8px 20px;
+    border-radius: 40px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+    z-index: 1100;
+}
+
+.toast.visible {
+    opacity: 1;
+}
+
+/* ---------- 颜色选择器（留言管理） ---------- */
+.color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 8px 0 18px;
+}
+
+.color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 32px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-swatch.selected {
+    border-color: #111;
+    transform: scale(1.05);
+}
+
+/* ---------- 时光轴管理 ---------- */
+.event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event-item {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    border: 1px solid #ececec;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.event-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.event-date {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.event-title {
+    font-weight: 600;
+}
+
+.event-desc {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 4px;
+}
+
+.event-photo-preview {
+    max-height: 50px;
+    max-width: 70px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.event-actions {
+    display: flex;
+    gap: 6px;
+}
+
+/* ---------- 旧留言管理 ---------- */
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.message-item {
+    background: #fff;
+    border-radius: 20px;
+    padding: 18px 20px;
+    border: 1px solid #ececec;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.msg-title {
+    font-weight: 500;
+}
+
+.msg-author {
+    font-size: 0.8rem;
+    color: #5e5e5e;
+    background: #f5f5f5;
+    padding: 2px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+}
+
+.msg-content-preview {
+    font-size: 0.85rem;
+    color: #3a3a3a;
+    margin: 12px 0;
+    padding-left: 4px;
+    border-left: 2px solid #eaeaea;
+}
+
+.msg-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.msg-time {
+    font-size: 0.7rem;
+    color: #aaa;
+}
+
+.edit-btn,
+.delete-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 40px;
+}
+
+.edit-btn {
+    background: #f0f0f0;
+    color: #2c2c2c;
+}
+
+.delete-btn {
+    color: #b91c1c;
+}

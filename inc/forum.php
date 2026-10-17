@@ -5,21 +5,12 @@
 //   1. classmates 与 messages 是两个独立数据库、独立用户，**不能跨库 JOIN**，
 //      所以帖子只存 author_id 数字，用户名/头像另外用 member_conn() 批量取；
 //   2. 表都是 MyISAM（无事务），所以不存楼层号，渲染时按 id 顺序算。
+//
+// 本文件由根目录 _forum.php 搬进 inc/，并把「每次请求都 CREATE TABLE」改成
+// 结构版本闸门（见 inc/db.php 的 boya_schema_once）。
 
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/_member.php';
-
-date_default_timezone_set('Asia/Shanghai');
-
-/** 统一 JSON 输出（并禁止缓存，避免 Cloudflare/浏览器缓存接口）。 */
-function forum_json($payload, $status = 200)
-{
-    http_response_code($status);
-    header('Content-Type: application/json; charset=utf-8');
-    header('Cache-Control: no-store');
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-    exit;
-}
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/member.php';
 
 /** 当前时间字符串（与站点其它表一致，按东八区）。 */
 function forum_now()
@@ -27,24 +18,13 @@ function forum_now()
     return date('Y-m-d H:i:s');
 }
 
-/** 连接留言库，并保证论坛两张表存在。 */
-function forum_conn()
+/**
+ * 论坛两张表的结构同步（第一次访问接口时自动建表）。
+ * 返回 true 表示两张表都在，于是不再每次请求都跑 CREATE TABLE。
+ */
+function boya_schema_forum(mysqli $conn)
 {
-    global $config;
-
-    $conn = new mysqli(
-        $config['messages_db']['host'],
-        $config['messages_db']['username'],
-        $config['messages_db']['password'],
-        $config['messages_db']['database']
-    );
-    if ($conn->connect_error) {
-        error_log('forum DB connect failed: ' . $conn->connect_error);
-        forum_json(['message' => '数据库连接失败，请稍后重试'], 500);
-    }
-    $conn->set_charset('utf8mb4');
-
-    $conn->query("CREATE TABLE IF NOT EXISTS `forum_posts` (
+    $ok = (bool)$conn->query("CREATE TABLE IF NOT EXISTS `forum_posts` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `author_id` int(11) NOT NULL DEFAULT 0,
         `author_name` varchar(30) NOT NULL DEFAULT '',
@@ -63,7 +43,12 @@ function forum_conn()
         KEY `idx_author` (`author_id`)
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
 
-    $conn->query("CREATE TABLE IF NOT EXISTS `forum_replies` (
+    if (!$ok) {
+        error_log('forum schema: forum_posts create failed: ' . $conn->error);
+        return false;
+    }
+
+    $ok = (bool)$conn->query("CREATE TABLE IF NOT EXISTS `forum_replies` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `post_id` int(11) NOT NULL,
         `author_id` int(11) NOT NULL DEFAULT 0,
@@ -75,6 +60,29 @@ function forum_conn()
         KEY `idx_post` (`post_id`, `id`),
         KEY `idx_author` (`author_id`)
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;");
+
+    if (!$ok) {
+        error_log('forum schema: forum_replies create failed: ' . $conn->error);
+    }
+    return $ok;
+}
+
+/** 连接留言库（同一请求内复用连接），并保证论坛两张表存在。 */
+function forum_conn()
+{
+    static $schemaChecked = false;
+
+    $conn = boya_db('messages');
+    if (!$conn) {
+        forum_json(['message' => '数据库连接失败，请稍后重试'], 500);
+    }
+
+    if (!$schemaChecked) {
+        $schemaChecked = true;   // 每个请求最多检查一次
+        boya_schema_once('forum-tables', BOYA_SCHEMA_FORUM, function () use ($conn) {
+            return boya_schema_forum($conn);
+        });
+    }
 
     return $conn;
 }
@@ -118,18 +126,44 @@ function forum_member_profiles(array $ids)
     return $profiles;
 }
 
+/**
+ * 把作者信息补到一行数据上（用户名取活的，取不到用发帖时的快照）。
+ * 前台帖子/回复、后台列表都用这一个实现，别各写一遍。
+ */
+function forum_attach_author(array &$row, array $profiles)
+{
+    $authorId = (int)($row['author_id'] ?? 0);
+    $profile = $profiles[$authorId] ?? null;
+    $liveUsername = $profile ? trim((string)$profile['username']) : '';
+
+    $row['author_id'] = $authorId;
+    $row['author_uid'] = $authorId;
+    $row['author_username'] = $liveUsername !== ''
+        ? $liveUsername
+        : member_display_name($row['author_name'] ?? '', $authorId);
+    $row['author_nickname'] = $profile ? (string)$profile['nickname'] : '';
+    $row['author_title'] = $profile ? (string)$profile['title'] : '';
+    $row['author_is_admin'] = $profile ? (int)$profile['is_admin'] : 0;
+    $row['author_avatar'] = $profile ? (string)$profile['avatar'] : '';
+    $row['is_history'] = $authorId === 0;
+}
+
 /** 当前访问者有没有论坛管理权限：config 管理员，或被标为 is_admin 的同学。 */
 function forum_can_moderate()
 {
-    if (!empty($_SESSION['admin_logged_in'])) {
+    if (boya_is_admin()) {
         return true;
     }
     $memberId = member_id();
     if ($memberId <= 0) {
         return false;
     }
-    $profiles = forum_member_profiles([$memberId]);
-    return !empty($profiles[$memberId]['is_admin']);
+    static $memo = [];
+    if (!isset($memo[$memberId])) {
+        $profiles = forum_member_profiles([$memberId]);
+        $memo[$memberId] = !empty($profiles[$memberId]['is_admin']);
+    }
+    return $memo[$memberId];
 }
 
 /**
@@ -137,15 +171,10 @@ function forum_can_moderate()
  */
 function forum_csrf_ok($token)
 {
-    if (!is_string($token) || $token === '') {
-        return false;
-    }
-    if (member_id() > 0 && member_verify_csrf($token)) {
+    if (member_id() > 0 && boya_csrf_verify('classmate', $token)) {
         return true;
     }
-    return !empty($_SESSION['admin_logged_in'])
-        && !empty($_SESSION['admin_csrf_token'])
-        && hash_equals((string)$_SESSION['admin_csrf_token'], $token);
+    return boya_is_admin() && boya_csrf_verify('admin', $token);
 }
 
 /**
@@ -199,17 +228,7 @@ function forum_pager($pageSize = 20)
  */
 function forum_viewer_key()
 {
-    $ip = '';
-    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'] as $key) {
-        if (!empty($_SERVER[$key])) {
-            $ip = trim(explode(',', (string)$_SERVER[$key])[0]);
-            break;
-        }
-    }
-    if ($ip === '') {
-        $ip = 'unknown';
-    }
-    return substr(hash('sha256', 'boya-view|' . $ip), 0, 32);
+    return substr(hash('sha256', 'boya-view|' . boya_client_ip()), 0, 32);
 }
 
 /**
@@ -225,12 +244,7 @@ function forum_view_hit($postId, $viewerId = 0)
     }
     // 登录用户窗口 30 天（同一账号对同一篇帖子一个月内只算一次浏览）；
     // 游客沿用 6 小时 IP 窗口。
-    $windowSeconds = $viewerId > 0 ? 30 * 86400 : 6 * 3600;
-    $dir = __DIR__ . '/data';
-    if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
-    }
-    $file = $dir . '/view-seen.json';
+    $file = boya_data_file('view-seen.json');
 
     $data = [];
     if (is_file($file)) {

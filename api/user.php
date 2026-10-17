@@ -1,7 +1,7 @@
 <?php
 // 用户空间数据：个人主页的资料、动态时间线（帖子 + 回复，推特式）、回复列表。
-require_once __DIR__ . '/../_member.php';
-require_once __DIR__ . '/../_forum.php';
+require_once __DIR__ . '/../inc/member.php';
+require_once __DIR__ . '/../inc/forum.php';
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) {

@@ -1,78 +1,16 @@
 <?php
-// 这个页面只负责显示；所有接口都在 api/admin-memories.php
-require_once __DIR__ . '/_auth.php';
+// 时光轴（班级回忆事件）管理：列表 + 添加 / 编辑 / 删除。接口在 api/admin-memories.php。
+require_once __DIR__ . '/_layout.php';
 
+admin_page_head('时光轴管理', [
+    'width' => 1000,
+    'title' => '管理时光轴',
+    'stats' => '<span class="stats" id="totalCount">-</span>',
+    'actions' => '<button class="btn btn-add" id="addBtn" type="button">➕ 添加事件</button>',
+]);
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理时光轴 | 温二外25级博雅班</title>
-    <meta name="description" content="博雅班时光轴管理，用于管理班级的时光回忆事件。">
-    <script>
-    (function () {
-        try {
-            var saved = localStorage.getItem('theme');
-            var theme = (saved === 'dark' || saved === 'light')
-                ? saved
-                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-    })();
-    </script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #fafafa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; padding: 24px 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; margin-bottom: 20px; border-radius: 12px; color: #856404; }
-        .alert-error { background: #f8d7da; border-left-color: #dc3545; color: #721c24; }
-        .admin-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #eaeaea; }
-        h1 { font-size: 1.6rem; font-weight: 500; }
-        .stats { font-size: 0.85rem; color: #666; background: #f0f0f0; padding: 4px 12px; border-radius: 30px; }
-        .btn { border: none; background: #111; color: white; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; }
-        .btn-add { background: #27ae60; }
-        .btn-edit { background: #f39c12; }
-        .btn-delete { background: #e74c3c; }
-        .btn-cancel { background: #999; }
-        .event-list { display: flex; flex-direction: column; gap: 12px; }
-        .event-item { background: white; border-radius: 16px; padding: 16px 18px; border: 1px solid #ececec; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .event-info { flex: 1; min-width: 200px; }
-        .event-date { font-weight: 500; font-size: 0.9rem; }
-        .event-title { font-weight: 600; }
-        .event-desc { font-size: 0.8rem; color: #555; margin-top: 4px; }
-        .event-photo-preview { max-height: 50px; max-width: 70px; object-fit: cover; margin-right: 10px; }
-        .event-actions { display: flex; gap: 6px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-card { background: white; width: 90%; max-width: 500px; border-radius: 28px; padding: 28px; }
-        .modal-card label { display: block; margin-top: 12px; font-size: 0.8rem; font-weight: 500; }
-        .modal-card input, .modal-card textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; }
-        .modal-card textarea { height: 80px; }
-        .modal-buttons { margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #111; color: white; font-size: 0.8rem; padding: 8px 20px; border-radius: 40px; opacity: 0; transition: 0.15s; pointer-events: none; z-index: 1100; }
-    </style>
-    <link rel="stylesheet" href="../css/admin-dark.css?v=<?= filemtime(__DIR__ . '/../css/admin-dark.css') ?>">
-</head>
-<body>
-<div class="container">
-    <div class="admin-header">
-        <div style="display: flex; gap: 12px; align-items: baseline;">
-            <h1>📅 时光轴管理</h1>
-            <span class="stats" id="totalCount">-</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <a href="admin-list.php" style="font-size:0.8rem; color:#555;">返回面板</a>
-            <form method="post" action="?logout=1" style="display:inline;">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(admin_csrf_token()) ?>">
-                <input type="hidden" name="logout" value="1">
-                <button type="submit" style="border:0;background:none;cursor:pointer;padding:0;font-size:0.8rem;color:#555;">退出登录</button>
-            </form>
-            <button class="btn btn-add" onclick="openAddForm()">➕ 添加事件</button>
-        </div>
-    </div>
-    <div class="event-list" id="eventList">
-        <div class="alert">加载中...</div>
-    </div>
+<div class="event-list" id="eventList">
+    <div class="alert">加载中...</div>
 </div>
 
 <!-- 编辑/添加模态框 -->
@@ -80,202 +18,165 @@ require_once __DIR__ . '/_auth.php';
     <div class="modal-card">
         <h3 id="modalTitle">添加事件</h3>
         <input type="hidden" id="editId">
-        <label>日期</label><input type="text" id="editDate" placeholder="如 2025.10.17">
-        <label>标题</label><input type="text" id="editTitle" placeholder="事件标题">
-        <label>描述</label><textarea id="editDesc" placeholder="详细描述"></textarea>
-        <label>图片路径</label><input type="text" id="editPhoto" placeholder="如 photos/shijian1.jpg（站点根相对路径）">
-        <label>排序数字</label><input type="number" id="editOrder" value="0" min="0">
+        <label for="editDate">日期</label><input type="text" id="editDate" placeholder="如 2025.10.17">
+        <label for="editTitle">标题</label><input type="text" id="editTitle" placeholder="事件标题">
+        <label for="editDesc">描述</label><textarea id="editDesc" placeholder="详细描述"></textarea>
+        <label for="editPhoto">图片路径</label><input type="text" id="editPhoto" placeholder="如 photos/shijian1.jpg（站点根相对路径）">
+        <label for="editOrder">排序数字</label><input type="number" id="editOrder" value="0" min="0">
         <div class="modal-buttons">
-            <button class="btn btn-cancel" id="closeModalBtn">取消</button>
-            <button class="btn" id="saveBtn">保存</button>
+            <button class="btn btn-cancel" id="closeModalBtn" type="button">取消</button>
+            <button class="btn" id="saveBtn" type="button">保存</button>
         </div>
     </div>
 </div>
 <div id="toastMsg" class="toast"></div>
 
+<script src="<?= boya_asset('js/admin-common.js') ?>"></script>
 <script>
-    const CSRF_TOKEN = '<?= htmlspecialchars(admin_csrf_token()) ?>';
-    const API_URL = '../api/admin-memories.php?action=';  // 接口都在 api/ 下
+(function () {
+    'use strict';
+    var Admin = window.BoyaAdmin;
+    var API = Admin.url('api/admin-memories.php');
 
-    // 加载列表
-    async function loadEvents() {
-        const container = document.getElementById('eventList');
+    /** 数据库里存的是站点根相对路径（photos/x.jpg）或站点根绝对路径（/photos/x.jpg）。 */
+    function photoUrl(path) {
+        var value = String(path || '').trim();
+        if (value === '') { return ''; }
+        if (/^https?:\/\//i.test(value) || value.charAt(0) === '/') { return value; }
+        return Admin.root() + value.replace(/^\.\//, '');
+    }
+
+    function loadEvents() {
+        var container = Admin.$('eventList');
         container.innerHTML = '<div class="alert">加载中...</div>';
-        try {
-            const res = await fetch(API_URL + 'list');
-            if (res.status === 401) {
-                container.innerHTML = '<div class="alert">认证失败，请刷新页面重新输入密码</div>';
+        Admin.fetchJson(API + '?action=list').then(function (res) {
+            var result = res.data;
+            if (!result.success || !result.data) {
+                container.innerHTML = '<div class="alert">' + Admin.esc(result.error || '加载失败，请刷新') + '</div>';
                 return;
             }
-            const result = await res.json();
-            if (result.success && result.data) {
-                const events = result.data;
-                document.getElementById('totalCount').innerText = `共 ${events.length} 条`;
-                if (events.length === 0) {
-                    container.innerHTML = '<div class="alert">暂无事件，点击“添加事件”创建第一条。</div>';
-                    return;
-                }
-                let html = '';
-                events.forEach(ev => {
-                    // 数据库里存的是站点根相对路径（如 photos/xxx.jpg），后台页面在 /admin-files/ 下，预览要补 ../
-                    const photoPath = ev.photo ? String(ev.photo).trim() : '';
-                    const photoUrl = photoPath === ''
-                        ? ''
-                        : (/^https?:\/\//i.test(photoPath) || photoPath.startsWith('/')
-                            ? photoPath
-                            : '../' + photoPath.replace(/^\.\//, ''));
-                    const photoHtml = photoUrl ? `<img src="${escapeHtml(photoUrl)}" class="event-photo-preview" onerror="this.style.display='none'">` : '';
-                    html += `
-                        <div class="event-item">
-                            <div class="event-info">
-                                <div><span class="event-date">${escapeHtml(ev.event_date)}</span>  <span class="event-title">${escapeHtml(ev.title)}</span></div>
-                                <div class="event-desc">${escapeHtml(ev.description)}</div>
-                                ${photoHtml}
-                                <small style="color:#999;">排序: ${ev.display_order}</small>
-                            </div>
-                            <div class="event-actions">
-                                <button class="btn btn-edit" onclick="editEvent(${ev.id})">编辑</button>
-                                <button class="btn btn-delete" onclick="deleteEvent(${ev.id})">删除</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = '<div class="alert">' + escapeHtml(result.error || '加载失败，请刷新') + '</div>';
+            var events = result.data;
+            Admin.$('totalCount').textContent = '共 ' + events.length + ' 条';
+            if (!events.length) {
+                container.innerHTML = '<div class="alert">暂无事件，点击“添加事件”创建第一条。</div>';
+                return;
             }
-        } catch (err) {
-            container.innerHTML = '<div class="alert">网络错误，请检查网络</div>';
-        }
+            container.innerHTML = events.map(function (ev) {
+                var url = photoUrl(ev.photo);
+                var photoHtml = url
+                    ? '<img src="' + Admin.esc(url) + '" class="event-photo-preview" alt="" onerror="this.style.display=\'none\'">'
+                    : '';
+                return '<div class="event-item">'
+                    + '<div class="event-info">'
+                    + '<div><span class="event-date">' + Admin.esc(ev.event_date) + '</span>  <span class="event-title">' + Admin.esc(ev.title) + '</span></div>'
+                    + '<div class="event-desc">' + Admin.esc(ev.description) + '</div>'
+                    + photoHtml
+                    + '<small style="color:#999;">排序: ' + Admin.esc(ev.display_order) + '</small>'
+                    + '</div>'
+                    + '<div class="event-actions">'
+                    + '<button class="btn btn-edit" data-act="edit" data-id="' + ev.id + '" type="button">编辑</button>'
+                    + '<button class="btn btn-delete" data-act="delete" data-id="' + ev.id + '" type="button">删除</button>'
+                    + '</div></div>';
+            }).join('');
+        });
     }
 
-    // 打开添加表单
     function openAddForm() {
-        document.getElementById('modalTitle').innerText = '添加事件';
-        document.getElementById('editId').value = '';
-        document.getElementById('editDate').value = '';
-        document.getElementById('editTitle').value = '';
-        document.getElementById('editDesc').value = '';
-        document.getElementById('editPhoto').value = '';
-        document.getElementById('editOrder').value = '0';
-        document.getElementById('editModal').style.display = 'flex';
+        Admin.$('modalTitle').textContent = '添加事件';
+        Admin.$('editId').value = '';
+        Admin.$('editDate').value = '';
+        Admin.$('editTitle').value = '';
+        Admin.$('editDesc').value = '';
+        Admin.$('editPhoto').value = '';
+        Admin.$('editPhoto').placeholder = '如 photos/shijian1.jpg（站点根相对路径）';
+        Admin.$('editOrder').value = '0';
+        Admin.openModal('editModal');
     }
 
-    // 编辑事件
-    async function editEvent(id) {
-        try {
-            const res = await fetch(API_URL + 'list');
-            const result = await res.json();
-            if (!result.success) return;
-            const ev = result.data.find(e => Number(e.id) === Number(id));
-            if (!ev) return alert('未找到该事件');
-            document.getElementById('modalTitle').innerText = '编辑事件';
-            document.getElementById('editId').value = ev.id;
-            document.getElementById('editDate').value = ev.event_date || '';
-            document.getElementById('editTitle').value = ev.title || '';
-            document.getElementById('editDesc').value = ev.description || '';
-            document.getElementById('editPhoto').value = ev.photo || '';
-            document.getElementById('editOrder').value = ev.display_order || 0;
-            document.getElementById('editModal').style.display = 'flex';
-        } catch (err) {
-            alert('加载详情失败');
-        }
+    function editEvent(id) {
+        Admin.fetchJson(API + '?action=list').then(function (res) {
+            var result = res.data;
+            if (!result.success || !result.data) { return; }
+            var ev = result.data.filter(function (item) { return Number(item.id) === Number(id); })[0];
+            if (!ev) { alert('未找到该事件'); return; }
+            Admin.$('modalTitle').textContent = '编辑事件';
+            Admin.$('editId').value = ev.id;
+            Admin.$('editDate').value = ev.event_date || '';
+            Admin.$('editTitle').value = ev.title || '';
+            Admin.$('editDesc').value = ev.description || '';
+            Admin.$('editPhoto').value = ev.photo || '';
+            Admin.$('editOrder').value = ev.display_order || 0;
+            Admin.openModal('editModal');
+        });
     }
 
-    // 保存（添加或更新）
-    async function saveEvent() {
-        const id = document.getElementById('editId').value;
-        const date = document.getElementById('editDate').value.trim();
-        const title = document.getElementById('editTitle').value.trim();
-        const desc = document.getElementById('editDesc').value.trim();
-        const photo = document.getElementById('editPhoto').value.trim();
-        const order = parseInt(document.getElementById('editOrder').value) || 0;
+    function saveEvent() {
+        var id = Admin.$('editId').value;
+        var date = Admin.$('editDate').value.trim();
+        var title = Admin.$('editTitle').value.trim();
+        var desc = Admin.$('editDesc').value.trim();
+        var photo = Admin.$('editPhoto').value.trim();
+        var order = parseInt(Admin.$('editOrder').value, 10) || 0;
 
         if (!date || !title) {
-            showToast('日期和标题不能为空');
+            Admin.toast('日期和标题不能为空');
             return;
         }
 
-        const action = id ? 'edit' : 'add';
-        const formData = new URLSearchParams();
-        formData.append('event_date', date);
-        formData.append('title', title);
-        formData.append('description', desc);
-        formData.append('photo', photo);
-        formData.append('display_order', order);
-        formData.append('csrf_token', CSRF_TOKEN);
-        if (id) formData.append('id', id);
+        var payload = {
+            event_date: date,
+            title: title,
+            description: desc,
+            photo: photo,
+            display_order: order
+        };
+        if (id) { payload.id = id; }
 
-        try {
-            const res = await fetch(API_URL + action, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData
-            });
-            const result = await res.json();
+        Admin.postForm(API + '?action=' + (id ? 'edit' : 'add'), payload).then(function (res) {
+            var result = res.data;
             if (result.success) {
-                showToast('保存成功');
-                closeModal();
+                Admin.toast('保存成功');
+                Admin.closeModal('editModal');
+                loadEvents();
+                return;
+            }
+            Admin.toast('保存失败: ' + (result.error || '未知错误'));
+            if (result.photo_suggestions && result.photo_suggestions.length) {
+                Admin.$('editPhoto').placeholder = '可用：' + result.photo_suggestions.join('、');
+            }
+        });
+    }
+
+    function deleteEvent(id) {
+        if (!confirm('确定删除这条事件吗？')) { return; }
+        Admin.postForm(API + '?action=delete', { id: id }).then(function (res) {
+            if (res.data.success) {
+                Admin.toast('已删除');
                 loadEvents();
             } else {
-                showToast('保存失败: ' + (result.error || '未知错误'));
-                if (result.photo_suggestions && result.photo_suggestions.length) {
-                    document.getElementById('editPhoto').placeholder = '可用：' + result.photo_suggestions.join('、');
-                }
+                Admin.toast('删除失败');
             }
-        } catch (err) {
-            showToast('网络错误');
+        });
+    }
+
+    Admin.$('addBtn').addEventListener('click', openAddForm);
+    Admin.$('saveBtn').addEventListener('click', saveEvent);
+    Admin.$('closeModalBtn').addEventListener('click', function () { Admin.closeModal('editModal'); });
+    Admin.$('editModal').addEventListener('click', function (event) {
+        if (event.target === Admin.$('editModal')) { Admin.closeModal('editModal'); }
+    });
+    Admin.$('eventList').addEventListener('click', function (event) {
+        var btn = event.target.closest('button[data-act]');
+        if (!btn) { return; }
+        if (btn.dataset.act === 'edit') {
+            editEvent(Number(btn.dataset.id));
+        } else {
+            deleteEvent(Number(btn.dataset.id));
         }
-    }
-
-    // 删除事件
-    async function deleteEvent(id) {
-        if (!confirm('确定删除这条事件吗？')) return;
-        const formData = new URLSearchParams();
-        formData.append('id', id);
-        formData.append('csrf_token', CSRF_TOKEN);
-        try {
-            const res = await fetch(API_URL + 'delete', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await res.json();
-            if (result.success) {
-                showToast('已删除');
-                loadEvents();
-            } else {
-                showToast('删除失败');
-            }
-        } catch (err) {
-            showToast('请求失败');
-        }
-    }
-
-    function closeModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-
-    function showToast(msg) {
-        const toast = document.getElementById('toastMsg');
-        toast.textContent = msg;
-        toast.style.opacity = '1';
-        setTimeout(() => toast.style.opacity = '0', 2000);
-    }
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-
-    // 绑定事件
-    document.getElementById('saveBtn').addEventListener('click', saveEvent);
-    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-    window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('editModal')) closeModal();
     });
 
-    // 初始化加载
     loadEvents();
+})();
 </script>
-</body>
-</html>
+<?php
+admin_page_foot();

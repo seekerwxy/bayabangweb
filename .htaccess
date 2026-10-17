@@ -6,6 +6,10 @@
 # ========== 1. 强制 HTTPS（兼容 Cloudflare 代理）==========
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # inc/ 只放被 include 的 PHP 库，不允许直接访问（目录里另有 .htaccess 兜底）
+    RewriteRule ^inc/ - [F,L]
+
     # Cloudflare 会把访客的真实协议放在 X-Forwarded-Proto 里。
     # 只有当「访客侧」和「源站侧」都不是 https 时才跳转，
     # 这样在 Cloudflare 的 Flexible / Full / Full(strict) 各种模式下都不会死循环。
@@ -30,6 +34,19 @@
 # ========== 3. 不对外暴露的文件 ==========
 # 下划线开头的都是被 include 的公共片段，config*.php 是配置，
 # 另外挡住部署状态文件（它由 FTP 动作写在站点根目录）与仓库说明文档。
+# inc/ 目录（PHP 库）由上面第 1 段的 RewriteRule 拦截，目录内另有 .htaccess 兜底。
 <FilesMatch "^(_.*\.php|config\.php|config\.local\.php|DEPLOY\.md|README\.md|\.gitignore|\.ftp-deploy-sync-state.*)$">
     Require all denied
 </FilesMatch>
+
+# ========== 4. 自定义错误页 ==========
+# 全部放在 errors/ 目录，页面是纯静态、零依赖的（只引同目录的 error.css / error.js），
+# 所以哪怕站点主资源出问题、或请求打进了很深的错误路径，它们也能正常显示。
+# 站点根目录下不再放错误页；想加新的状态码，就往 errors/ 里加一个页面再在下面加一行。
+# 想临时恢复服务器默认错误页，把对应的行注释掉即可（改动后需重新部署）。
+ErrorDocument 400 /errors/400.html
+ErrorDocument 403 /errors/403.html
+ErrorDocument 404 /errors/404.html
+ErrorDocument 500 /errors/500.html
+ErrorDocument 503 /errors/503.html
+

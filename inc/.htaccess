@@ -1,0 +1,4 @@
+# inc/ 只放被 include 的 PHP 库，不允许被浏览器直接访问。
+# 这是第二道保险（根目录 .htaccess 里也有 RewriteRule 拦截），
+# 万一根目录规则被覆盖，这个目录仍然不可访问。
+Require all denied

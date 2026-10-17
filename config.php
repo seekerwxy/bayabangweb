@@ -7,6 +7,13 @@ if (function_exists('mysqli_report')) {
     mysqli_report(MYSQLI_REPORT_OFF);
 }
 
+// 站点部署位置：本站固定部署在域名根目录（InfinityFree 的站点根就是 htdocs/）。
+// 站内链接与静态资源地址都以它为前缀，是「URL 前缀」的单一事实来源。
+// 万一哪天要挪到子目录（例如 /boya/），只改这一行即可。
+if (!defined('BOYA_BASE_PATH')) {
+    define('BOYA_BASE_PATH', '/');
+}
+
 $config = [];
 
 $localConfigFile = __DIR__ . '/config.local.php';

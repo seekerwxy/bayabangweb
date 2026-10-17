@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/_site.php';   // boya_site_prefix()：先加载，后面拼链接要用
+// 顶部状态条 + 导航 + 用户菜单 + 移动端菜单 + APP 下载提示。
+require_once __DIR__ . '/inc/bootstrap.php';   // boya_site_prefix() / boya_style_option_buttons()
+require_once __DIR__ . '/inc/theme.php';
 
 $currentPage = $currentPage ?? '';
 
@@ -31,7 +33,7 @@ $sitePrefix = boya_site_prefix();
 
         <div class="nav-actions">
             <!-- 右上角用户头像菜单：替换掉原来的「风格」和「明暗」两个按钮。
-                 头像/姓氏占位由 _footer.php 里的脚本按登录状态渲染；
+                 头像/姓氏占位由 js/boya-ui.js 按登录状态渲染；
                  点开是「个人主页（游客为登录）」和「设置」（设置里放主题 + 明暗）。 -->
             <div class="user-menu" id="userMenu">
                 <button class="user-menu-btn" id="userMenuBtn" type="button"
@@ -73,30 +75,8 @@ $sitePrefix = boya_site_prefix();
         <a href="<?= $sitePrefix ?>messages.php" <?= $currentPage === 'messages' ? 'class="active"' : '' ?>>留言板</a>
         <div class="nav-mobile-style">
             <span>外观</span>
-            <button type="button" class="style-option style-option-mobile" data-style="default">
-                <span class="style-dot style-dot-default" aria-hidden="true"></span>
-                原版
-            </button>
-            <button type="button" class="style-option style-option-mobile" data-style="gothic">
-                <span class="style-dot style-dot-gothic" aria-hidden="true"></span>
-                哥特
-            </button>
-            <button type="button" class="style-option style-option-mobile" data-style="tech">
-                <span class="style-dot style-dot-tech" aria-hidden="true"></span>
-                科技
-            </button>
-            <button type="button" class="style-option style-option-mobile" data-style="classical">
-                <span class="style-dot style-dot-classical" aria-hidden="true"></span>
-                古风
-            </button>
-            <button type="button" class="style-option style-option-mobile" data-style="editorial">
-                <span class="style-dot style-dot-editorial" aria-hidden="true"></span>
-                编辑社
-            </button>
-            <button type="button" class="style-option style-option-mobile" data-style="western">
-                <span class="style-dot style-dot-western" aria-hidden="true"></span>
-                西方风
-            </button>
+            <?= boya_style_option_buttons('style-option style-option-mobile', false) ?>
+
         </div>
     </div>
 </nav>
