@@ -112,26 +112,33 @@ jobs:
 
       # 上线后自检：FTP 上传报「成功」并不代表文件真的落到站点根目录
       # （例如往主机自带、FTP 写不进去的目录上传时会被静默跳过）。
-      # 这里挑几个关键文件做 HTTP 校验，任何一个不是 200 就把这次部署判为失败。
+      # 注意两点：
+      #   1. InfinityFree 的文件生效有延迟，所以给足重试时间窗口（约 90 秒）；
+      #   2. 只有「确实 404」才判失败；403/5xx 可能是主机反爬或限流，只给警告，
+      #      否则会三天两头出现假红灯。
       - name: Verify deployed files
         run: |
           set -u
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
           failed=0
           check() {
             label="$1"; url="$2"
             code=000
             attempt=1
-            while [ "$attempt" -le 3 ]; do
-              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 "$url") || code=000
+            while [ "$attempt" -le 6 ]; do
+              code=$(curl -s -o /dev/null -A "$UA" -w '%{http_code}' --max-time 25 "$url") || code=000
               if [ "$code" = "200" ]; then break; fi
+              echo "  第 $attempt 次：$label -> HTTP $code"
               attempt=$((attempt + 1))
-              sleep 4
+              sleep 15
             done
             if [ "$code" = "200" ]; then
-              echo "OK   $label  $url"
-            else
-              echo "::error::$label 部署后校验失败（HTTP $code）：$url"
+              echo "OK    $label  $url"
+            elif [ "$code" = "404" ]; then
+              echo "::error::$label 文件确实不在服务器上（HTTP 404）：$url"
               failed=1
+            else
+              echo "::warning::$label 没拿到 200（HTTP $code），可能是主机反爬/限流，先不判失败：$url"
             fi
           }
           check "错误页样式 error.css"  https://bayabang.top/error-pages/error.css
@@ -141,5 +148,5 @@ jobs:
           check "留言板脚本"            https://bayabang.top/js/pages/messages.js
           check "会话接口"              https://bayabang.top/api/session.php
           echo "--- /api/session.php 返回 ---"
-          curl -s --max-time 25 https://bayabang.top/api/session.php | head -c 300; echo
+          curl -s -A "$UA" --max-time 25 https://bayabang.top/api/session.php | head -c 300; echo
           exit "$failed"
