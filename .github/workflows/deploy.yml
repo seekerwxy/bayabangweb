@@ -141,9 +141,8 @@ jobs:
               echo "::warning::$label 没拿到 200（HTTP $code），可能是主机反爬/限流，先不判失败：$url"
             fi
           }
-          check "错误页样式 error.css"  https://bayabang.top/error-pages/error.css
-          check "错误页脚本 error.js"   https://bayabang.top/error-pages/error.js
           check "404 错误页"            https://bayabang.top/error-pages/404.html
+          check "403 错误页"            https://bayabang.top/error-pages/403.html
           check "后台样式 admin-ui"     https://bayabang.top/css/admin-ui.css
           check "留言板脚本"            https://bayabang.top/js/pages/messages.js
           check "会话接口"              https://bayabang.top/api/session.php
