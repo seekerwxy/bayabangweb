@@ -40,13 +40,18 @@
 </FilesMatch>
 
 # ========== 4. 自定义错误页 ==========
-# 全部放在 errors/ 目录，页面是纯静态、零依赖的（只引同目录的 error.css / error.js），
+# 全部放在 error-pages/ 目录，页面是纯静态、零依赖的（只引同目录的 error.css / error.js），
 # 所以哪怕站点主资源出问题、或请求打进了很深的错误路径，它们也能正常显示。
-# 站点根目录下不再放错误页；想加新的状态码，就往 errors/ 里加一个页面再在下面加一行。
-# 想临时恢复服务器默认错误页，把对应的行注释掉即可（改动后需重新部署）。
-ErrorDocument 400 /errors/400.html
-ErrorDocument 403 /errors/403.html
-ErrorDocument 404 /errors/404.html
-ErrorDocument 500 /errors/500.html
-ErrorDocument 503 /errors/503.html
+#
+# 为什么目录不叫 errors/：InfinityFree 的站点根目录里本来就有一个主机自带的 errors/
+# （里面是它自己的 403.html，FTP 写不进去）。用 errors/ 会让这里的 ErrorDocument
+# 指向不存在的文件，浏览器只会看到一句「Additionally, a 404 ... ErrorDocument」。
+#
+# 想加新的状态码：往 error-pages/ 里加一个页面，再在下面加一行。
+# 想临时恢复服务器默认错误页：把对应的行注释掉即可（改动后需重新部署）。
+ErrorDocument 400 /error-pages/400.html
+ErrorDocument 403 /error-pages/403.html
+ErrorDocument 404 /error-pages/404.html
+ErrorDocument 500 /error-pages/500.html
+ErrorDocument 503 /error-pages/503.html
 

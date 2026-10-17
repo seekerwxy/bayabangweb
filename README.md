@@ -31,11 +31,12 @@ config.php                  引导配置：站点路径前缀、加载 config.lo
 config.local.php            数据库与管理员凭据（不入库，部署时由 Secret 生成）
 .htaccess                   强制 HTTPS + 安全响应头 + 屏蔽不该被访问的文件（含 inc/）+ 自定义错误页
 
-errors/                     自定义错误页（纯静态，由 .htaccess 的 ErrorDocument 挂上）
+error-pages/                自定义错误页（纯静态，由 .htaccess 的 ErrorDocument 挂上）
   400.html 403.html 404.html 500.html 503.html
                             黑底「流血数字」页，每个状态码一页，共享下面两个文件
   error.css                 版式：黑底、居中、SVG 自适应尺寸、底部一行小字
   error.js                  「血滴」动画（读 data-drips，决定血从哪几个点滴下来）
+                            注意：不能叫 errors/，那是 InfinityFree 自带的目录，FTP 写不进去
 
 api/                        接口脚本，只放 .php
   classmates.php            同学录：列表 / 资料 / 登录 / 改资料 / 改口令 / 设用户名 / 退出

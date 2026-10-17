@@ -109,3 +109,37 @@ jobs:
             --data '{"purge_everything":true}' \
             -o /tmp/cf-purge.json -w "HTTP %{http_code}\n"
           cat /tmp/cf-purge.json
+
+      # 上线后自检：FTP 上传报「成功」并不代表文件真的落到站点根目录
+      # （例如往主机自带、FTP 写不进去的目录上传时会被静默跳过）。
+      # 这里挑几个关键文件做 HTTP 校验，任何一个不是 200 就把这次部署判为失败。
+      - name: Verify deployed files
+        run: |
+          set -u
+          failed=0
+          check() {
+            label="$1"; url="$2"
+            code=000
+            attempt=1
+            while [ "$attempt" -le 3 ]; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 25 "$url") || code=000
+              if [ "$code" = "200" ]; then break; fi
+              attempt=$((attempt + 1))
+              sleep 4
+            done
+            if [ "$code" = "200" ]; then
+              echo "OK   $label  $url"
+            else
+              echo "::error::$label 部署后校验失败（HTTP $code）：$url"
+              failed=1
+            fi
+          }
+          check "错误页样式 error.css"  https://bayabang.top/error-pages/error.css
+          check "错误页脚本 error.js"   https://bayabang.top/error-pages/error.js
+          check "404 错误页"            https://bayabang.top/error-pages/404.html
+          check "后台样式 admin-ui"     https://bayabang.top/css/admin-ui.css
+          check "留言板脚本"            https://bayabang.top/js/pages/messages.js
+          check "会话接口"              https://bayabang.top/api/session.php
+          echo "--- /api/session.php 返回 ---"
+          curl -s --max-time 25 https://bayabang.top/api/session.php | head -c 300; echo
+          exit "$failed"

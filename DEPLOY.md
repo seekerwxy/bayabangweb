@@ -60,14 +60,15 @@ server-dir: bayabang.top/htdocs/
 - `js/*.js` 与 `js/pages/*.js`：页面交互（以前内联在 PHP 里，现在可被浏览器缓存）。
 - 根目录 `.htaccess`：强制 HTTPS + 安全响应头 + 屏蔽不该被访问的文件（`_*.php`、`config*.php`、`inc/`、部署状态文件）+ 自定义错误页（见下一节）。
 
-## 自定义错误页（errors/）
+## 自定义错误页（error-pages/）
 
-- 位置：**`errors/` 目录**，站点根目录不放错误页。目前有 `400.html`、`403.html`、`404.html`、`500.html`、`503.html`，都是黑底「流血数字」页。
-- 共享两个文件：`errors/error.css`（版式）与 `errors/error.js`（血滴动画）。5 个页面只写各自的 SVG 数字与 `data-drips`（血从哪几个点滴下来），动画逻辑只有一份 —— 改动画只改 `error.js`，五个页面一起变。
+- 位置：**`error-pages/` 目录**，站点根目录不放错误页。目前有 `400.html`、`403.html`、`404.html`、`500.html`、`503.html`，都是黑底「流血数字」页。
+- **目录名不能叫 `errors/`**：InfinityFree 的站点根目录里本来就有一个主机自带的 `errors/`（里面是它自己的 `403.html`），FTP 用户写不进去，上传会被静默跳过。结果就是 `ErrorDocument` 指向不存在的文件，访客只会看到一句 `Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument…`。踩过一次，所以改成了 `error-pages/`。
+- 共享两个文件：`error-pages/error.css`（版式）与 `error-pages/error.js`（血滴动画）。5 个页面只写各自的 SVG 数字与 `data-drips`（血从哪几个点滴下来），动画逻辑只有一份 —— 改动画只改 `error.js`，五个页面一起变。
 - 依赖很轻：页面只引同目录的 `error.css` / `error.js`，不依赖站点主样式表、字体或数据库，所以站点本身出问题时它们照样显示（500 尤其需要这点）。即使这两个文件取不到，页面仍会显示静态的红色数字，只是没有动画。
-- 接线在 `.htaccess` 最后一段：`ErrorDocument 状态码 /errors/状态码.html`，由 Apache 直接处理，不经过 PHP。
-- **想加新的状态码**：把 `errors/` 里任意一页复制一份、改数字与 `data-drips`，再在 `.htaccess` 里加一行（例如 `ErrorDocument 410 /errors/410.html`）即可。
-- 部署后自查：打开不存在的地址（如 `https://bayabang.top/no-such-page`）应看到 404 页；打开 `/inc/bootstrap.php`（被 `.htaccess` 拒绝）应看到 403 页。两者都要用开发者工具确认**状态码没变成 200**，否则搜索引擎会把错误页收录进去。
+- 接线在 `.htaccess` 最后一段：`ErrorDocument 状态码 /error-pages/状态码.html`，由 Apache 直接处理，不经过 PHP。
+- **想加新的状态码**：把 `error-pages/` 里任意一页复制一份、改数字与 `data-drips`，再在 `.htaccess` 里加一行（例如 `ErrorDocument 410 /error-pages/410.html`）即可。
+- 部署后自查：workflow 里最后一步 `Verify deployed files` 会自动 curl 这几个文件，任何一个不是 200 就把这次部署判为失败（FTP 报成功但文件没落盘的情况就是这么抓到的）。手工复查也可以打开不存在的地址（如 `https://bayabang.top/no-such-page`）看 404 页、打开 `/inc/bootstrap.php`（被 `.htaccess` 拒绝）看 403 页，并用开发者工具确认**状态码没变成 200**。
 - 想临时恢复服务器默认错误页：把 `.htaccess` 里对应的 `ErrorDocument` 行注释掉再部署。
 - 注意：`ErrorDocument 500` 只覆盖「服务器级」的 500；PHP 自己跑出来的致命错误（`display_errors` 已关）一般不触发它，这是 PHP + Apache 的既有行为，排查还是要看日志。
 
